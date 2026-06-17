@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        .aura-gradient-text {
+            background: linear-gradient(135deg, #a43c12 0%, #821dda 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .aura-gradient-bg {
+            background: linear-gradient(135deg, #a43c12 0%, #821dda 100%);
+        }
+        .natural-bloom {
+            box-shadow: 0px 10px 30px rgba(138, 43, 226, 0.08);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fcf9f8;
+            overflow-x: hidden;
+        }
+        .glossy-avatar {
+            position: relative;
+            overflow: hidden;
+        }
+        .glossy-avatar::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
+            transform: rotate(30deg);
+            pointer-events: none;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#9c42f4",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#dec0b6",
+                        "on-surface": "#1c1b1b",
+                        "primary-container": "#ff7f50",
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#fcf9f8",
+                        "surface-dim": "#dcd9d9",
+                        "on-error-container": "#93000a",
+                        "on-background": "#1c1b1b",
+                        "tertiary-fixed-dim": "#e7bbc6",
+                        "on-tertiary-container": "#50313a",
+                        "tertiary-container": "#c399a3",
+                        "surface-container-lowest": "#ffffff",
+                        "primary": "#a43c12",
+                        "primary-fixed": "#ffdbcf",
+                        "surface-tint": "#a43c12",
+                        "secondary": "#821dda",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed": "#ffd9e2",
+                        "secondary-fixed-dim": "#dcb8ff",
+                        "surface-container-high": "#eae7e7",
+                        "inverse-on-surface": "#f3f0ef",
+                        "tertiary": "#78555e",
+                        "on-primary-fixed": "#380c00",
+                        "on-error": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#f0eded",
+                        "surface": "#fcf9f8",
+                        "on-surface-variant": "#57423b",
+                        "inverse-surface": "#313030",
+                        "on-secondary-fixed": "#2c0051",
+                        "on-secondary-container": "#fffbff",
+                        "background": "#fcf9f8",
+                        "on-primary-fixed-variant": "#822800",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#6700b5",
+                        "surface-variant": "#e5e2e1",
+                        "outline": "#8b7169",
+                        "surface-container-highest": "#e5e2e1",
+                        "secondary-fixed": "#efdbff",
+                        "inverse-primary": "#ffb59c",
+                        "surface-container-low": "#f6f3f2",
+                        "on-tertiary-fixed": "#2d141c",
+                        "on-tertiary-fixed-variant": "#5e3e47",
+                        "primary-fixed-dim": "#ffb59c",
+                        "on-primary-container": "#6c2000"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "16px",
+                        "stack-sm": "8px",
+                        "stack-lg": "32px",
+                        "container-padding": "24px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "30px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen pb-32">
+<!-- Top App Bar -->
+<header class="flex justify-between items-center w-full px-container-padding py-stack-md bg-transparent sticky top-0 z-40 backdrop-blur-md">
+<div class="flex items-center gap-4">
+<button class="hover:bg-surface-variant/30 rounded-full p-2 transition-colors active:opacity-70">
+<span class="material-symbols-outlined text-on-surface" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-display-lg text-headline-lg-mobile font-black bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">ClearMaxx</h1>
+</div>
+<button class="hover:bg-surface-variant/30 rounded-full p-2 transition-colors active:opacity-70">
+<span class="material-symbols-outlined text-on-surface" data-icon="more_vert">more_vert</span>
+</button>
+</header>
+<main class="px-container-padding pt-stack-lg">
+<!-- Hero Profile Section -->
+<section class="flex flex-col items-center mb-10 text-center">
+<div class="relative mb-6">
+<!-- Glossy Avatar Container -->
+<div class="w-32 h-32 rounded-full p-1 aura-gradient-bg natural-bloom">
+<div class="w-full h-full rounded-full border-4 border-white overflow-hidden glossy-avatar">
+<img class="w-full h-full object-cover" data-alt="A high-end, professional portrait of a stylish young woman with flawless glowing skin, captured in a bright airy studio with soft dewy lighting. The aesthetic is clean and premium, consistent with a luxury skincare brand's editorial photography, featuring soft secondary violet and warm orange ambient reflections." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlIdETv7di7AR9ZJruSWLW3-2o8OS-x8OZfsPl9oeN9ueuWsd-G1chhEuk2dj0p527bU36ZMO-8yYKfKziyEgCHri_tkhL6Rad9se5PW0yyeofZq9PUxUn12zl5vSrfO2nysz2UFhxbkwzS9BBh4VGRUeXRkfH5bKZj_5oCyC-pBi-sy8LcAShRzzFas49zoXNg-sgkCc-7rPJv8Ms8tH7pVvaZojIpwgBZGHs0DLBzohZu7n15VbQY-Hm9peOFUsa4i3sfpJowHpp"/>
+</div>
+</div>
+<!-- Premium Badge -->
+<div class="absolute -bottom-2 left-1/2 -translate-x-1/2 aura-gradient-bg text-white px-4 py-1 rounded-full border-2 border-white shadow-lg">
+<span class="font-label-sm text-label-sm uppercase tracking-wider">Premium</span>
+</div>
+</div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface mb-1">Elena Vance</h2>
+<p class="font-body-md text-on-surface-variant opacity-70 mb-4">elena.v@example.com</p>
+<!-- Quick Stats Bento Grid Style -->
+<div class="grid grid-cols-2 gap-gutter w-full mb-8">
+<div class="glass-card p-stack-md rounded-3xl text-left natural-bloom">
+<span class="font-label-sm text-label-sm text-secondary block mb-1">Skin Score</span>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-md text-headline-md font-bold">84</span>
+<span class="text-xs text-on-surface-variant">/100</span>
+</div>
+</div>
+<div class="glass-card p-stack-md rounded-3xl text-left natural-bloom">
+<span class="font-label-sm text-label-sm text-primary block mb-1">Scan Streak</span>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-md text-headline-md font-bold">12</span>
+<span class="text-xs text-on-surface-variant">days</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Settings List -->
+<section class="space-y-stack-sm">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest px-2 mb-4">Settings</h3>
+<div class="glass-card rounded-[2rem] overflow-hidden natural-bloom">
+<!-- Reminders -->
+<button class="w-full flex items-center justify-between px-6 py-5 hover:bg-surface-variant/20 transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-2xl bg-primary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="notifications_active">notifications_active</span>
+</div>
+<span class="font-body-lg text-body-lg font-medium text-on-surface">Reminders</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/40 group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</button>
+<!-- Skin Profile -->
+<button class="w-full flex items-center justify-between px-6 py-5 hover:bg-surface-variant/20 transition-colors border-t border-white/40 group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-2xl bg-secondary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" data-icon="face">face</span>
+</div>
+<span class="font-body-lg text-body-lg font-medium text-on-surface">Skin Profile</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/40 group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</button>
+<!-- Account -->
+<button class="w-full flex items-center justify-between px-6 py-5 hover:bg-surface-variant/20 transition-colors border-t border-white/40 group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-2xl bg-surface-variant/50 flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="manage_accounts">manage_accounts</span>
+</div>
+<span class="font-body-lg text-body-lg font-medium text-on-surface">Account</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/40 group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</button>
+<!-- Notifications -->
+<button class="w-full flex items-center justify-between px-6 py-5 hover:bg-surface-variant/20 transition-colors border-t border-white/40 group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-2xl bg-tertiary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary" data-icon="tune">tune</span>
+</div>
+<span class="font-body-lg text-body-lg font-medium text-on-surface">Notifications</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/40 group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</button>
+<!-- Support -->
+<button class="w-full flex items-center justify-between px-6 py-5 hover:bg-surface-variant/20 transition-colors border-t border-white/40 group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-2xl bg-surface-variant/50 flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="contact_support">contact_support</span>
+</div>
+<span class="font-body-lg text-body-lg font-medium text-on-surface">Support</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/40 group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</section>
+<!-- Log Out Button -->
+<button class="w-full mt-10 py-5 rounded-[2rem] font-headline-md text-headline-md font-bold text-error bg-error-container/20 hover:bg-error-container/40 transition-colors">
+            Log Out
+        </button>
+<!-- Version Info -->
+<div class="mt-8 text-center opacity-30">
+<p class="font-label-sm text-label-sm">ClearMaxx v2.4.0 (Gold)</p>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-6 pb-8 pt-4 bg-surface/70 dark:bg-surface-container-highest/70 backdrop-blur-xl border-t border-white/20 shadow-[0px_-10px_30px_rgba(138,43,226,0.08)] rounded-t-3xl">
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="camera_enhance">camera_enhance</span>
+<span class="font-label-sm text-label-sm">Scan</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span class="font-label-sm text-label-sm">Progress</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="spa">spa</span>
+<span class="font-label-sm text-label-sm">Routine</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="event_note">event_note</span>
+<span class="font-label-sm text-label-sm">Diary</span>
+</button>
+<!-- Active Tab: Profile -->
+<button class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim bg-secondary-container/20 rounded-xl px-3 py-1 active:scale-95 transition-all duration-200">
+<span class="material-symbols-outlined" data-icon="account_circle" style="font-variation-settings: 'FILL' 1;">account_circle</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</button>
+</nav>
+<!-- Interactive Layer for Hover Effects -->
+<script>
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('touchstart', function() {
+                this.classList.add('scale-95');
+            });
+            button.addEventListener('touchend', function() {
+                this.classList.remove('scale-95');
+            });
+        });
+
+        // Simple parallax effect for glass cards
+        window.addEventListener('mousemove', (e) => {
+            const amount = 5;
+            const x = (e.clientX / window.innerWidth - 0.5) * amount;
+            const y = (e.clientY / window.innerHeight - 0.5) * amount;
+            
+            document.querySelectorAll('.glass-card').forEach(card => {
+                card.style.transform = `perspective(1000px) rotateX(${-y}deg) rotateY(${x}deg)`;
+            });
+        });
+    </script>
+</body></html>

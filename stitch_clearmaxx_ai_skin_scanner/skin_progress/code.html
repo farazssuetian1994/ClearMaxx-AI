@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ClearMaxx | Progress</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-container": "#9c42f4",
+                    "on-secondary": "#ffffff",
+                    "outline-variant": "#dec0b6",
+                    "on-surface": "#1c1b1b",
+                    "primary-container": "#ff7f50",
+                    "error-container": "#ffdad6",
+                    "surface-bright": "#fcf9f8",
+                    "surface-dim": "#dcd9d9",
+                    "on-error-container": "#93000a",
+                    "on-background": "#1c1b1b",
+                    "tertiary-fixed-dim": "#e7bbc6",
+                    "on-tertiary-container": "#50313a",
+                    "tertiary-container": "#c399a3",
+                    "surface-container-lowest": "#ffffff",
+                    "primary": "#a43c12",
+                    "primary-fixed": "#ffdbcf",
+                    "surface-tint": "#a43c12",
+                    "secondary": "#821dda",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-fixed": "#ffd9e2",
+                    "secondary-fixed-dim": "#dcb8ff",
+                    "surface-container-high": "#eae7e7",
+                    "inverse-on-surface": "#f3f0ef",
+                    "tertiary": "#78555e",
+                    "on-primary-fixed": "#380c00",
+                    "on-error": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "surface-container": "#f0eded",
+                    "surface": "#fcf9f8",
+                    "on-surface-variant": "#57423b",
+                    "inverse-surface": "#313030",
+                    "on-secondary-fixed": "#2c0051",
+                    "on-secondary-container": "#fffbff",
+                    "background": "#fcf9f8",
+                    "on-primary-fixed-variant": "#822800",
+                    "error": "#ba1a1a",
+                    "on-secondary-fixed-variant": "#6700b5",
+                    "surface-variant": "#e5e2e1",
+                    "outline": "#8b7169",
+                    "surface-container-highest": "#e5e2e1",
+                    "secondary-fixed": "#efdbff",
+                    "inverse-primary": "#ffb59c",
+                    "surface-container-low": "#f6f3f2",
+                    "on-tertiary-fixed": "#2d141c",
+                    "on-tertiary-fixed-variant": "#5e3e47",
+                    "primary-fixed-dim": "#ffb59c",
+                    "on-primary-container": "#6c2000"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-md": "16px",
+                    "stack-sm": "8px",
+                    "stack-lg": "32px",
+                    "container-padding": "24px",
+                    "gutter": "16px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "30px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0px 10px 30px rgba(138, 43, 226, 0.08);
+        }
+        .aura-gradient-text {
+            background: linear-gradient(to right, #a43c12, #821dda);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .aura-gradient-bg {
+            background: linear-gradient(135deg, #a43c12 0%, #821dda 100%);
+        }
+        .slider-handle {
+            width: 4px;
+            height: 100%;
+            background: white;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
+        .slider-button {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 21;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md min-h-screen pb-32 overflow-x-hidden">
+<!-- Top Navigation -->
+<header class="flex justify-between items-center w-full px-container-padding py-stack-md sticky top-0 z-50 bg-surface/50 backdrop-blur-md">
+<h1 class="font-display-lg text-display-lg font-black bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">ClearMaxx</h1>
+<div class="flex gap-4">
+<button class="hover:bg-surface-variant/30 rounded-full p-2 transition-colors">
+<span class="material-symbols-outlined text-on-surface">notifications</span>
+</button>
+<button class="hover:bg-surface-variant/30 rounded-full p-2 transition-colors">
+<span class="material-symbols-outlined text-on-surface">more_vert</span>
+</button>
+</div>
+</header>
+<main class="px-container-padding space-y-gutter">
+<!-- Welcome & Streak -->
+<section class="flex justify-between items-end py-4">
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant mb-1">Your Journey</p>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile font-bold">Skin Evolution</h2>
+</div>
+<div class="aura-gradient-bg rounded-2xl px-4 py-2 text-white flex items-center gap-2 shadow-lg animate-pulse">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<span class="font-label-md text-label-md font-bold">7 Day Streak!</span>
+</div>
+</section>
+<!-- Before/After Slider Component -->
+<section class="relative h-[450px] rounded-[32px] overflow-hidden glass-card group">
+<!-- Background Image (After) -->
+<div class="absolute inset-0 w-full h-full bg-cover bg-center" data-alt="A cinematic, high-detail macro close-up of smooth, radiant human skin with a natural dewy glow. The lighting is soft and flattering, emphasizing a healthy skin barrier and refined texture. The aesthetic is clean, modern, and aspirational, reflecting professional skincare results in a bright light-mode environment. Subtle violet and orange ambient lighting highlights the contours of the face." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDpMK2sDOlBxhVSSLtjIbg7V9SuRINd-nS49ErGn07j3phuN94XZ6ZDhoHKSPY_INChDqQWQM9Dc8MkyudBEpy6PLoM-OlxKPtRaApCSwAKDRi2MGy4v3uLO9JtorwOMigDqDxjSCXipeIpc5raax0_wcVnzUu4s-zibg8_lsj7XgHhyjr65OwcWb-VqEm0jFO8w99Z2UToc9lQcBVh0BaVMzhMRzykxiLeHrkKXY3IjbGLbNNUu1QTVhmvDB285L2od19JC3BJVGl2')"></div>
+<!-- Before Image (Clipped) -->
+<div class="absolute inset-0 w-1/2 h-full bg-cover bg-center overflow-hidden border-r border-white/50" data-alt="A professional close-up photograph of human skin showing minor imperfections, redness, and uneven texture under clinical, honest lighting. The setting is bright and clean, maintaining a high-end skincare laboratory feel. The image represents the starting point of a skincare journey, focusing on realism while adhering to the premium and airy aesthetic of the overall brand." id="before-image" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCCQsUSGTzEsr4utKIRBeCoRUhdRnhIcI5zenqoo90dPwBiMy-t_v-iOU_2PjsHkYdttQs7r3L3CssOk8MJsEXkdsBkD0VLDqATRLFQwxHu2Gd9fU1OQBUvhj2pEhfA59JC8akmKDS-p_y3CwOpXxUoP58mqq5LlpnNXZcEikl1bR8sy43ObiEzpb4aLrz1g2wmI4djf_StnQNIixLBc112chRdZVkYDmwVLIOS0yiq7z7osqVqjxzHiF8REZMzNLXXuIso_kb09fhI')"></div>
+<!-- Comparison Handle -->
+<div class="slider-handle" id="slider-handle" style="left: 50%;">
+<div class="slider-button">
+<span class="material-symbols-outlined text-secondary text-sm">unfold_more</span>
+</div>
+</div>
+<!-- Labels -->
+<div class="absolute top-6 left-6 z-30 bg-black/20 backdrop-blur-md px-3 py-1 rounded-full text-white font-label-sm text-label-sm uppercase tracking-wider">Before</div>
+<div class="absolute top-6 right-6 z-30 bg-black/20 backdrop-blur-md px-3 py-1 rounded-full text-white font-label-sm text-label-sm uppercase tracking-wider">After</div>
+<!-- Draggable Interaction Layer -->
+<input class="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-40" id="slider-input" max="100" min="0" type="range" value="50"/>
+</section>
+<!-- Stats Grid (Bento Style) -->
+<section class="grid grid-cols-2 gap-4">
+<!-- ClearScore Trend -->
+<div class="col-span-2 glass-card p-6 rounded-[32px] space-y-4">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-md text-headline-md">ClearScore</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">+12% from last month</p>
+</div>
+<div class="text-right">
+<span class="font-display-lg text-display-lg aura-gradient-text">84</span>
+</div>
+</div>
+<!-- Mini Line Graph Placeholder -->
+<div class="h-24 w-full flex items-end justify-between gap-1 mt-4">
+<div class="w-full h-[40%] bg-primary/20 rounded-full"></div>
+<div class="w-full h-[50%] bg-primary/30 rounded-full"></div>
+<div class="w-full h-[45%] bg-primary/20 rounded-full"></div>
+<div class="w-full h-[65%] bg-primary/40 rounded-full"></div>
+<div class="w-full h-[60%] bg-primary/30 rounded-full"></div>
+<div class="w-full h-[80%] bg-primary/50 rounded-full"></div>
+<div class="w-full h-[75%] bg-secondary/60 rounded-full"></div>
+<div class="w-full h-[90%] aura-gradient-bg rounded-full"></div>
+</div>
+<div class="flex justify-between text-[10px] font-label-sm text-on-surface-variant pt-2">
+<span>30 DAYS AGO</span>
+<span>TODAY</span>
+</div>
+</div>
+<!-- Hydration Card -->
+<div class="glass-card p-6 rounded-[32px] flex flex-col justify-between aspect-square">
+<span class="material-symbols-outlined text-secondary-container text-3xl">water_drop</span>
+<div>
+<h4 class="font-label-md text-label-md font-bold">Hydration</h4>
+<p class="font-display-lg text-display-lg">92%</p>
+<div class="w-full bg-surface-variant rounded-full h-1 mt-2">
+<div class="bg-secondary-container h-1 rounded-full w-[92%]"></div>
+</div>
+</div>
+</div>
+<!-- Smoothness Card -->
+<div class="glass-card p-6 rounded-[32px] flex flex-col justify-between aspect-square">
+<span class="material-symbols-outlined text-primary-container text-3xl">auto_fix_high</span>
+<div>
+<h4 class="font-label-md text-label-md font-bold">Texture</h4>
+<p class="font-display-lg text-display-lg">Smooth</p>
+<span class="font-label-sm text-label-sm text-primary-container flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">trending_up</span> Improved
+                    </span>
+</div>
+</div>
+</section>
+<!-- Analysis Insights -->
+<section class="glass-card p-6 rounded-[32px] mb-8">
+<h3 class="font-headline-md text-headline-md mb-4">AI Analysis</h3>
+<div class="space-y-4">
+<div class="flex items-start gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary">verified</span>
+</div>
+<div>
+<p class="font-body-md text-body-md font-bold">Redness Reduced</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Your skin barrier is healing effectively. Continue using the Vitamin C serum daily.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary">tips_and_updates</span>
+</div>
+<div>
+<p class="font-body-md text-body-md font-bold">Night Routine Hack</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Try applying moisturizer on slightly damp skin to boost your hydration score to 95%+.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-6 pb-8 pt-4 bg-surface/70 dark:bg-surface-container-highest/70 backdrop-blur-xl border-t border-white/20 shadow-[0px_-10px_30px_rgba(138,43,226,0.08)] rounded-t-3xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined">camera_enhance</span>
+<span class="font-label-sm text-label-sm">Scan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim bg-secondary-container/20 rounded-xl px-3 py-1 scale-95 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">insights</span>
+<span class="font-label-sm text-label-sm">Progress</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined">spa</span>
+<span class="font-label-sm text-label-sm">Routine</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined">event_note</span>
+<span class="font-label-sm text-label-sm">Diary</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</nav>
+<script>
+        const sliderInput = document.getElementById('slider-input');
+        const beforeImage = document.getElementById('before-image');
+        const sliderHandle = document.getElementById('slider-handle');
+
+        sliderInput.addEventListener('input', (e) => {
+            const value = e.target.value;
+            beforeImage.style.width = `${value}%`;
+            sliderHandle.style.left = `${value}%`;
+        });
+
+        // Add some micro-interaction to the handle
+        sliderInput.addEventListener('mousedown', () => {
+            sliderHandle.style.transform = 'translateX(-50%) scale(1.1)';
+        });
+        sliderInput.addEventListener('mouseup', () => {
+            sliderHandle.style.transform = 'translateX(-50%) scale(1)';
+        });
+    </script>
+</body></html>

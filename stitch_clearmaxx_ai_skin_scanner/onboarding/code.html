@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>ClearMaxx Onboarding</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-container": "#9c42f4",
+                    "on-secondary": "#ffffff",
+                    "outline-variant": "#dec0b6",
+                    "on-surface": "#1c1b1b",
+                    "primary-container": "#ff7f50",
+                    "error-container": "#ffdad6",
+                    "surface-bright": "#fcf9f8",
+                    "surface-dim": "#dcd9d9",
+                    "on-error-container": "#93000a",
+                    "on-background": "#1c1b1b",
+                    "tertiary-fixed-dim": "#e7bbc6",
+                    "on-tertiary-container": "#50313a",
+                    "tertiary-container": "#c399a3",
+                    "surface-container-lowest": "#ffffff",
+                    "primary": "#a43c12",
+                    "primary-fixed": "#ffdbcf",
+                    "surface-tint": "#a43c12",
+                    "secondary": "#821dda",
+                    "on-tertiary": "#ffffff",
+                    "tertiary": "#78555e",
+                    "on-primary-fixed": "#380c00",
+                    "on-error": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "surface-container": "#f0eded",
+                    "surface": "#fcf9f8",
+                    "on-surface-variant": "#57423b",
+                    "inverse-surface": "#313030",
+                    "on-secondary-fixed": "#2c0051",
+                    "on-secondary-container": "#fffbff",
+                    "background": "#fcf9f8",
+                    "on-primary-fixed-variant": "#822800",
+                    "error": "#ba1a1a",
+                    "on-secondary-fixed-variant": "#6700b5",
+                    "surface-variant": "#e5e2e1",
+                    "outline": "#8b7169",
+                    "surface-container-highest": "#e5e2e1",
+                    "secondary-fixed": "#efdbff",
+                    "inverse-primary": "#ffb59c",
+                    "surface-container-low": "#f6f3f2",
+                    "on-tertiary-fixed": "#2d141c",
+                    "on-tertiary-fixed-variant": "#5e3e47",
+                    "primary-fixed-dim": "#ffb59c",
+                    "on-primary-container": "#6c2000"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-md": "16px",
+                    "stack-sm": "8px",
+                    "stack-lg": "32px",
+                    "container-padding": "24px",
+                    "gutter": "16px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "30px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .aura-gradient-bg {
+            background: linear-gradient(135deg, #a43c12 0%, #821dda 100%);
+        }
+        .aura-glow {
+            box-shadow: 0px 10px 30px rgba(138, 43, 226, 0.2);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .pagination-dot {
+            transition: all 0.3s ease;
+        }
+        .pagination-dot.active {
+            width: 24px;
+            background-color: #a43c12;
+        }
+        body {
+            background-color: #fcf9f8;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="flex flex-col h-screen">
+<!-- Top AppBar (Identity Only for Onboarding) -->
+<header class="flex justify-between items-center w-full px-container-padding py-stack-md z-50">
+<h1 class="font-display-lg text-headline-lg-mobile font-black bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
+            ClearMaxx
+        </h1>
+<button class="font-label-md text-label-md text-on-surface-variant hover:bg-surface-variant/30 rounded-full px-4 py-2 transition-colors">
+            Skip
+        </button>
+</header>
+<!-- Main Carousel Canvas -->
+<main class="relative flex-1 flex flex-col overflow-hidden">
+<div class="carousel-track h-full" id="carouselTrack">
+<!-- Slide 1: Illustrate Scan -->
+<section class="min-w-full h-full flex flex-col items-center justify-center px-container-padding text-center">
+<div class="relative w-full aspect-square max-w-sm mb-stack-lg flex items-center justify-center">
+<!-- Glassmorphic Illustration Placeholder -->
+<div class="absolute inset-0 bg-secondary/5 rounded-full blur-3xl opacity-30"></div>
+<div class="relative w-64 h-64 rounded-3xl overflow-hidden glass-card aura-glow flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="A high-end glassmorphic 3D digital illustration of a smartphone scanning a beautiful woman's face. The lighting is soft and dewy, with vibrant violet and orange light leaks. Subtle technical UI overlays like mesh grids and data points float around the face in a bright, modern minimalist environment. The aesthetic is premium skincare magazine style with high-key lighting and a sense of advanced AI technology." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvHX84YezPM1OSQhL9tLeNoz_bWzpBqG9OIuwiu-M6gZfAN0peeDfZJdF7XAuNXHmeWobEvAbt3nbiEe2x05N__S3O_RZjX0jLV7kCxNlhpkjTL-Rc4TN1ennZDUbM-MzkTomgy5mV7CSw26Z4tOiaZeXUbUZ4M9R9LrD9RCWeJ5jSbZZ4og802RR14zssXR2FPZQn907AYr2ACTY13aeAi08OJFhRtZC0nc_3QbpOkfEWshjUjQaWzreWZrRtcjITAv3XvPnH_Ky0"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+<span class="material-symbols-outlined absolute text-on-secondary text-5xl" style="font-variation-settings: 'FILL' 1;">camera_enhance</span>
+</div>
+</div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-stack-sm">Illustrate Scan</h2>
+<p class="font-body-md text-body-md text-on-surface-variant px-4">
+                    Our AI-powered lens analyzes over 100 skin biomarkers to understand your unique glow.
+                </p>
+</section>
+<!-- Slide 2: Get Routine -->
+<section class="min-w-full h-full flex flex-col items-center justify-center px-container-padding text-center">
+<div class="relative w-full aspect-square max-w-sm mb-stack-lg flex items-center justify-center">
+<div class="absolute inset-0 bg-primary/5 rounded-full blur-3xl opacity-30"></div>
+<div class="relative w-64 h-64 rounded-3xl overflow-hidden glass-card aura-glow flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="A minimalist and premium lifestyle photograph of sleek, frosted glass skincare bottles arranged artfully on a clean surface. The lighting is bright and dewy, with soft violet shadows and warm orange highlights reflecting the brand's aura gradient. The composition uses generous negative space and a contemporary editorial feel, suggesting a personalized and expert beauty ritual." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZe_gN5TnxFvk40x-TlVKLBtVle1oKmMDPD1klFRCLFKPTJJIg5fpezxLmB20J7yz23uRXkw_cyqD_x7VZH-Lf_OpdJBz78nNbUX-9SmH_Jufl3cqrEqhbOzaowZbGnVJSN-EJJat7P4SGKyrOfk8muve9Up8p6-3xqDJh17RZf5_8mGwzUT-PFjRUGlUrwBFyXxvPv_9dFswAcZ2SVe3zundJzLMplUx-wtpx0b1rorDSaKm2IZFA8AvXIm1Tnx79uST8m3KLQXRK"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+<span class="material-symbols-outlined absolute text-on-secondary text-5xl" style="font-variation-settings: 'FILL' 1;">spa</span>
+</div>
+</div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-stack-sm">Get Routine</h2>
+<p class="font-body-md text-body-md text-on-surface-variant px-4">
+                    Receive a dermatologist-grade regimen curated specifically for your skin's daily needs.
+                </p>
+</section>
+<!-- Slide 3: Track Progress -->
+<section class="min-w-full h-full flex flex-col items-center justify-center px-container-padding text-center">
+<div class="relative w-full aspect-square max-w-sm mb-stack-lg flex items-center justify-center">
+<div class="absolute inset-0 bg-secondary/5 rounded-full blur-3xl opacity-30"></div>
+<div class="relative w-64 h-64 rounded-3xl overflow-hidden glass-card aura-glow flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="A high-fidelity digital dashboard showing a glowing, fluid progress ring using an orange and violet gradient. Transparent glass cards with health statistics and skin score improvements float in a 3D space with a soft backdrop blur. The lighting is optimistic and high-key, creating a high-energy 'glow-up' aesthetic that feels rewarding and scientifically backed." src="https://lh3.googleusercontent.com/aida-public/AB6AXuACU2oIfquQ4gp_Gy8007c3hZT_frvrmygl4js2nBaoM7TBcHmKaYFI_c72Qq56PKe4rw2v4Tv8uAbWUO8fYzoGNSkvuMemNOBkZyO0E8ZsYFG3JTKMM1O7nZ5jgq3Kr0z5lB_KXHxyXcKeScJ3HngdjDcakmmmWXRpXp4rLbb9PARbATPTGe6q9JPSo2BpbUZ6ateelVDTDReqgUVno1ha-hzb3UMrKLldGnc7liQBF5WeyQy3YyfOxQwJ2s1uu_9qRHAjwrCzvk6a"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+<span class="material-symbols-outlined absolute text-on-secondary text-5xl" style="font-variation-settings: 'FILL' 1;">insights</span>
+</div>
+</div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-stack-sm">Track Progress</h2>
+<p class="font-body-md text-body-md text-on-surface-variant px-4">
+                    Watch your transformation with visual history and AI-driven health scoring.
+                </p>
+</section>
+</div>
+</main>
+<!-- Footer: Pagination & Actions -->
+<footer class="px-container-padding pb-12 pt-4 flex flex-col items-center">
+<!-- Pagination Dots -->
+<div class="flex gap-2 mb-stack-lg">
+<div class="pagination-dot active h-2 w-2 rounded-full bg-outline-variant" id="dot0"></div>
+<div class="pagination-dot h-2 w-2 rounded-full bg-outline-variant" id="dot1"></div>
+<div class="pagination-dot h-2 w-2 rounded-full bg-outline-variant" id="dot2"></div>
+</div>
+<!-- Primary Action -->
+<button class="aura-gradient-bg aura-glow w-full h-14 rounded-full flex items-center justify-center text-on-secondary font-headline-md text-headline-md font-bold active:scale-95 transition-transform" id="nextBtn">
+            Get Started
+        </button>
+</footer>
+<script>
+        const track = document.getElementById('carouselTrack');
+        const dots = [document.getElementById('dot0'), document.getElementById('dot1'), document.getElementById('dot2')];
+        const nextBtn = document.getElementById('nextBtn');
+        let currentSlide = 0;
+        const totalSlides = 3;
+
+        function updateCarousel() {
+            track.style.transform = `translateX(-${currentSlide * 100}%)`;
+            
+            // Update Dots
+            dots.forEach((dot, index) => {
+                if (index === currentSlide) {
+                    dot.classList.add('active', 'bg-primary');
+                    dot.classList.remove('bg-outline-variant');
+                } else {
+                    dot.classList.remove('active', 'bg-primary');
+                    dot.classList.add('bg-outline-variant');
+                }
+            });
+
+            // Update Button Text
+            if (currentSlide === totalSlides - 1) {
+                nextBtn.textContent = "Get Started";
+            } else {
+                nextBtn.textContent = "Next";
+            }
+        }
+
+        nextBtn.addEventListener('click', () => {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateCarousel();
+            } else {
+                // Final Action Logic (e.g., Navigate to Home)
+                alert("Welcome to the glow-up journey!");
+            }
+        });
+
+        // Optional: Swipe support (simplified)
+        let touchStartX = 0;
+        track.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
+        track.addEventListener('touchend', e => {
+            const touchEndX = e.changedTouches[0].screenX;
+            if (touchStartX - touchEndX > 50) {
+                if (currentSlide < totalSlides - 1) {
+                    currentSlide++;
+                    updateCarousel();
+                }
+            } else if (touchEndX - touchStartX > 50) {
+                if (currentSlide > 0) {
+                    currentSlide--;
+                    updateCarousel();
+                }
+            }
+        });
+
+        // Initialize
+        updateCarousel();
+    </script>
+</body></html>

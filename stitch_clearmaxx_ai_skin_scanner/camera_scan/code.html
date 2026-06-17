@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>ClearMaxx - Skin Scan</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-container": "#9c42f4",
+                    "on-secondary": "#ffffff",
+                    "outline-variant": "#dec0b6",
+                    "on-surface": "#1c1b1b",
+                    "primary-container": "#ff7f50",
+                    "error-container": "#ffdad6",
+                    "surface-bright": "#fcf9f8",
+                    "surface-dim": "#dcd9d9",
+                    "on-error-container": "#93000a",
+                    "on-background": "#1c1b1b",
+                    "tertiary-fixed-dim": "#e7bbc6",
+                    "on-tertiary-container": "#50313a",
+                    "tertiary-container": "#c399a3",
+                    "surface-container-lowest": "#ffffff",
+                    "primary": "#a43c12",
+                    "primary-fixed": "#ffdbcf",
+                    "surface-tint": "#a43c12",
+                    "secondary": "#821dda",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-fixed": "#ffd9e2",
+                    "secondary-fixed-dim": "#dcb8ff",
+                    "surface-container-high": "#eae7e7",
+                    "inverse-on-surface": "#f3f0ef",
+                    "tertiary": "#78555e",
+                    "on-primary-fixed": "#380c00",
+                    "on-error": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "surface-container": "#f0eded",
+                    "surface": "#fcf9f8",
+                    "on-surface-variant": "#57423b",
+                    "inverse-surface": "#313030",
+                    "on-secondary-fixed": "#2c0051",
+                    "on-secondary-container": "#fffbff",
+                    "background": "#fcf9f8",
+                    "on-primary-fixed-variant": "#822800",
+                    "error": "#ba1a1a",
+                    "on-secondary-fixed-variant": "#6700b5",
+                    "surface-variant": "#e5e2e1",
+                    "outline": "#8b7169",
+                    "surface-container-highest": "#e5e2e1",
+                    "secondary-fixed": "#efdbff",
+                    "inverse-primary": "#ffb59c",
+                    "surface-container-low": "#f6f3f2",
+                    "on-tertiary-fixed": "#2d141c",
+                    "on-tertiary-fixed-variant": "#5e3e47",
+                    "primary-fixed-dim": "#ffb59c",
+                    "on-primary-container": "#6c2000"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-md": "16px",
+                    "stack-sm": "8px",
+                    "stack-lg": "32px",
+                    "container-padding": "24px",
+                    "gutter": "16px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "30px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 0.4; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+        .aura-ring {
+            animation: pulse-ring 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .scan-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #821dda, transparent);
+            animation: scan-move 4s ease-in-out infinite;
+            position: absolute;
+            width: 100%;
+            z-index: 10;
+        }
+        @keyframes scan-move {
+            0% { top: 20%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 80%; opacity: 0; }
+        }
+        .shimmer-text {
+            background: linear-gradient(90deg, #1c1b1b 0%, #a43c12 50%, #1c1b1b 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 3s linear infinite;
+        }
+        @keyframes shimmer {
+            to { background-position: 200% center; }
+        }
+        .radial-guide {
+            mask-image: radial-gradient(circle at 50% 45%, transparent 160px, black 161px);
+            -webkit-mask-image: radial-gradient(circle at 50% 45%, transparent 160px, black 161px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md overflow-hidden h-screen w-screen flex flex-col">
+<!-- Top App Bar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 py-4">
+<button class="hover:bg-surface-variant/30 rounded-full p-2 transition-colors text-on-surface">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-display-lg text-display-lg font-black bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary leading-none">
+            ClearMaxx
+        </h1>
+<button class="hover:bg-surface-variant/30 rounded-full p-2 transition-colors text-on-surface">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</header>
+<!-- Camera Canvas -->
+<main class="flex-1 relative overflow-hidden bg-black">
+<!-- Live Camera Simulation Image -->
+<div class="absolute inset-0 z-0">
+<div class="w-full h-full bg-cover bg-center" data-alt="A premium, high-resolution portrait of a young Gen Z woman with luminous, dewy skin looking directly into the camera. She is positioned in soft, flattering natural light that emphasizes skin texture and clarity. The background is a soft, out-of-focus modern bathroom with neutral tones. The overall aesthetic is clean, expert, and high-end beauty magazine quality, featuring a vibrant color palette of soft oranges and deep violets in the shadows." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAenTwKuOPxhpwQDBo_lqGNCMAIOGNdmeeKwcDyTn5vGr6YaTG8mMHlN-aoGZsHxtAD3MhjCU9JeXrnZDuF60iHqvptuxQjW045BvmteP2lopusxV7o-DF8eRpWPnsS8GXFe5v9PENDDPQOnJcOJ--wc7jHEwPCnwqrlyuX0jbLvuoHD0b7SfJZ7aYt3-JphiLTuxbtRE-IDXE3g23LcCDzJ8zw-bm5Hd4R7XrULIBcLkFBXlD5z9l7j-2VwCTG-UHLrxBe6DPGDMSH')"></div>
+</div>
+<!-- Scanning Overlay/Darkness Mask -->
+<div class="absolute inset-0 z-10 bg-black/40 radial-guide"></div>
+<!-- Scanning Guide UI -->
+<div class="absolute inset-0 z-20 pointer-events-none flex flex-col items-center justify-start pt-[20%]">
+<!-- Face Frame -->
+<div class="relative w-[320px] h-[320px]">
+<!-- Animated Corners -->
+<div class="absolute -top-1 -left-1 w-12 h-12 border-t-4 border-l-4 border-secondary rounded-tl-3xl aura-ring"></div>
+<div class="absolute -top-1 -right-1 w-12 h-12 border-t-4 border-r-4 border-secondary rounded-tr-3xl aura-ring"></div>
+<div class="absolute -bottom-1 -left-1 w-12 h-12 border-b-4 border-l-4 border-secondary rounded-bl-3xl aura-ring"></div>
+<div class="absolute -bottom-1 -right-1 w-12 h-12 border-b-4 border-r-4 border-secondary rounded-br-3xl aura-ring"></div>
+<!-- Scanning Line -->
+<div class="scan-line"></div>
+<!-- Floating Analysis Dots -->
+<div class="absolute top-[20%] left-[25%] flex items-center gap-2">
+<div class="w-2 h-2 bg-secondary rounded-full shadow-[0_0_10px_#821dda]"></div>
+<span class="glass-panel px-3 py-1 rounded-full text-[10px] font-bold text-secondary uppercase tracking-widest">Pores</span>
+</div>
+<div class="absolute top-[50%] right-[10%] flex items-center gap-2">
+<div class="w-2 h-2 bg-primary rounded-full shadow-[0_0_10px_#a43c12]"></div>
+<span class="glass-panel px-3 py-1 rounded-full text-[10px] font-bold text-primary uppercase tracking-widest">Hydration</span>
+</div>
+</div>
+<!-- Hint Text -->
+<div class="mt-12 text-center">
+<p class="shimmer-text font-headline-md text-headline-md font-bold mb-2">Hold still</p>
+<div class="flex items-center justify-center gap-2 glass-panel px-4 py-2 rounded-full border border-white/40">
+<span class="material-symbols-outlined text-green-500 text-lg">wb_sunny</span>
+<span class="font-label-md text-label-md text-on-surface">Lighting: Perfect</span>
+</div>
+</div>
+</div>
+<!-- Floating UI Overlays (Bento style at bottom) -->
+<div class="absolute bottom-32 left-0 w-full px-container-padding z-30 pointer-events-none">
+<div class="grid grid-cols-2 gap-4">
+<div class="glass-panel p-4 rounded-3xl flex flex-col gap-1 shadow-lg">
+<span class="text-[10px] uppercase font-bold text-on-surface-variant tracking-wider">Skin Score</span>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-lg-mobile text-headline-lg-mobile text-primary font-black">88</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">/100</span>
+</div>
+</div>
+<div class="glass-panel p-4 rounded-3xl flex flex-col gap-1 shadow-lg">
+<span class="text-[10px] uppercase font-bold text-on-surface-variant tracking-wider">Analysis</span>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-2xl">auto_awesome</span>
+<span class="font-label-md text-label-md text-on-surface">AI Optimizing...</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Controls Area -->
+<div class="absolute bottom-0 left-0 w-full z-40 px-container-padding pb-12 flex items-center justify-center pointer-events-auto">
+<div class="flex items-center gap-12">
+<!-- Gallery Button -->
+<button class="w-12 h-12 rounded-full glass-panel flex items-center justify-center hover:scale-105 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-on-surface">photo_library</span>
+</button>
+<!-- Main Capture Button -->
+<button class="group relative flex items-center justify-center w-24 h-24">
+<!-- Gradient Aura -->
+<div class="absolute inset-0 bg-gradient-to-tr from-primary to-secondary rounded-full blur-xl opacity-40 group-hover:opacity-60 transition-opacity"></div>
+<!-- Outer Ring -->
+<div class="absolute inset-0 border-4 border-white/30 rounded-full"></div>
+<!-- Inner Circle -->
+<div class="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-2xl active:scale-90 transition-transform">
+<div class="w-16 h-16 border-2 border-primary-container rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-4xl" data-weight="fill">camera_enhance</span>
+</div>
+</div>
+</button>
+<!-- Flash Toggle -->
+<button class="w-12 h-12 rounded-full glass-panel flex items-center justify-center hover:scale-105 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-on-surface">flash_on</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Bottom Nav Bar (From JSON) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-6 pb-8 pt-4 bg-surface/70 dark:bg-surface-container-highest/70 backdrop-blur-xl border-t border-white/20 shadow-[0px_-10px_30px_rgba(138,43,226,0.08)] rounded-t-3xl">
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim bg-secondary-container/20 rounded-xl px-3 py-1 hover:opacity-80 transition-opacity active:scale-95 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">camera_enhance</span>
+<span class="font-label-sm text-label-sm">Scan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity active:scale-95 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">insights</span>
+<span class="font-label-sm text-label-sm">Progress</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity active:scale-95 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">spa</span>
+<span class="font-label-sm text-label-sm">Routine</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity active:scale-95 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">event_note</span>
+<span class="font-label-sm text-label-sm">Diary</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity active:scale-95 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</nav>
+<script>
+        // Micro-interaction for the capture button
+        const captureBtn = document.querySelector('button.group');
+        captureBtn.addEventListener('click', () => {
+            // Flash effect
+            const flash = document.createElement('div');
+            flash.className = 'fixed inset-0 bg-white z-[100] transition-opacity duration-300 pointer-events-none';
+            document.body.appendChild(flash);
+            setTimeout(() => flash.style.opacity = '0', 50);
+            setTimeout(() => flash.remove(), 400);
+            
+            // Haptic simulation
+            if (window.navigator.vibrate) {
+                window.navigator.vibrate(50);
+            }
+        });
+
+        // Interactive "Face Frame" tracking simulation
+        document.addEventListener('mousemove', (e) => {
+            const scanLine = document.querySelector('.scan-line');
+            if (scanLine) {
+                // Subtle reactive movement can be added here if desired
+            }
+        });
+    </script>
+</body></html>

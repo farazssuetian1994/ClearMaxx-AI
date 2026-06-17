@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-container": "#9c42f4",
+                    "on-secondary": "#ffffff",
+                    "outline-variant": "#dec0b6",
+                    "on-surface": "#1c1b1b",
+                    "primary-container": "#ff7f50",
+                    "error-container": "#ffdad6",
+                    "surface-bright": "#fcf9f8",
+                    "surface-dim": "#dcd9d9",
+                    "on-error-container": "#93000a",
+                    "on-background": "#1c1b1b",
+                    "tertiary-fixed-dim": "#e7bbc6",
+                    "on-tertiary-container": "#50313a",
+                    "tertiary-container": "#c399a3",
+                    "surface-container-lowest": "#ffffff",
+                    "primary": "#a43c12",
+                    "primary-fixed": "#ffdbcf",
+                    "surface-tint": "#a43c12",
+                    "secondary": "#821dda",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-fixed": "#ffd9e2",
+                    "secondary-fixed-dim": "#dcb8ff",
+                    "surface-container-high": "#eae7e7",
+                    "inverse-on-surface": "#f3f0ef",
+                    "tertiary": "#78555e",
+                    "on-primary-fixed": "#380c00",
+                    "on-error": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "surface-container": "#f0eded",
+                    "surface": "#fcf9f8",
+                    "on-surface-variant": "#57423b",
+                    "inverse-surface": "#313030",
+                    "on-secondary-fixed": "#2c0051",
+                    "on-secondary-container": "#fffbff",
+                    "background": "#fcf9f8",
+                    "on-primary-fixed-variant": "#822800",
+                    "error": "#ba1a1a",
+                    "on-secondary-fixed-variant": "#6700b5",
+                    "surface-variant": "#e5e2e1",
+                    "outline": "#8b7169",
+                    "surface-container-highest": "#e5e2e1",
+                    "secondary-fixed": "#efdbff",
+                    "inverse-primary": "#ffb59c",
+                    "surface-container-low": "#f6f3f2",
+                    "on-tertiary-fixed": "#2d141c",
+                    "on-tertiary-fixed-variant": "#5e3e47",
+                    "primary-fixed-dim": "#ffb59c",
+                    "on-primary-container": "#6c2000"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-md": "16px",
+                    "stack-sm": "8px",
+                    "stack-lg": "32px",
+                    "container-padding": "24px",
+                    "gutter": "16px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "30px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0px 10px 30px rgba(138, 43, 226, 0.08);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .aura-gradient-text {
+            background: linear-gradient(to right, #a43c12, #821dda);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .aura-gradient-bg {
+            background: linear-gradient(135deg, #ff7f50, #821dda);
+        }
+        body {
+            background-color: #fcf9f8;
+            overflow-x: hidden;
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="font-body-md text-on-surface">
+<!-- Background Decoration -->
+<div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+
+</div>
+<!-- Top Navigation Header -->
+<header class="flex justify-between items-center w-full px-container-padding py-stack-md sticky top-0 z-50 bg-surface/50 backdrop-blur-md">
+<div class="flex items-center gap-4">
+<button class="hover:bg-surface-variant/30 rounded-full p-2 transition-colors">
+<span class="material-symbols-outlined text-on-surface">arrow_back</span>
+</button>
+<h1 class="font-display-lg text-headline-lg-mobile font-black aura-gradient-text">Diary</h1>
+</div>
+<button class="hover:bg-surface-variant/30 rounded-full p-2 transition-colors">
+<span class="material-symbols-outlined text-on-surface">more_vert</span>
+</button>
+</header>
+<main class="px-container-padding pb-32">
+<!-- Date Selection -->
+<section class="mb-stack-lg">
+<div class="flex items-baseline justify-between mb-4">
+<h2 class="font-headline-md text-headline-md">Daily Log</h2>
+<span class="font-label-md text-label-md text-on-surface-variant">Today, Oct 24</span>
+</div>
+<!-- Quick Log Grid (Bento Style) -->
+<div class="grid grid-cols-2 gap-4">
+<!-- Sleep -->
+<div class="glass-card p-5 rounded-[2rem] flex flex-col gap-3">
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-secondary-container/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">bedtime</span>
+</div>
+<span class="font-label-md text-label-md">Sleep</span>
+</div>
+<div class="flex flex-wrap gap-2 mt-2">
+<button class="px-3 py-1 bg-secondary-container/20 text-secondary font-label-sm text-label-sm rounded-full active:scale-95 transition-transform">6h</button>
+<button class="px-3 py-1 bg-secondary-container/20 text-secondary font-label-sm text-label-sm rounded-full active:scale-95 transition-transform border-2 border-secondary">8h</button>
+<button class="px-3 py-1 bg-secondary-container/20 text-secondary font-label-sm text-label-sm rounded-full active:scale-95 transition-transform">9h+</button>
+</div>
+</div>
+<!-- Water -->
+<div class="glass-card p-5 rounded-[2rem] flex flex-col gap-3">
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-primary-container/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">water_drop</span>
+</div>
+<span class="font-label-md text-label-md">Water</span>
+</div>
+<div class="flex flex-wrap gap-2 mt-2">
+<button class="px-3 py-1 bg-primary-container/20 text-primary font-label-sm text-label-sm rounded-full">1.5L</button>
+<button class="px-3 py-1 bg-primary-container/20 text-primary font-label-sm text-label-sm rounded-full border-2 border-primary">2L</button>
+<button class="px-3 py-1 bg-primary-container/20 text-primary font-label-sm text-label-sm rounded-full">3L</button>
+</div>
+</div>
+<!-- Diet -->
+<div class="glass-card p-5 rounded-[2rem] col-span-2 flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-tertiary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">restaurant</span>
+</div>
+<span class="font-label-md text-label-md">Diet Quality</span>
+</div>
+</div>
+<div class="flex justify-between items-center gap-2 mt-2">
+<button class="flex-1 py-3 bg-surface-variant/30 rounded-2xl flex flex-col items-center gap-1 active:scale-95 transition-transform">
+<span class="text-xl">🍕</span>
+<span class="font-label-sm text-label-sm">Greasy</span>
+</button>
+<button class="flex-1 py-3 bg-tertiary-container/40 rounded-2xl flex flex-col items-center gap-1 active:scale-95 transition-transform ring-2 ring-tertiary">
+<span class="text-xl">🥗</span>
+<span class="font-label-sm text-label-sm">Clean</span>
+</button>
+<button class="flex-1 py-3 bg-surface-variant/30 rounded-2xl flex flex-col items-center gap-1 active:scale-95 transition-transform">
+<span class="text-xl">🍭</span>
+<span class="font-label-sm text-label-sm">Sugary</span>
+</button>
+</div>
+</div>
+<!-- Stress -->
+<div class="glass-card p-5 rounded-[2rem] flex flex-col gap-3">
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-error-container/40 flex items-center justify-center">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+<span class="font-label-md text-label-md">Stress</span>
+</div>
+<div class="h-2 w-full bg-surface-variant rounded-full mt-4 relative">
+<div class="absolute inset-y-0 left-0 w-3/4 bg-error rounded-full"></div>
+<div class="absolute top-1/2 left-3/4 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-white rounded-full shadow-lg border-2 border-error"></div>
+</div>
+<p class="font-label-sm text-label-sm text-right text-error font-bold mt-1">High</p>
+</div>
+<!-- Period -->
+<div class="glass-card p-5 rounded-[2rem] flex flex-col gap-3 justify-center items-center relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-full h-1 bg-tertiary-fixed-dim"></div>
+<div class="flex flex-col items-center gap-2 text-center">
+<span class="material-symbols-outlined text-tertiary-fixed-dim text-4xl" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md">Cycle Day</span>
+<span class="font-display-lg text-headline-md aura-gradient-text">14</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Save Button -->
+<button class="w-full py-5 aura-gradient-bg text-white font-bold rounded-[2rem] shadow-[0px_10px_30px_rgba(138,43,226,0.2)] active:scale-95 transition-transform mb-stack-lg">
+            Log Daily Ritual
+        </button>
+<!-- Daily History -->
+<section>
+<div class="flex items-center justify-between mb-4">
+<h2 class="font-headline-md text-headline-md">Recent Glow-ups</h2>
+<button class="text-primary font-label-md text-label-md">View All</button>
+</div>
+<div class="space-y-4">
+<!-- Entry 1 -->
+<div class="glass-card p-4 rounded-3xl flex items-center gap-4">
+<div class="w-14 h-14 rounded-2xl overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="A macro shot of healthy, glowing skin with soft morning light illuminating subtle skin textures and a clean dewy finish, high fashion editorial beauty photography style with soft pastel background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDUSN_KBFMBsHbddIdNpNAiB1TRF8Q-eaYVPtmvmK4MRlPtw8HY8nje8UWkAENAhlaG_dFJqcf5Xb54sImUtlbiYDH7v0xKgisR7OijwLDenxP-WLTSqKUi9TWquCCJZzAJttmbGhwwN_pZTSZoWavry_YgpLeQRzMJCuZOqa3jQaf-cp6qw52YtqHky8Y32pBDds34kibresj1J7FqL5h-4SVLplCEv8ytI6Y1UJVzqv4FDXHf1EQu6JiyVNrwEZqLv9_BP0Q_mOE"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h3 class="font-label-md text-label-md">Yesterday</h3>
+<span class="text-xl">✨</span>
+</div>
+<div class="flex gap-2 mt-1">
+<span class="px-2 py-0.5 bg-surface-variant/50 rounded-full font-label-sm text-label-sm text-on-surface-variant">8h Sleep</span>
+<span class="px-2 py-0.5 bg-surface-variant/50 rounded-full font-label-sm text-label-sm text-on-surface-variant">2.5L Water</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</div>
+<!-- Entry 2 -->
+<div class="glass-card p-4 rounded-3xl flex items-center gap-4">
+<div class="w-14 h-14 rounded-2xl overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Close-up of clear facial skin, showcasing a radiant and hydrated appearance, soft focused studio lighting, neutral warm tones, modern dermatology clinic aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVsZVHeNgZLWIORoGLLXGZG8iDCACDkRVzPpHiWM0XHhqo6f9xHdUanTu0KQKH2-_865FvMmFdmnZ3TnPS7quTgxN5ggr1aA7aqjyT-75-pq_Jd8e30RzofRO5RhdQVUKUFWSzbraKouvTXU2NOeoyVR8dqsP6buXuyLJEpcKL37GXcS7-5PXJpx4xGegyQatWXINca-POPZZL8PnxYi0mL_BZIUPzzOrlfBZ2vFk_GuujOjE6DV6eroGKMHDieWGEjwb5nuW-Ybz0"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h3 class="font-label-md text-label-md">Oct 22</h3>
+<span class="text-xl">💧</span>
+</div>
+<div class="flex gap-2 mt-1">
+<span class="px-2 py-0.5 bg-surface-variant/50 rounded-full font-label-sm text-label-sm text-on-surface-variant">6h Sleep</span>
+<span class="px-2 py-0.5 bg-error-container/20 text-error rounded-full font-label-sm text-label-sm">High Stress</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</div>
+<!-- Entry 3 -->
+<div class="glass-card p-4 rounded-3xl flex items-center gap-4">
+<div class="w-14 h-14 rounded-2xl overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Beauty product portrait, showing fresh skin texture and natural radiance under diffused sunlight, minimalist artistic composition, soft violet and orange accents in background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBj-8nV1BITyfwbh6w7kWOF38nL--yuY6be0VZKItW0ouYwp-zMQmr4myHESnfvpha2inhJtU4wSZqXBvYGCcPWWyjJ2KFxFL5TC_L3lne33awwwn5qlwsiDVQkvkPVE5rzakwizy4cNjdcuNlpSDqyZbf4VbWr8liFJBjvOy4PcxgZywyBNIutBtuAJbVnsIrYOpaJbOZp4pWRCnDMwSPSwgGFlpTVbYg18hcsvvERnN9aeEkDyheRAn9baFtZnjTBWCHc1KImWasT"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h3 class="font-label-md text-label-md">Oct 21</h3>
+<span class="text-xl">🌟</span>
+</div>
+<div class="flex gap-2 mt-1">
+<span class="px-2 py-0.5 bg-surface-variant/50 rounded-full font-label-sm text-label-sm text-on-surface-variant">9h Sleep</span>
+<span class="px-2 py-0.5 bg-tertiary-container/20 text-tertiary rounded-full font-label-sm text-label-sm">Clean Diet</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Navigation Shell -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-6 pb-8 pt-4 bg-surface/70 backdrop-blur-xl border-t border-white/20 shadow-[0px_-10px_30px_rgba(138,43,226,0.08)] rounded-t-3xl md:hidden">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined">camera_enhance</span>
+<span class="font-label-sm text-label-sm">Scan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined">insights</span>
+<span class="font-label-sm text-label-sm">Progress</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined">spa</span>
+<span class="font-label-sm text-label-sm">Routine</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim bg-secondary-container/20 rounded-xl px-3 py-1 scale-95 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">event_note</span>
+<span class="font-label-sm text-label-sm">Diary</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</nav>
+<script>
+        // Simple micro-interaction for diet buttons
+        const dietButtons = document.querySelectorAll('[class*="flex-1 py-3"]');
+        dietButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                dietButtons.forEach(b => {
+                    b.classList.remove('ring-2', 'ring-tertiary', 'bg-tertiary-container/40');
+                    b.classList.add('bg-surface-variant/30');
+                });
+                btn.classList.add('ring-2', 'ring-tertiary', 'bg-tertiary-container/40');
+                btn.classList.remove('bg-surface-variant/30');
+            });
+        });
+
+        // Toggle selection for Sleep and Water buttons
+        const pillButtons = document.querySelectorAll('.grid button');
+        pillButtons.forEach(btn => {
+            if (btn.innerText.includes('h') || btn.innerText.includes('L')) {
+                btn.addEventListener('click', () => {
+                    const parent = btn.parentElement;
+                    const siblings = parent.querySelectorAll('button');
+                    siblings.forEach(s => s.classList.remove('border-2', 'border-secondary', 'border-primary'));
+                    const color = btn.classList.contains('text-secondary') ? 'border-secondary' : 'border-primary';
+                    btn.classList.add('border-2', color);
+                });
+            }
+        });
+    </script>
+</body></html>

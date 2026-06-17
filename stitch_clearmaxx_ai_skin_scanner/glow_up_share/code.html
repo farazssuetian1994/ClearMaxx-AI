@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+    body {
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      background-color: #fcf9f8;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+    .aura-gradient {
+      background: linear-gradient(135deg, #a43c12 0%, #821dda 100%);
+    }
+    .glow-shadow {
+      box-shadow: 0px 10px 30px rgba(138, 43, 226, 0.15);
+    }
+    .natural-bloom {
+      box-shadow: 0px 10px 30px rgba(138, 43, 226, 0.08);
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .before-after-divider {
+      width: 2px;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.5);
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+    }
+  </style>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "secondary-container": "#9c42f4",
+            "on-secondary": "#ffffff",
+            "outline-variant": "#dec0b6",
+            "on-surface": "#1c1b1b",
+            "primary-container": "#ff7f50",
+            "error-container": "#ffdad6",
+            "surface-bright": "#fcf9f8",
+            "surface-dim": "#dcd9d9",
+            "on-error-container": "#93000a",
+            "on-background": "#1c1b1b",
+            "tertiary-fixed-dim": "#e7bbc6",
+            "on-tertiary-container": "#50313a",
+            "tertiary-container": "#c399a3",
+            "surface-container-lowest": "#ffffff",
+            "primary": "#a43c12",
+            "primary-fixed": "#ffdbcf",
+            "surface-tint": "#a43c12",
+            "secondary": "#821dda",
+            "on-tertiary": "#ffffff",
+            "tertiary-fixed": "#ffd9e2",
+            "secondary-fixed-dim": "#dcb8ff",
+            "surface-container-high": "#eae7e7",
+            "inverse-on-surface": "#f3f0ef",
+            "tertiary": "#78555e",
+            "on-primary-fixed": "#380c00",
+            "on-error": "#ffffff",
+            "on-primary": "#ffffff",
+            "surface-container": "#f0eded",
+            "surface": "#fcf9f8",
+            "on-surface-variant": "#57423b",
+            "inverse-surface": "#313030",
+            "on-secondary-fixed": "#2c0051",
+            "on-secondary-container": "#fffbff",
+            "background": "#fcf9f8",
+            "on-primary-fixed-variant": "#822800",
+            "error": "#ba1a1a",
+            "on-secondary-fixed-variant": "#6700b5",
+            "surface-variant": "#e5e2e1",
+            "outline": "#8b7169",
+            "surface-container-highest": "#e5e2e1",
+            "secondary-fixed": "#efdbff",
+            "inverse-primary": "#ffb59c",
+            "surface-container-low": "#f6f3f2",
+            "on-tertiary-fixed": "#2d141c",
+            "on-tertiary-fixed-variant": "#5e3e47",
+            "primary-fixed-dim": "#ffb59c",
+            "on-primary-container": "#6c2000"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "stack-md": "16px",
+            "stack-sm": "8px",
+            "stack-lg": "32px",
+            "container-padding": "24px",
+            "gutter": "16px"
+          },
+          "fontFamily": {
+            "display-lg": ["Inter"],
+            "label-md": ["Inter"],
+            "headline-lg": ["Inter"],
+            "headline-md": ["Inter"],
+            "body-lg": ["Inter"],
+            "label-sm": ["Inter"],
+            "headline-lg-mobile": ["Inter"],
+            "body-md": ["Inter"]
+          },
+          "fontSize": {
+            "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+            "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+            "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+            "headline-md": ["24px", {"lineHeight": "30px", "fontWeight": "600"}],
+            "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+            "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+            "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "700"}],
+            "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface flex flex-col min-h-screen">
+<header class="flex justify-between items-center w-full px-container-padding py-stack-md bg-transparent fixed top-0 z-50">
+<div class="hover:bg-surface-variant/30 rounded-full p-2 transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-on-surface">arrow_back</span>
+</div>
+<div class="font-display-lg text-display-lg font-black bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
+      ClearMaxx
+    </div>
+<div class="hover:bg-surface-variant/30 rounded-full p-2 transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-on-surface">more_vert</span>
+</div>
+</header>
+<main class="flex-1 w-full max-w-md mx-auto pt-24 pb-32 px-container-padding flex flex-col items-center">
+<div class="w-full relative group natural-bloom rounded-[40px] overflow-hidden bg-white mb-stack-lg">
+<div class="aspect-[3/4] w-full flex relative overflow-hidden">
+<div class="absolute inset-0 z-10 flex flex-col justify-between p-6 pointer-events-none">
+<div class="flex justify-between items-start">
+<span class="px-4 py-1.5 rounded-full bg-black/30 backdrop-blur-md text-white font-label-sm text-label-sm tracking-widest uppercase">Before</span>
+<span class="px-4 py-1.5 rounded-full aura-gradient text-white font-label-sm text-label-sm tracking-widest uppercase">After</span>
+</div>
+<div class="flex flex-col items-center">
+<div class="glass-card px-6 py-4 rounded-3xl mb-4 border border-white/40 text-center animate-bounce-slow">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-primary font-black">+18 ClearScore</h2>
+<p class="font-label-md text-label-md text-on-surface-variant">in 30 days</p>
+</div>
+</div>
+</div>
+<div class="absolute inset-0 pointer-events-none z-20 overflow-hidden">
+<div class="before-after-divider"></div>
+<div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white shadow-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-[16px]">unfold_more</span>
+</div>
+</div>
+<div class="w-1/2 h-full grayscale-[0.3]">
+<img class="w-full h-full object-cover" data-alt="A close-up high-resolution editorial photography of a young woman's face with visible skin texture, light redness, and minor blemishes on her cheek. The lighting is clinical yet soft, showcasing the raw and natural state of the skin. The background is a clean, minimal white-to-light-grey gradient, maintaining a high-end skincare clinical aesthetic consistent with Gen Z beauty standards." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJbgovQvaNpkE7v8pKeW1wIrcua2tiYjVt-ADcKAF0LOkyvDZCK3htcEOq4Zd58lrex8qXc4EKumCV8sMtOrhjPJUf8xa8ibbIrJjzAWt7NRD4HLygpDdRgzRO9HLe4XRLD6jQ7EaL4klxIiFIlWpSRQRUMiGRE4zHxVgf9EG1kRQ9SnEJQLg4uuCtq0ZkVtzQHELpbv72tOSbUZ66QhBjxCkxkL5uEHzC642mZK9p1vu2VU8WGAdLEaImSIfRTz1a-ft3hpZ0zGhZ"/>
+</div>
+<div class="w-1/2 h-full">
+<img class="w-full h-full object-cover" data-alt="A close-up high-resolution editorial photography of the same young woman's face with perfectly radiant, dewy, and clear skin. The complexion is even-toned, glowing with a healthy 'glass skin' effect. The lighting is warm and aspirational, highlighting a vibrant and refreshed aesthetic. The background is a soft, warm peach and violet gradient that mirrors the brand's premium glow-up identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIeG201KLy1XI_dcCNaPR09_ESwTq9FHLtU20RG31QkYFB2tCI4JI9qDvg3tGS6Tes-vrCTe-H_UK6pZ4-Jf02-77gEAcMDieH1td6VxZNrLpFzh0ZvU8mGqwfulyuGoHfb5tnWgEMxQ_G2-MUkVlwQHF1BtZ5Jf_pzL6O1DwNQi7A3m37VAcHiNNzChAkpocOIUdU8zgAxaHH0fq7jWkqW5P55yWsD2cBKXgVY2tSEzGua13mUuk8zIRbclWa_u-RUaSRIUFERrYm"/>
+</div>
+</div>
+<div class="p-6 bg-white flex justify-between items-center">
+<div class="flex flex-col">
+<span class="font-display-lg text-[20px] font-black bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">ClearMaxx</span>
+<span class="text-[10px] text-outline font-medium tracking-tighter uppercase">AI Dermatologist AI Analysis</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-secondary fill-1" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="text-label-sm font-label-sm text-secondary">Verified Result</span>
+</div>
+</div>
+</div>
+<div class="w-full space-y-4">
+<h3 class="text-center font-headline-md text-headline-md text-on-surface-variant mb-2">Flex your glow</h3>
+<div class="grid grid-cols-2 gap-gutter">
+<button class="flex items-center justify-center gap-3 py-4 rounded-2xl bg-[#000] text-white hover:opacity-90 transition-all active:scale-95">
+<img alt="TikTok" class="w-5 h-5 invert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtPJEXuSgZGsSwzS6KVSgzPL2ziggaBcuJhr5PbVP317q54266udtBJ6q1W_fHqiTpPNNzKNZLPYPz5jNNm9Ti55SXt_cQ2UJa3oeSkfGlu2JDgVRPm6aRKE-YSUgKhGI_3fN1jSuGoUsmokz2R2s3O80mHMUmBS46Z9D90CTQUfAtNJeuTTW_l8pNT-Yz8o5H4C59BC4PqFlSEdAjH4X0ONdEY9dJbe2nMryNQgTMtprHHD4rM54azqlgA6s5BVCIbBtI0a2OOtVq"/>
+<span class="font-label-md text-label-md">TikTok</span>
+</button>
+<button class="flex items-center justify-center gap-3 py-4 rounded-2xl bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white hover:opacity-90 transition-all active:scale-95">
+<svg class="w-5 h-5 fill-current" viewbox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.266.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"></path></svg>
+<span class="font-label-md text-label-md">Instagram</span>
+</button>
+</div>
+<button class="w-full aura-gradient text-white py-5 rounded-3xl font-headline-md text-headline-md font-bold glow-shadow flex items-center justify-center gap-2 hover:opacity-90 transition-opacity active:scale-95">
+<span class="material-symbols-outlined">download</span>
+        Save to Photos
+      </button>
+</div>
+</main>
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-6 pb-8 pt-4 bg-surface/70 backdrop-blur-xl border-t border-white/20 shadow-[0px_-10px_30px_rgba(138,43,226,0.08)]">
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity cursor-pointer">
+<span class="material-symbols-outlined">camera_enhance</span>
+<span class="font-label-sm text-label-sm mt-1">Scan</span>
+</div>
+<div class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim bg-secondary-container/20 rounded-xl px-3 py-1 transition-transform duration-200 cursor-pointer">
+<span class="material-symbols-outlined">insights</span>
+<span class="font-label-sm text-label-sm mt-1">Progress</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity cursor-pointer">
+<span class="material-symbols-outlined">spa</span>
+<span class="font-label-sm text-label-sm mt-1">Routine</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity cursor-pointer">
+<span class="material-symbols-outlined">event_note</span>
+<span class="font-label-sm text-label-sm mt-1">Diary</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity cursor-pointer">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="font-label-sm text-label-sm mt-1">Profile</span>
+</div>
+</nav>
+<script>
+    // Micro-interaction for the slider handle
+    document.addEventListener('mousemove', (e) => {
+      // This could be used for a real interactive slider, 
+      // but here we keep it as a static presentation card with a visual divider.
+    });
+  </script>
+</body></html>

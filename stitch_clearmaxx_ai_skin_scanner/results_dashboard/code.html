@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ClearMaxx | Results Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-container": "#9c42f4",
+                      "on-secondary": "#ffffff",
+                      "outline-variant": "#dec0b6",
+                      "on-surface": "#1c1b1b",
+                      "primary-container": "#ff7f50",
+                      "error-container": "#ffdad6",
+                      "surface-bright": "#fcf9f8",
+                      "surface-dim": "#dcd9d9",
+                      "on-error-container": "#93000a",
+                      "on-background": "#1c1b1b",
+                      "tertiary-fixed-dim": "#e7bbc6",
+                      "on-tertiary-container": "#50313a",
+                      "tertiary-container": "#c399a3",
+                      "surface-container-lowest": "#ffffff",
+                      "primary": "#a43c12",
+                      "primary-fixed": "#ffdbcf",
+                      "surface-tint": "#a43c12",
+                      "secondary": "#821dda",
+                      "on-tertiary": "#ffffff",
+                      "tertiary": "#78555e",
+                      "on-primary-fixed": "#380c00",
+                      "on-error": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "surface-container": "#f0eded",
+                      "surface": "#fcf9f8",
+                      "on-surface-variant": "#57423b",
+                      "inverse-surface": "#313030",
+                      "on-secondary-fixed": "#2c0051",
+                      "on-secondary-container": "#fffbff",
+                      "background": "#fcf9f8",
+                      "on-primary-fixed-variant": "#822800",
+                      "error": "#ba1a1a",
+                      "on-secondary-fixed-variant": "#6700b5",
+                      "surface-variant": "#e5e2e1",
+                      "outline": "#8b7169",
+                      "surface-container-highest": "#e5e2e1",
+                      "secondary-fixed": "#efdbff",
+                      "inverse-primary": "#ffb59c",
+                      "surface-container-low": "#f6f3f2",
+                      "on-tertiary-fixed": "#2d141c",
+                      "on-tertiary-fixed-variant": "#5e3e47",
+                      "primary-fixed-dim": "#ffb59c",
+                      "on-primary-container": "#6c2000"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "stack-md": "16px",
+                      "stack-sm": "8px",
+                      "stack-lg": "32px",
+                      "container-padding": "24px",
+                      "gutter": "16px"
+              },
+              "fontFamily": {
+                      "display-lg": ["Inter"],
+                      "label-md": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "label-sm": ["Inter"],
+                      "headline-lg-mobile": ["Inter"],
+                      "body-md": ["Inter"]
+              },
+              "fontSize": {
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "headline-md": ["24px", {"lineHeight": "30px", "fontWeight": "600"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                      "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "700"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0px 10px 30px rgba(138, 43, 226, 0.08);
+        }
+        .aura-gradient-bg {
+            background: linear-gradient(135deg, #a43c12, #821dda);
+        }
+        .text-aura-gradient {
+            background: linear-gradient(135deg, #a43c12, #821dda);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gauge-pulse {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.15; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(1.05); }
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body-md text-on-surface antialiased min-h-screen pb-32">
+<!-- Top App Bar -->
+<header class="flex justify-between items-center w-full px-container-padding py-stack-md sticky top-0 z-50 bg-surface/40 backdrop-blur-md">
+<div class="hover:bg-surface-variant/30 rounded-full p-2 transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-on-surface">arrow_back</span>
+</div>
+<h1 class="font-display-lg text-display-lg font-black bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">ClearMaxx</h1>
+<div class="hover:bg-surface-variant/30 rounded-full p-2 transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-on-surface">more_vert</span>
+</div>
+</header>
+<main class="px-container-padding space-y-stack-lg">
+<!-- Score Gauge Section -->
+<section class="flex flex-col items-center py-stack-lg relative overflow-hidden">
+<!-- Animated Background Glow -->
+<div class="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 aura-gradient-bg rounded-full blur-[80px] opacity-20"></div>
+<div class="relative w-56 h-56 flex items-center justify-center">
+<!-- SVG Progress Ring -->
+<svg class="w-full h-full -rotate-90">
+<circle class="text-surface-variant/30" cx="112" cy="112" fill="transparent" r="100" stroke="currentColor" stroke-width="12"></circle>
+<circle class="drop-shadow-[0_0_15px_rgba(164,60,18,0.4)]" cx="112" cy="112" fill="transparent" r="100" stroke="url(#aura-grad)" stroke-dasharray="628" stroke-dashoffset="113" stroke-linecap="round" stroke-width="14"></circle>
+<defs>
+<lineargradient id="aura-grad" x1="0%" x2="100%" y1="0%" y2="100%">
+<stop offset="0%" style="stop-color:#a43c12;stop-opacity:1"></stop>
+<stop offset="100%" style="stop-color:#821dda;stop-opacity:1"></stop>
+</lineargradient>
+</defs>
+</svg>
+<div class="absolute flex flex-col items-center">
+<span class="font-display-lg text-display-lg font-black text-on-surface leading-none">82</span>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest mt-1">ClearScore</span>
+</div>
+</div>
+<div class="mt-stack-md px-4 py-1.5 rounded-full bg-secondary-container/10 border border-secondary-container/20 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-secondary-fixed-dim font-bold uppercase tracking-tight">Improving (+4.2%)</span>
+</div>
+</section>
+<!-- Face Heatmap Overlay -->
+<section class="space-y-stack-sm">
+<h2 class="font-headline-md text-headline-md text-on-surface px-1">Visual Analysis</h2>
+<div class="relative rounded-[2rem] overflow-hidden glass-card aspect-[4/5]">
+<img class="w-full h-full object-cover" data-alt="A cinematic, high-resolution portrait of a young Gen Z woman with luminous, clear skin, viewed from the front. She is set against a soft, out-of-focus lavender and peach studio background. Overlaid on her face are semi-transparent, dewy glow heatmaps in soft violets and oranges, highlighting pores and skin texture with a futuristic, clean medical aesthetic. The lighting is bright, high-key, and premium." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgeM1QMkEWt1AKmtwr7EsPS1zx2OnyxM9IOkr5m6gNG-VHoB2G4RgUUBbN4MkrHdA8425RBUMgG8Obazui-492EJwojNhBeQmpdhVpKXhv1ZfM8n2lkjDTwNK7BVl55jeg-YDi39enB6D56-x7l2k6TrcQEo152b1NDfkQD6BHe8UA3SGg077DBwmvJULZmjLWH1HVfa_tUPYCWRskuuFPzcQb29pVBdp7H54RuemYnlDTYCYmFPW8UgYl0Q8V8j9Tq4KKlT5q0DJo"/>
+<!-- Floating Data Points -->
+<div class="absolute top-1/4 right-8 flex items-center gap-2">
+<div class="w-1 h-12 bg-primary/40 rounded-full"></div>
+<div class="glass-card px-3 py-2 rounded-xl text-label-sm font-bold text-on-surface shadow-xl">
+                        T-Zone: Oil Control Needed
+                    </div>
+</div>
+<div class="absolute bottom-1/3 left-8 flex items-center gap-2">
+<div class="glass-card px-3 py-2 rounded-xl text-label-sm font-bold text-on-surface shadow-xl">
+                        Cheek Hydration: Optimal
+                    </div>
+<div class="w-8 h-px bg-secondary/40"></div>
+</div>
+<!-- Analysis Badge -->
+<div class="absolute bottom-4 left-1/2 -translate-x-1/2 glass-card px-6 py-3 rounded-full flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">shutter_speed</span>
+<span class="font-label-md text-label-md font-bold whitespace-nowrap">AI scan complete (98% confidence)</span>
+</div>
+</div>
+</section>
+<!-- Per-Issue Bento Grid -->
+<section class="grid grid-cols-2 gap-gutter">
+<!-- Acne Card -->
+<div class="glass-card p-stack-md rounded-3xl flex flex-col justify-between h-32">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary">spa</span>
+<span class="font-label-sm text-label-sm font-bold text-primary uppercase">Good</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant">Acne</p>
+<div class="w-full h-1.5 bg-surface-variant rounded-full mt-2">
+<div class="h-full bg-primary rounded-full" style="width: 85%"></div>
+</div>
+</div>
+</div>
+<!-- Pores Card -->
+<div class="glass-card p-stack-md rounded-3xl flex flex-col justify-between h-32">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-secondary">grid_view</span>
+<span class="font-label-sm text-label-sm font-bold text-secondary uppercase">Fair</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant">Pores</p>
+<div class="w-full h-1.5 bg-surface-variant rounded-full mt-2">
+<div class="h-full bg-secondary rounded-full" style="width: 62%"></div>
+</div>
+</div>
+</div>
+<!-- Hydration Card -->
+<div class="glass-card p-stack-md rounded-3xl flex flex-col justify-between h-32">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary-container">water_drop</span>
+<span class="font-label-sm text-label-sm font-bold text-primary-container uppercase">Excel</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant">Hydration</p>
+<div class="w-full h-1.5 bg-surface-variant rounded-full mt-2">
+<div class="h-full bg-primary-container rounded-full" style="width: 92%"></div>
+</div>
+</div>
+</div>
+<!-- Dark Spots Card -->
+<div class="glass-card p-stack-md rounded-3xl flex flex-col justify-between h-32">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-tertiary">blur_on</span>
+<span class="font-label-sm text-label-sm font-bold text-tertiary uppercase">Good</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant">Dark Spots</p>
+<div class="w-full h-1.5 bg-surface-variant rounded-full mt-2">
+<div class="h-full bg-tertiary rounded-full" style="width: 78%"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Detailed Analysis Button -->
+<div class="pt-stack-sm pb-stack-lg">
+<button class="w-full aura-gradient-bg text-on-primary py-5 rounded-full font-headline-md text-headline-md shadow-[0_15px_30px_rgba(164,60,18,0.25)] hover:scale-[1.02] transition-transform active:scale-95">
+                See Detailed Analysis
+            </button>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-6 pb-8 pt-4 bg-surface/70 backdrop-blur-xl border-t border-white/20 shadow-[0px_-10px_30px_rgba(138,43,226,0.08)] rounded-t-3xl">
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity cursor-pointer">
+<span class="material-symbols-outlined">camera_enhance</span>
+<span class="font-label-sm text-label-sm mt-1">Scan</span>
+</div>
+<div class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim bg-secondary-container/20 rounded-xl px-3 py-1 hover:opacity-80 transition-opacity cursor-pointer">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">insights</span>
+<span class="font-label-sm text-label-sm mt-1">Progress</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity cursor-pointer">
+<span class="material-symbols-outlined">spa</span>
+<span class="font-label-sm text-label-sm mt-1">Routine</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity cursor-pointer">
+<span class="material-symbols-outlined">event_note</span>
+<span class="font-label-sm text-label-sm mt-1">Diary</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity cursor-pointer">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="font-label-sm text-label-sm mt-1">Profile</span>
+</div>
+</nav>
+<script>
+        // Micro-interaction for the bento cards
+        document.querySelectorAll('.glass-card').forEach(card => {
+            card.addEventListener('touchstart', () => {
+                card.style.transform = 'scale(0.98)';
+                card.style.transition = 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            });
+            card.addEventListener('touchend', () => {
+                card.style.transform = 'scale(1)';
+            });
+        });
+
+        // Simple hydration progress animation simulation
+        window.addEventListener('DOMContentLoaded', () => {
+            const bars = document.querySelectorAll('.bg-surface-variant > div');
+            bars.forEach(bar => {
+                const finalWidth = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.transition = 'width 1.5s cubic-bezier(0.65, 0, 0.35, 1)';
+                    bar.style.width = finalWidth;
+                }, 300);
+            });
+        });
+    </script>
+</body></html>

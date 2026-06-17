@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ClearMaxx | Daily Routine</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-container": "#9c42f4",
+                    "on-secondary": "#ffffff",
+                    "outline-variant": "#dec0b6",
+                    "on-surface": "#1c1b1b",
+                    "primary-container": "#ff7f50",
+                    "error-container": "#ffdad6",
+                    "surface-bright": "#fcf9f8",
+                    "surface-dim": "#dcd9d9",
+                    "on-error-container": "#93000a",
+                    "on-background": "#1c1b1b",
+                    "tertiary-fixed-dim": "#e7bbc6",
+                    "on-tertiary-container": "#50313a",
+                    "tertiary-container": "#c399a3",
+                    "surface-container-lowest": "#ffffff",
+                    "primary": "#a43c12",
+                    "primary-fixed": "#ffdbcf",
+                    "surface-tint": "#a43c12",
+                    "secondary": "#821dda",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-fixed": "#ffd9e2",
+                    "secondary-fixed-dim": "#dcb8ff",
+                    "surface-container-high": "#eae7e7",
+                    "inverse-on-surface": "#f3f0ef",
+                    "tertiary": "#78555e",
+                    "on-primary-fixed": "#380c00",
+                    "on-error": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "surface-container": "#f0eded",
+                    "surface": "#fcf9f8",
+                    "on-surface-variant": "#57423b",
+                    "inverse-surface": "#313030",
+                    "on-secondary-fixed": "#2c0051",
+                    "on-secondary-container": "#fffbff",
+                    "background": "#fcf9f8",
+                    "on-primary-fixed-variant": "#822800",
+                    "error": "#ba1a1a",
+                    "on-secondary-fixed-variant": "#6700b5",
+                    "surface-variant": "#e5e2e1",
+                    "outline": "#8b7169",
+                    "surface-container-highest": "#e5e2e1",
+                    "secondary-fixed": "#efdbff",
+                    "inverse-primary": "#ffb59c",
+                    "surface-container-low": "#f6f3f2",
+                    "on-tertiary-fixed": "#2d141c",
+                    "on-tertiary-fixed-variant": "#5e3e47",
+                    "primary-fixed-dim": "#ffb59c",
+                    "on-primary-container": "#6c2000"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-md": "16px",
+                    "stack-sm": "8px",
+                    "stack-lg": "32px",
+                    "container-padding": "24px",
+                    "gutter": "16px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "30px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0px 10px 30px rgba(138, 43, 226, 0.08);
+        }
+        .aura-gradient-bg {
+            background: linear-gradient(135deg, #a43c12 0%, #821dda 100%);
+        }
+        .aura-gradient-text {
+            background: linear-gradient(135deg, #a43c12 0%, #821dda 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .step-line::before {
+            content: '';
+            position: absolute;
+            left: 23px;
+            top: 40px;
+            bottom: -20px;
+            width: 2px;
+            background: linear-gradient(to bottom, #821dda22, transparent);
+            z-index: 0;
+        }
+        .last-step::before {
+            display: none;
+        }
+        .checkbox-ring {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .checked .checkbox-ring {
+            background: #821dda;
+            border-color: #821dda;
+        }
+        .checked .check-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen font-body-md overflow-x-hidden pb-32">
+<!-- Top Navigation Shell -->
+<header class="flex justify-between items-center w-full px-container-padding py-stack-md fixed top-0 z-50 bg-surface/80 backdrop-blur-md">
+<div class="flex items-center gap-2">
+<button class="hover:bg-surface-variant/30 rounded-full p-2 transition-colors">
+<span class="material-symbols-outlined text-on-surface">arrow_back</span>
+</button>
+<h1 class="font-display-lg text-[24px] font-black bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">ClearMaxx</h1>
+</div>
+<button class="hover:bg-surface-variant/30 rounded-full p-2 transition-colors">
+<span class="material-symbols-outlined text-on-surface">more_vert</span>
+</button>
+</header>
+<main class="mt-20 px-container-padding">
+<!-- Hero Section -->
+<section class="mb-stack-lg">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile mb-2">Daily Ritual</h2>
+<p class="text-on-surface-variant font-body-md">Consistency is the key to that healthy glow.</p>
+</section>
+<!-- Tab Switcher -->
+<div class="flex p-1 bg-surface-container rounded-full mb-stack-lg relative overflow-hidden">
+<button class="flex-1 py-3 px-4 rounded-full font-label-md text-label-md transition-all duration-300 z-10 flex items-center justify-center gap-2 bg-white shadow-sm text-secondary" id="am-tab" onclick="switchTab('am')">
+<span class="material-symbols-outlined text-[20px]">light_mode</span>
+                AM Routine
+            </button>
+<button class="flex-1 py-3 px-4 rounded-full font-label-md text-label-md transition-all duration-300 z-10 flex items-center justify-center gap-2 text-on-surface-variant" id="pm-tab" onclick="switchTab('pm')">
+<span class="material-symbols-outlined text-[20px]">dark_mode</span>
+                PM Routine
+            </button>
+</div>
+<!-- Routine List -->
+<div class="space-y-6 relative" id="routine-container">
+<!-- AM Routine Content (Default) -->
+<div class="space-y-6" id="am-content">
+<!-- Step 1 -->
+<div class="relative step-line flex gap-4 items-start">
+<div class="z-10 bg-secondary-container/10 p-2 rounded-full border-2 border-secondary/20 flex items-center justify-center w-12 h-12 shrink-0">
+<span class="font-bold text-secondary">01</span>
+</div>
+<div class="glass-card p-5 rounded-3xl flex-1 active:scale-[0.98] transition-transform" onclick="toggleCheck(this)">
+<div class="flex justify-between items-start mb-3">
+<div>
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider mb-1 block">Cleanser</span>
+<h3 class="font-headline-md text-[18px] mb-1">Gentle Cloud Foam</h3>
+</div>
+<div class="checkbox-ring w-6 h-6 rounded-full border-2 border-outline flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[16px] opacity-0 check-icon scale-0 transition-all">check</span>
+</div>
+</div>
+<p class="text-on-surface-variant text-[14px] leading-relaxed mb-4">A pH-balanced formula that lifts impurities without stripping your skin's natural barrier.</p>
+<div class="flex items-center gap-2">
+<div class="bg-primary/10 px-3 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-primary text-[14px]">science</span>
+<span class="font-label-sm text-label-sm text-primary">Squalane</span>
+</div>
+<div class="bg-tertiary/10 px-3 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-tertiary text-[14px]">spa</span>
+<span class="font-label-sm text-label-sm text-tertiary">Amino Acids</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="relative step-line flex gap-4 items-start">
+<div class="z-10 bg-secondary-container/10 p-2 rounded-full border-2 border-secondary/20 flex items-center justify-center w-12 h-12 shrink-0">
+<span class="font-bold text-secondary">02</span>
+</div>
+<div class="glass-card p-5 rounded-3xl flex-1 active:scale-[0.98] transition-transform" onclick="toggleCheck(this)">
+<div class="flex justify-between items-start mb-3">
+<div>
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider mb-1 block">Vitamin C Serum</span>
+<h3 class="font-headline-md text-[18px] mb-1">Morning Glow Drops</h3>
+</div>
+<div class="checkbox-ring w-6 h-6 rounded-full border-2 border-outline flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[16px] opacity-0 check-icon scale-0 transition-all">check</span>
+</div>
+</div>
+<p class="text-on-surface-variant text-[14px] leading-relaxed mb-4">Potent antioxidant protection to brighten dark spots and shield against pollution.</p>
+<div class="flex items-center gap-2">
+<div class="bg-primary/10 px-3 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-primary text-[14px]">bolt</span>
+<span class="font-label-sm text-label-sm text-primary">Vitamin C</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="relative step-line last-step flex gap-4 items-start">
+<div class="z-10 bg-secondary-container/10 p-2 rounded-full border-2 border-secondary/20 flex items-center justify-center w-12 h-12 shrink-0">
+<span class="font-bold text-secondary">03</span>
+</div>
+<div class="glass-card p-5 rounded-3xl flex-1 active:scale-[0.98] transition-transform" onclick="toggleCheck(this)">
+<div class="flex justify-between items-start mb-3">
+<div>
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider mb-1 block">Moisturizer &amp; SPF</span>
+<h3 class="font-headline-md text-[18px] mb-1">HydraShield SPF 50</h3>
+</div>
+<div class="checkbox-ring w-6 h-6 rounded-full border-2 border-outline flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[16px] opacity-0 check-icon scale-0 transition-all">check</span>
+</div>
+</div>
+<div class="w-full h-32 bg-cover bg-center rounded-2xl mb-4" data-alt="A high-end, aesthetic photo of a white cosmetic tube lying on a smooth, slightly wet marble surface. Soft sunlight creates elegant shadows. Minimalist design with a luxury beauty ritual vibe. Pastel lilac and soft orange tones in the background glow." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCBm4wT1lyts8_PxpGw_YErcLBfnudXpHVCP6YjBsroE6pzNW6qoNm3BPAsg2MogQuGjKJis1CMWcAwNEkm5sIA60nV5pfH5wyqgxEbRfpWrS_HW91SWh0yp7TiIEzv3HU1U72vJJruzsOeP67pbVT4SUNSwZT6Id1ftE9zvw6bFSHQMha98fZbsi5oIU02I_8W3kIgoJPhG7O0AzSRpRIIqQXS-KFKV7fjURZL_YryM8Npze_2Hp_m18TuYupaq_9SCeP9y24E2-3z')"></div>
+<p class="text-on-surface-variant text-[14px] leading-relaxed mb-4">Double-duty hydration with broad-spectrum protection. Lightweight and non-greasy.</p>
+</div>
+</div>
+</div>
+<!-- PM Routine Content (Hidden by default) -->
+<div class="hidden space-y-6" id="pm-content">
+<!-- PM Step 1 -->
+<div class="relative step-line flex gap-4 items-start">
+<div class="z-10 bg-secondary-container/10 p-2 rounded-full border-2 border-secondary/20 flex items-center justify-center w-12 h-12 shrink-0">
+<span class="font-bold text-secondary">01</span>
+</div>
+<div class="glass-card p-5 rounded-3xl flex-1" onclick="toggleCheck(this)">
+<div class="flex justify-between items-start mb-3">
+<div>
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider mb-1 block">Double Cleanse</span>
+<h3 class="font-headline-md text-[18px] mb-1">Silk Balm Cleanser</h3>
+</div>
+<div class="checkbox-ring w-6 h-6 rounded-full border-2 border-outline flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[16px] opacity-0 check-icon scale-0 transition-all">check</span>
+</div>
+</div>
+<p class="text-on-surface-variant text-[14px] leading-relaxed mb-4">Melts away SPF and makeup using nourishing oils for a deep yet gentle reset.</p>
+</div>
+</div>
+<!-- PM Step 2 -->
+<div class="relative step-line last-step flex gap-4 items-start">
+<div class="z-10 bg-secondary-container/10 p-2 rounded-full border-2 border-secondary/20 flex items-center justify-center w-12 h-12 shrink-0">
+<span class="font-bold text-secondary">02</span>
+</div>
+<div class="glass-card p-5 rounded-3xl flex-1" onclick="toggleCheck(this)">
+<div class="flex justify-between items-start mb-3">
+<div>
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider mb-1 block">Repair Serum</span>
+<h3 class="font-headline-md text-[18px] mb-1">Night Repair Complex</h3>
+</div>
+<div class="checkbox-ring w-6 h-6 rounded-full border-2 border-outline flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[16px] opacity-0 check-icon scale-0 transition-all">check</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="bg-secondary/10 px-3 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-secondary text-[14px]">science</span>
+<span class="font-label-sm text-label-sm text-secondary">Peptides</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Weekly Progress Card -->
+<div class="mt-10 glass-card p-6 rounded-[32px] bg-gradient-to-br from-secondary/5 to-primary/5">
+<div class="flex items-center justify-between mb-4">
+<h4 class="font-headline-md text-[18px]">Weekly Consistency</h4>
+<span class="text-secondary font-bold">85%</span>
+</div>
+<div class="flex justify-between items-end h-24 gap-2">
+<div class="bg-surface-container-high w-full rounded-full h-[40%]"></div>
+<div class="bg-secondary w-full rounded-full h-[90%]"></div>
+<div class="bg-secondary w-full rounded-full h-[75%]"></div>
+<div class="bg-secondary w-full rounded-full h-[95%]"></div>
+<div class="bg-secondary w-full rounded-full h-[60%] shadow-[0_0_10px_rgba(130,29,218,0.2)]"></div>
+<div class="bg-surface-container-high w-full rounded-full h-[20%]"></div>
+<div class="bg-surface-container-high w-full rounded-full h-[0%]"></div>
+</div>
+<div class="flex justify-between mt-2 text-[10px] text-outline font-bold px-1">
+<span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Shell -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-6 pb-8 pt-4 bg-surface/70 dark:bg-surface-container-highest/70 backdrop-blur-xl border-t border-white/20 shadow-[0px_-10px_30px_rgba(138,43,226,0.08)] rounded-t-3xl">
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">camera_enhance</span>
+<span class="font-label-sm text-label-sm">Scan</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">insights</span>
+<span class="font-label-sm text-label-sm">Progress</span>
+</div>
+<div class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim bg-secondary-container/20 rounded-xl px-3 py-1 active:scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">spa</span>
+<span class="font-label-sm text-label-sm">Routine</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">event_note</span>
+<span class="font-label-sm text-label-sm">Diary</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</div>
+</nav>
+<script>
+        function switchTab(tab) {
+            const amTab = document.getElementById('am-tab');
+            const pmTab = document.getElementById('pm-tab');
+            const amContent = document.getElementById('am-content');
+            const pmContent = document.getElementById('pm-content');
+
+            if (tab === 'am') {
+                amTab.classList.add('bg-white', 'shadow-sm', 'text-secondary');
+                amTab.classList.remove('text-on-surface-variant');
+                pmTab.classList.remove('bg-white', 'shadow-sm', 'text-secondary');
+                pmTab.classList.add('text-on-surface-variant');
+                
+                amContent.classList.remove('hidden');
+                pmContent.classList.add('hidden');
+            } else {
+                pmTab.classList.add('bg-white', 'shadow-sm', 'text-secondary');
+                pmTab.classList.remove('text-on-surface-variant');
+                amTab.classList.remove('bg-white', 'shadow-sm', 'text-secondary');
+                amTab.classList.add('text-on-surface-variant');
+
+                pmContent.classList.remove('hidden');
+                amContent.classList.add('hidden');
+            }
+        }
+
+        function toggleCheck(card) {
+            card.classList.toggle('checked');
+            const ring = card.querySelector('.checkbox-ring');
+            ring.classList.toggle('bg-secondary');
+            ring.classList.toggle('border-secondary');
+            ring.classList.toggle('border-outline');
+            
+            const checkIcon = card.querySelector('.check-icon');
+            checkIcon.classList.toggle('opacity-0');
+            checkIcon.classList.toggle('opacity-100');
+            checkIcon.classList.toggle('scale-0');
+            checkIcon.classList.toggle('scale-100');
+
+            // Haptic vibration feel
+            card.style.transform = "scale(0.97)";
+            setTimeout(() => {
+                card.style.transform = "scale(1)";
+            }, 100);
+        }
+    </script>
+</body></html>

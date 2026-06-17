@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Issue Detail | ClearMaxx AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        .aura-gradient-text {
+            background: linear-gradient(to right, #a43c12, #821dda);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .aura-gradient-bg {
+            background: linear-gradient(135deg, #ff7f50, #9c42f4);
+        }
+        .bloom-shadow {
+            box-shadow: 0px 10px 30px rgba(138, 43, 226, 0.08);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #fcf9f8;
+            overflow-x: hidden;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#9c42f4",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#dec0b6",
+                        "on-surface": "#1c1b1b",
+                        "primary-container": "#ff7f50",
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#fcf9f8",
+                        "surface-dim": "#dcd9d9",
+                        "on-error-container": "#93000a",
+                        "on-background": "#1c1b1b",
+                        "tertiary-fixed-dim": "#e7bbc6",
+                        "on-tertiary-container": "#50313a",
+                        "tertiary-container": "#c399a3",
+                        "surface-container-lowest": "#ffffff",
+                        "primary": "#a43c12",
+                        "primary-fixed": "#ffdbcf",
+                        "surface-tint": "#a43c12",
+                        "secondary": "#821dda",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed": "#ffd9e2",
+                        "secondary-fixed-dim": "#dcb8ff",
+                        "surface-container-high": "#eae7e7",
+                        "inverse-on-surface": "#f3f0ef",
+                        "tertiary": "#78555e",
+                        "on-primary-fixed": "#380c00",
+                        "on-error": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#f0eded",
+                        "surface": "#fcf9f8",
+                        "on-surface-variant": "#57423b",
+                        "inverse-surface": "#313030",
+                        "on-secondary-fixed": "#2c0051",
+                        "on-secondary-container": "#fffbff",
+                        "background": "#fcf9f8",
+                        "on-primary-fixed-variant": "#822800",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#6700b5",
+                        "surface-variant": "#e5e2e1",
+                        "outline": "#8b7169",
+                        "surface-container-highest": "#e5e2e1",
+                        "secondary-fixed": "#efdbff",
+                        "inverse-primary": "#ffb59c",
+                        "surface-container-low": "#f6f3f2",
+                        "on-tertiary-fixed": "#2d141c",
+                        "on-tertiary-fixed-variant": "#5e3e47",
+                        "primary-fixed-dim": "#ffb59c",
+                        "on-primary-container": "#6c2000"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "16px",
+                        "stack-sm": "8px",
+                        "stack-lg": "32px",
+                        "container-padding": "24px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "30px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="font-body-md text-on-surface pb-32">
+<!-- Top Navigation -->
+<header class="flex justify-between items-center w-full px-container-padding py-stack-md bg-transparent fixed top-0 z-50">
+<button class="hover:bg-surface-variant/30 rounded-full p-2 transition-colors active:opacity-70">
+<span class="material-symbols-outlined text-on-surface">arrow_back</span>
+</button>
+<span class="font-display-lg text-display-lg font-black bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">ClearMaxx</span>
+<button class="hover:bg-surface-variant/30 rounded-full p-2 transition-colors active:opacity-70">
+<span class="material-symbols-outlined text-on-surface">more_vert</span>
+</button>
+</header>
+<main class="pt-24 px-container-padding max-w-md mx-auto">
+<!-- Hero Section / Issue Visual -->
+<section class="mb-stack-lg">
+<div class="relative w-full h-72 rounded-[40px] overflow-hidden bloom-shadow border-4 border-white">
+
+<div class="w-full h-full bg-cover bg-center" data-alt="A high-resolution, extreme close-up of healthy skin texture with soft, cinematic lighting and a slight warm glow. The image is minimalist and editorial, capturing the subtle nuances of skin pores and natural luminosity. The aesthetic is clean and high-end, fitting a premium digital dermatology platform with soft focus backgrounds." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAl04omoEhFdHnjTcxNi6EbiaSCFFmgqxsuLatEKqqaZ13z6yxlYK-FbI3LQmlcNYmDfxwMBP30Q73s7JzblyHai2tuEkBUl5xLy1AxPlN2y2wMGARBEyWNFo9jpTbPkN0nFhtPLYSuFnScSuSKN21C3U6aUQL2CxR1NZUllNM8vhCUVc2EmLzp6j4PH3BG2tOaDg0aZSLiB_s84zDUG_fel1qkbFSYwa0LF3a5lCGeLTy9LJaT12I4Hyiaz44krl_mz20nvamajsRF')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+<div class="absolute bottom-6 left-6">
+<span class="px-3 py-1 bg-primary text-on-primary font-label-sm text-label-sm rounded-full mb-2 inline-block">Analysis Result</span>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-white font-bold">Persistent Redness</h1>
+</div>
+</div>
+</section>
+<!-- Severity Indicator Card -->
+<section class="mb-stack-md">
+<div class="glass-panel rounded-3xl p-6 bloom-shadow">
+<div class="flex justify-between items-center mb-4">
+<h2 class="font-headline-md text-headline-md text-on-surface">Severity Level</h2>
+<span class="font-label-md text-label-md text-secondary font-bold">Moderate</span>
+</div>
+<div class="relative w-full h-3 bg-surface-container rounded-full overflow-hidden">
+<div class="aura-gradient-bg absolute h-full rounded-full" style="width: 65%;"></div>
+<div class="absolute left-[65%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-5 h-5 bg-white border-4 border-secondary rounded-full shadow-lg"></div>
+</div>
+<div class="flex justify-between mt-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Low</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">High</span>
+</div>
+</div>
+</section>
+<!-- What this means -->
+<section class="mb-stack-md">
+<div class="glass-panel rounded-3xl p-6 bloom-shadow">
+<div class="flex items-center gap-3 mb-3">
+<span class="material-symbols-outlined text-primary">info</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">What this means</h2>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                    Our AI has detected localized erythema (redness) across the cheek areas. This suggests a compromised skin barrier or mild inflammation often caused by external stressors or active breakouts. It's not just a surface glow; your skin is currently in a "reactive" phase, asking for soothing and protective care.
+                </p>
+</div>
+</section>
+<!-- Recommended Ingredients Bento -->
+<section class="mb-stack-md">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-4 px-2">Recommended Rescue</h2>
+<div class="grid grid-cols-2 gap-4">
+<!-- Ingredient 1 -->
+<div class="glass-panel rounded-3xl p-5 bloom-shadow flex flex-col items-center text-center">
+<div class="w-12 h-12 rounded-2xl bg-primary-fixed flex items-center justify-center mb-3">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">science</span>
+</div>
+<h3 class="font-label-md text-label-md text-on-surface mb-1">Niacinamide</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Calms inflammation &amp; strengthens barrier.</p>
+</div>
+<!-- Ingredient 2 -->
+<div class="glass-panel rounded-3xl p-5 bloom-shadow flex flex-col items-center text-center">
+<div class="w-12 h-12 rounded-2xl bg-secondary-fixed flex items-center justify-center mb-3">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">eco</span>
+</div>
+<h3 class="font-label-md text-label-md text-on-surface mb-1">Centella</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Traditional "Cica" healing for redness.</p>
+</div>
+<!-- Ingredient 3 -->
+<div class="glass-panel rounded-3xl p-5 bloom-shadow flex flex-col items-center text-center col-span-2 flex-row text-left gap-4">
+<div class="w-12 h-12 rounded-2xl bg-tertiary-fixed flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">opacity</span>
+</div>
+<div>
+<h3 class="font-label-md text-label-md text-on-surface mb-1">Hyaluronic Acid</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Deeply hydrates to prevent tightness associated with irritation.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Pro Tips Section -->
+<section class="mb-stack-lg">
+<div class="bg-secondary-container/10 border border-secondary-container/20 rounded-[32px] p-6">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-8 h-8 rounded-full aura-gradient-bg flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-sm">tips_and_updates</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Pro Rituals</h2>
+</div>
+<ul class="space-y-4">
+<li class="flex gap-4">
+<span class="font-headline-md text-secondary/30">01</span>
+<p class="font-body-md text-body-md text-on-surface-variant">Cool your products in the fridge before applying to instantly constrict blood vessels.</p>
+</li>
+<li class="flex gap-4">
+<span class="font-headline-md text-secondary/30">02</span>
+<p class="font-body-md text-body-md text-on-surface-variant">Avoid hot water while cleansing; lukewarm is the golden rule for reactive skin.</p>
+</li>
+<li class="flex gap-4">
+<span class="font-headline-md text-secondary/30">03</span>
+<p class="font-body-md text-body-md text-on-surface-variant">Pat dry with a fresh micro-fiber towel instead of rubbing to minimize friction.</p>
+</li>
+</ul>
+</div>
+</section>
+<!-- Primary CTA -->
+<section class="mb-stack-lg">
+<button class="w-full py-5 rounded-full aura-gradient-bg text-white font-bold text-lg shadow-[0px_10px_20px_rgba(156,66,244,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all">
+                Update My Routine
+            </button>
+</section>
+</main>
+<!-- Bottom Navigation Shell -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-6 pb-8 pt-4 bg-surface/70 dark:bg-surface-container-highest/70 backdrop-blur-xl border-t border-white/20 shadow-[0px_-10px_30px_rgba(138,43,226,0.08)] rounded-t-3xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined">camera_enhance</span>
+<span class="font-label-sm text-label-sm mt-1">Scan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined">insights</span>
+<span class="font-label-sm text-label-sm mt-1">Progress</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined">spa</span>
+<span class="font-label-sm text-label-sm mt-1">Routine</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim bg-secondary-container/20 rounded-xl px-3 py-1 scale-95 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">event_note</span>
+<span class="font-label-sm text-label-sm mt-1">Diary</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="font-label-sm text-label-sm mt-1">Profile</span>
+</a>
+</nav>
+<script>
+        // Micro-interaction for the progress bar animation on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const progressBar = document.querySelector('.aura-gradient-bg.absolute.h-full');
+            progressBar.style.width = '0%';
+            setTimeout(() => {
+                progressBar.style.transition = 'width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                progressBar.style.width = '65%';
+            }, 300);
+        });
+
+        // Floating effect for cards
+        const cards = document.querySelectorAll('.glass-panel');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                card.style.transition = 'all 0.6s ease-out';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100 * index);
+        });
+    </script>
+</body></html>

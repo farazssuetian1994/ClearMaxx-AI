@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ClearMaxx+ Premium</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-container": "#9c42f4",
+                    "on-secondary": "#ffffff",
+                    "outline-variant": "#dec0b6",
+                    "on-surface": "#1c1b1b",
+                    "primary-container": "#ff7f50",
+                    "error-container": "#ffdad6",
+                    "surface-bright": "#fcf9f8",
+                    "surface-dim": "#dcd9d9",
+                    "on-error-container": "#93000a",
+                    "on-background": "#1c1b1b",
+                    "tertiary-fixed-dim": "#e7bbc6",
+                    "on-tertiary-container": "#50313a",
+                    "tertiary-container": "#c399a3",
+                    "surface-container-lowest": "#ffffff",
+                    "primary": "#a43c12",
+                    "primary-fixed": "#ffdbcf",
+                    "surface-tint": "#a43c12",
+                    "secondary": "#821dda",
+                    "on-tertiary": "#ffffff",
+                    "tertiary": "#78555e",
+                    "on-primary-fixed": "#380c00",
+                    "on-error": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "surface-container": "#f0eded",
+                    "surface": "#fcf9f8",
+                    "on-surface-variant": "#57423b",
+                    "inverse-surface": "#313030",
+                    "on-secondary-fixed": "#2c0051",
+                    "on-secondary-container": "#fffbff",
+                    "background": "#fcf9f8",
+                    "on-primary-fixed-variant": "#822800",
+                    "error": "#ba1a1a",
+                    "on-secondary-fixed-variant": "#6700b5",
+                    "surface-variant": "#e5e2e1",
+                    "outline": "#8b7169",
+                    "surface-container-highest": "#e5e2e1",
+                    "secondary-fixed": "#efdbff",
+                    "inverse-primary": "#ffb59c",
+                    "surface-container-low": "#f6f3f2",
+                    "on-tertiary-fixed": "#2d141c",
+                    "on-tertiary-fixed-variant": "#5e3e47",
+                    "primary-fixed-dim": "#ffb59c",
+                    "on-primary-container": "#6c2000"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-md": "16px",
+                    "stack-sm": "8px",
+                    "stack-lg": "32px",
+                    "container-padding": "24px",
+                    "gutter": "16px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "30px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .aura-gradient {
+            background: linear-gradient(135deg, #a43c12 0%, #821dda 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        .bloom-shadow {
+            box-shadow: 0px 10px 30px rgba(138, 43, 226, 0.08);
+        }
+        .active-toggle {
+            background: #ffffff;
+            box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fcf9f8;
+            overflow-x: hidden;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="flex items-center justify-center min-h-screen p-4 md:p-8">
+<!-- Background Decoration -->
+<div class="fixed inset-0 z-[-1] overflow-hidden">
+<div class="absolute -top-20 -right-20 w-96 h-96 bg-secondary-fixed opacity-30 blur-[100px] rounded-full"></div>
+<div class="absolute top-1/2 -left-20 w-80 h-80 bg-primary-fixed opacity-20 blur-[80px] rounded-full"></div>
+</div>
+<!-- Main Container -->
+<main class="w-full max-w-[430px] min-h-[800px] bg-surface-bright rounded-[48px] relative overflow-hidden shadow-2xl flex flex-col">
+<!-- Header -->
+<header class="px-container-padding py-stack-md flex justify-between items-center z-10">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant/30 transition-colors">
+<span class="material-symbols-outlined text-on-surface">close</span>
+</button>
+<div class="text-primary font-bold tracking-tighter text-xl">ClearMaxx</div>
+<div class="w-10"></div>
+</header>
+<!-- Visual Hero Section -->
+<div class="relative px-container-padding pt-stack-sm pb-stack-lg flex flex-col items-center text-center">
+<div class="w-32 h-32 mb-stack-md relative">
+<div class="absolute inset-0 aura-gradient rounded-full opacity-20 animate-pulse"></div>
+<div class="w-full h-full rounded-full border-2 border-white/50 flex items-center justify-center overflow-hidden glass-card bloom-shadow">
+<img class="w-full h-full object-cover" data-alt="A macro close-up of premium, dewy skin textures glowing with iridescent light. The visual style is high-end editorial beauty photography, using soft focus and a palette of warm oranges and deep violets to match the brand's 'Aura Gradient'. The lighting is ethereal and bright, suggesting a perfect skin glow-up transformation." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA73NMns9qXEcT9dQcySsBeegiq3BBK1sBW9ftS7LCW02bJBYfNRUvmGNsAXg4o7IyKe3ggex65oNE-WJm-XA3ApynaJ1yhjHrCeSKgZyWxDw8lzS-EK0hybXcVlcYJ59WyNIW5AVoMDIR5tsD_QIMzJMyuSZ0A-JN9qygs-srHNXkl3o58k8hssEkvTxkq_zidBMXEA8kdCber4QZZm3c7rWr6xKdLrQCcqxZjT6V-Umch6DkqqfOfHutybqPy6dQF-BZ6mp1t_1oG"/>
+</div>
+<div class="absolute -bottom-2 -right-2 bg-secondary-container text-on-secondary text-[10px] font-bold px-3 py-1 rounded-full border-2 border-white">PLUS</div>
+</div>
+<h1 class="font-display-lg text-display-lg text-on-surface mb-2">Elevate Your Glow</h1>
+<p class="font-body-md text-on-surface-variant max-w-[280px]">Unlock clinical-grade AI insights and personalized skincare rituals.</p>
+</div>
+<!-- Glassy Feature Card -->
+<div class="flex-grow px-container-padding">
+<div class="glass-card rounded-[32px] p-6 bloom-shadow mb-stack-lg border border-white/60">
+<ul class="space-y-5">
+<li class="flex items-start gap-4">
+<div class="w-10 h-10 rounded-xl bg-primary-fixed flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-primary">biotech</span>
+</div>
+<div>
+<h3 class="font-label-md text-on-surface">Deep AI Scans</h3>
+<p class="text-[12px] text-on-surface-variant opacity-70">Analyze 14 distinct skin metrics with sub-dermal precision.</p>
+</div>
+</li>
+<li class="flex items-start gap-4">
+<div class="w-10 h-10 rounded-xl bg-secondary-fixed flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-secondary">spa</span>
+</div>
+<div>
+<h3 class="font-label-md text-on-surface">Unlimited Routines</h3>
+<p class="text-[12px] text-on-surface-variant opacity-70">Dynamic daily adjustments based on your local climate and stress levels.</p>
+</div>
+</li>
+<li class="flex items-start gap-4">
+<div class="w-10 h-10 rounded-xl bg-tertiary-fixed flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-tertiary">verified_user</span>
+</div>
+<div>
+<h3 class="font-label-md text-on-surface">Derm-Grade Pro Tips</h3>
+<p class="text-[12px] text-on-surface-variant opacity-70">Weekly ingredient breakdowns tailored specifically for your skin bio-type.</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<!-- Pricing & Action Section -->
+<div class="bg-surface-container-low/80 backdrop-blur-md rounded-t-[40px] px-container-padding pt-8 pb-10 border-t border-white/30">
+<!-- Pricing Toggle -->
+<div class="bg-surface-variant/40 p-1.5 rounded-2xl flex items-center mb-6">
+<button class="flex-1 py-3 px-4 rounded-xl text-center transition-all duration-300 font-label-md text-on-surface-variant" id="weeklyToggle" onclick="setPlan('weekly')">
+                    Weekly<br/><span class="text-[10px] opacity-60">$5.99</span>
+</button>
+<button class="flex-1 py-3 px-4 rounded-xl text-center transition-all duration-300 font-label-md active-toggle text-primary relative overflow-hidden" id="yearlyToggle" onclick="setPlan('yearly')">
+<span class="relative z-10">Yearly</span><br/><span class="relative z-10 text-[10px] opacity-80 font-bold">$39.99</span>
+<div class="absolute top-0 right-0 bg-primary px-2 py-0.5 rounded-bl-lg text-[8px] text-white font-bold uppercase tracking-wider">Save 87%</div>
+</button>
+</div>
+<!-- Trial Info -->
+<p class="text-center font-label-sm text-on-surface-variant mb-6">
+                Try 3 days for free, then <span id="priceLabel">$39.99/year</span>.
+                <span class="block opacity-60 text-[10px] mt-1 italic">Cancel anytime. No commitment.</span>
+</p>
+<!-- Main Button -->
+<button class="w-full aura-gradient text-on-secondary py-5 rounded-full font-headline-md shadow-[0_8px_20px_rgba(164,60,18,0.25)] hover:scale-[1.02] active:scale-[0.98] transition-all mb-6">
+                Start Free Trial
+            </button>
+<!-- Links -->
+<div class="flex justify-center gap-8">
+<button class="text-[11px] font-label-md text-on-surface-variant/60 hover:text-primary transition-colors">Terms of Service</button>
+<button class="text-[11px] font-label-md text-on-surface-variant/60 hover:text-primary transition-colors">Privacy Policy</button>
+<button class="text-[11px] font-label-md text-on-surface-variant hover:text-secondary font-bold transition-colors">Restore Purchases</button>
+</div>
+</div>
+</main>
+<script>
+        function setPlan(plan) {
+            const weeklyBtn = document.getElementById('weeklyToggle');
+            const yearlyBtn = document.getElementById('yearlyToggle');
+            const priceLabel = document.getElementById('priceLabel');
+
+            if (plan === 'weekly') {
+                weeklyBtn.classList.add('active-toggle', 'text-primary');
+                weeklyBtn.classList.remove('text-on-surface-variant');
+                yearlyBtn.classList.remove('active-toggle', 'text-primary');
+                yearlyBtn.classList.add('text-on-surface-variant');
+                priceLabel.innerText = '$5.99/week';
+            } else {
+                yearlyBtn.classList.add('active-toggle', 'text-primary');
+                yearlyBtn.classList.remove('text-on-surface-variant');
+                weeklyBtn.classList.remove('active-toggle', 'text-primary');
+                weeklyBtn.classList.add('text-on-surface-variant');
+                priceLabel.innerText = '$39.99/year';
+            }
+        }
+
+        // Simple floating animation logic for background blobs if desired
+        const blobs = document.querySelectorAll('.fixed > div');
+        blobs.forEach((blob, i) => {
+            blob.animate([
+                { transform: 'translate(0, 0)' },
+                { transform: `translate(${i % 2 === 0 ? '20px' : '-20px'}, ${i % 2 === 0 ? '-30px' : '30px'})` },
+                { transform: 'translate(0, 0)' }
+            ], {
+                duration: 8000 + (i * 2000),
+                iterations: Infinity,
+                easing: 'ease-in-out'
+            });
+        });
+    </script>
+</body></html>

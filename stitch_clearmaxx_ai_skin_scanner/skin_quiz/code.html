@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .aura-gradient-text {
+            background: linear-gradient(to right, #a43c12, #821dda);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .aura-btn {
+            background: linear-gradient(135deg, #ff7f50 0%, #821dda 100%);
+            box-shadow: 0px 10px 30px rgba(138, 43, 226, 0.2);
+        }
+        .step-transition {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .bloom-shadow {
+            box-shadow: 0px 10px 30px rgba(138, 43, 226, 0.08);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fcf9f8;
+            overflow-x: hidden;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#9c42f4",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#dec0b6",
+                        "on-surface": "#1c1b1b",
+                        "primary-container": "#ff7f50",
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#fcf9f8",
+                        "surface-dim": "#dcd9d9",
+                        "on-error-container": "#93000a",
+                        "on-background": "#1c1b1b",
+                        "tertiary-fixed-dim": "#e7bbc6",
+                        "on-tertiary-container": "#50313a",
+                        "tertiary-container": "#c399a3",
+                        "surface-container-lowest": "#ffffff",
+                        "primary": "#a43c12",
+                        "primary-fixed": "#ffdbcf",
+                        "surface-tint": "#a43c12",
+                        "secondary": "#821dda",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed": "#ffd9e2",
+                        "secondary-fixed-dim": "#dcb8ff",
+                        "surface-container-high": "#eae7e7",
+                        "inverse-on-surface": "#f3f0ef",
+                        "tertiary": "#78555e",
+                        "on-primary-fixed": "#380c00",
+                        "on-error": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#f0eded",
+                        "surface": "#fcf9f8",
+                        "on-surface-variant": "#57423b",
+                        "inverse-surface": "#313030",
+                        "on-secondary-fixed": "#2c0051",
+                        "on-secondary-container": "#fffbff",
+                        "background": "#fcf9f8",
+                        "on-primary-fixed-variant": "#822800",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#6700b5",
+                        "surface-variant": "#e5e2e1",
+                        "outline": "#8b7169",
+                        "surface-container-highest": "#e5e2e1",
+                        "secondary-fixed": "#efdbff",
+                        "inverse-primary": "#ffb59c",
+                        "surface-container-low": "#f6f3f2",
+                        "on-tertiary-fixed": "#2d141c",
+                        "on-tertiary-fixed-variant": "#5e3e47",
+                        "primary-fixed-dim": "#ffb59c",
+                        "on-primary-container": "#6c2000"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "16px",
+                        "stack-sm": "8px",
+                        "stack-lg": "32px",
+                        "container-padding": "24px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "30px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface antialiased min-h-screen">
+<!-- Background Decoration -->
+<div class="fixed inset-0 pointer-events-none z-0">
+
+</div>
+<!-- Top Navigation Anchor (Shared Component Mapping) -->
+<header class="sticky top-0 z-50 flex justify-between items-center w-full px-container-padding py-stack-md bg-surface/40 backdrop-blur-md">
+<div class="flex items-center gap-4">
+<button class="hover:bg-surface-variant/30 rounded-full p-2 transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface">arrow_back</span>
+</button>
+<span class="font-display-lg text-[24px] font-black bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">ClearMaxx</span>
+</div>
+<div class="flex items-center">
+<button class="hover:bg-surface-variant/30 rounded-full p-2 transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface">more_vert</span>
+</button>
+</div>
+</header>
+<main class="relative z-10 px-container-padding pb-32">
+<!-- Progress Bar Section -->
+<section class="mt-stack-md mb-stack-lg">
+<div class="flex justify-between items-center mb-stack-sm">
+<span class="font-label-md text-label-md text-on-surface-variant">Quiz Progress</span>
+<span class="font-label-md text-label-md text-primary font-bold" id="step-count">2 of 3</span>
+</div>
+<div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full aura-btn transition-all duration-700 ease-out" id="progress-indicator" style="width: 66%;"></div>
+</div>
+</section>
+<!-- Quiz Container -->
+<div class="space-y-stack-lg" id="quiz-flow">
+<!-- Step 1: Skin Type (Visual Representation) -->
+<div class="step-transition hidden" id="step-1">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile mb-stack-sm">What's your skin vibe?</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mb-stack-lg">Choose the description that feels most like your skin on a typical day.</p>
+<div class="grid grid-cols-2 gap-gutter">
+<!-- Oily Card -->
+<button class="glass-card p-stack-md rounded-3xl text-left bloom-shadow border-2 border-transparent hover:border-secondary transition-all group active:scale-95" onclick="selectType(this)">
+<div class="w-12 h-12 rounded-2xl bg-secondary-container/10 flex items-center justify-center mb-stack-md group-hover:bg-secondary-container/20 transition-colors">
+<span class="material-symbols-outlined text-secondary">water_drop</span>
+</div>
+<h3 class="font-headline-md text-[18px] mb-1">Oily</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Shine and visible pores are common.</p>
+</button>
+<!-- Dry Card -->
+<button class="glass-card p-stack-md rounded-3xl text-left bloom-shadow border-2 border-transparent hover:border-secondary transition-all group active:scale-95" onclick="selectType(this)">
+<div class="w-12 h-12 rounded-2xl bg-primary-container/10 flex items-center justify-center mb-stack-md group-hover:bg-primary-container/20 transition-colors">
+<span class="material-symbols-outlined text-primary">texture</span>
+</div>
+<h3 class="font-headline-md text-[18px] mb-1">Dry</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Feels tight or looks flaky often.</p>
+</button>
+<!-- Combination Card -->
+<button class="glass-card p-stack-md rounded-3xl text-left bloom-shadow border-2 border-transparent hover:border-secondary transition-all group active:scale-95" onclick="selectType(this)">
+<div class="w-12 h-12 rounded-2xl bg-tertiary-container/20 flex items-center justify-center mb-stack-md group-hover:bg-tertiary-container/30 transition-colors">
+<span class="material-symbols-outlined text-tertiary">contrast</span>
+</div>
+<h3 class="font-headline-md text-[18px] mb-1">Combination</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Oily T-zone, dry cheeks.</p>
+</button>
+<!-- Sensitive Card -->
+<button class="glass-card p-stack-md rounded-3xl text-left bloom-shadow border-2 border-transparent hover:border-secondary transition-all group active:scale-95" onclick="selectType(this)">
+<div class="w-12 h-12 rounded-2xl bg-error-container/40 flex items-center justify-center mb-stack-md group-hover:bg-error-container/60 transition-colors">
+<span class="material-symbols-outlined text-error">ecg_heart</span>
+</div>
+<h3 class="font-headline-md text-[18px] mb-1">Sensitive</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Reacts easily to products.</p>
+</button>
+</div>
+</div>
+<!-- Step 2: Main Goals (Bento Style) -->
+<div class="step-transition" id="step-2">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile mb-stack-sm">What's the main goal?</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mb-stack-lg">We'll prioritize this in your daily AI ritual.</p>
+<div class="grid grid-cols-6 grid-rows-2 gap-gutter h-80">
+<button class="col-span-4 row-span-1 glass-card rounded-3xl p-stack-md flex flex-col justify-end relative overflow-hidden border-2 border-transparent hover:border-secondary active:scale-[0.98] transition-all" onclick="selectGoal(this)">
+<div class="absolute top-0 left-0 w-full h-full z-0 overflow-hidden opacity-40">
+<img class="w-full h-full object-cover" data-alt="Close up of clear, glowing skin with a slight dewy finish, high fashion beauty photography, bright airy studio lighting, Gen Z aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9qNye-xEQRE-Mp0oLhwo0q6U7r9xEcH2k7zHcL9kGm4svdYTP1d5JnF-XMrWvcVOI9lkKWzPp-5Xak12Mf1z46k1wwUkZPBOHFdHhEvlD8XJmDcQLTthwvAxqcdYY5FS5Au4mkMTtgQvo4zfsoaZ7S9wFYk7qPtEGz9jaLEtvvPSMw-WUQe89I76UKgXdUMWYpvFwP76tnOV7fJR7H4DOjkKDAsQAq4XbrdO3v2uVsGqci4_WRrmMEVYo2wt2NWHNGXSo9U4xuRWO"/>
+</div>
+<div class="relative z-10">
+<h3 class="font-headline-md text-headline-md text-on-surface">Clear Acne</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Zap breakouts fast</p>
+</div>
+</button>
+<button class="col-span-2 row-span-2 glass-card rounded-3xl p-stack-md flex flex-col justify-end relative overflow-hidden border-2 border-transparent hover:border-secondary active:scale-[0.98] transition-all" onclick="selectGoal(this)">
+<div class="absolute top-0 left-0 w-full h-full z-0 opacity-40">
+<img class="w-full h-full object-cover" data-alt="Radiant face model with glass skin texture, looking at camera, warm golden hour lighting, premium skincare branding aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBf2AJYyEW1LwieyHc5ImC0VKwwYlYKKZnRzYkqePoZwnRMJADnKsCB0GvxYwc_h5nmldCHSN1gIQeF7_sTnp9VxU0FKYYr-6Z5O4bVPtSTMK8tbyCwlR-lIAgWj-4lgAQPCUTLmDyZynnqn_7MqzpLiseUO1jRfxJcvexyhRSa55cy6XQGvFRvpO2SR0_z3tMsiTPWu82cpCZ7QXqB-xQXzHYNOB2li0BYWNivYRZ9lzUkV9gXxmg_nrzy5PapM8ageTo0gdihyY54"/>
+</div>
+<div class="relative z-10">
+<h3 class="font-headline-md text-[18px] text-on-surface">Ultimate Glow</h3>
+</div>
+</button>
+<button class="col-span-4 row-span-1 glass-card rounded-3xl p-stack-md flex items-center gap-4 border-2 border-transparent hover:border-secondary active:scale-[0.98] transition-all" onclick="selectGoal(this)">
+<div class="w-12 h-12 shrink-0 rounded-full aura-btn flex items-center justify-center">
+<span class="material-symbols-outlined text-white">auto_awesome</span>
+</div>
+<div>
+<h3 class="font-headline-md text-[18px] text-on-surface">Anti-Aging</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Prevent &amp; restore</p>
+</div>
+</button>
+</div>
+</div>
+<!-- Step 3: Concerns (Chips/Multi-select) -->
+<div class="step-transition hidden" id="step-3">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile mb-stack-sm">Any specific concerns?</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mb-stack-lg">Select all that apply to get a custom formula.</p>
+<div class="flex flex-wrap gap-3">
+<!-- Concern Chip -->
+<button class="px-6 py-3 rounded-full glass-card border border-outline-variant text-on-surface-variant font-label-md transition-all hover:bg-primary-container/10 active:scale-95 flex items-center gap-2" onclick="toggleChip(this)">
+<span class="material-symbols-outlined text-[18px]">emergency_home</span>
+                        Redness
+                    </button>
+<button class="px-6 py-3 rounded-full glass-card border border-outline-variant text-on-surface-variant font-label-md transition-all hover:bg-primary-container/10 active:scale-95 flex items-center gap-2" onclick="toggleChip(this)">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+                        Dark Circles
+                    </button>
+<button class="px-6 py-3 rounded-full glass-card border border-outline-variant text-on-surface-variant font-label-md transition-all hover:bg-primary-container/10 active:scale-95 flex items-center gap-2" onclick="toggleChip(this)">
+<span class="material-symbols-outlined text-[18px]">grid_view</span>
+                        Large Pores
+                    </button>
+<button class="px-6 py-3 rounded-full glass-card border border-outline-variant text-on-surface-variant font-label-md transition-all hover:bg-primary-container/10 active:scale-95 flex items-center gap-2" onclick="toggleChip(this)">
+<span class="material-symbols-outlined text-[18px]">blur_on</span>
+                        Uneven Texture
+                    </button>
+<button class="px-6 py-3 rounded-full glass-card border border-outline-variant text-on-surface-variant font-label-md transition-all hover:bg-primary-container/10 active:scale-95 flex items-center gap-2" onclick="toggleChip(this)">
+<span class="material-symbols-outlined text-[18px]">wb_sunny</span>
+                        Sun Damage
+                    </button>
+<button class="px-6 py-3 rounded-full glass-card border border-outline-variant text-on-surface-variant font-label-md transition-all hover:bg-primary-container/10 active:scale-95 flex items-center gap-2" onclick="toggleChip(this)">
+<span class="material-symbols-outlined text-[18px]">water_drop</span>
+                        Dehydration
+                    </button>
+</div>
+<div class="mt-stack-lg p-stack-md glass-card rounded-3xl flex items-center gap-4 bg-secondary-container/5 border-secondary/20">
+<div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">lightbulb</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant italic">"Pro Tip: Redness and dehydration often go hand-in-hand. We'll suggest calming ceramides."</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Action Bar -->
+<footer class="fixed bottom-0 left-0 w-full z-50 p-container-padding pb-10">
+<div class="max-w-md mx-auto flex items-center gap-gutter">
+<button class="w-16 h-16 rounded-3xl glass-card flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors bloom-shadow" onclick="prevStep()">
+<span class="material-symbols-outlined">arrow_back_ios_new</span>
+</button>
+<button class="flex-1 h-16 aura-btn rounded-3xl text-white font-headline-md flex items-center justify-center gap-2 active:scale-95 transition-transform" id="next-btn" onclick="nextStep()">
+<span>Next</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</footer>
+<script>
+        let currentStep = 2;
+        const totalSteps = 3;
+
+        function updateUI() {
+            // Hide all steps
+            for (let i = 1; i <= totalSteps; i++) {
+                document.getElementById(`step-${i}`).classList.add('hidden');
+                document.getElementById(`step-${i}`).classList.remove('animate-in', 'fade-in', 'slide-in-from-right');
+            }
+
+            // Show current step
+            const currentElement = document.getElementById(`step-${currentStep}`);
+            currentElement.classList.remove('hidden');
+            
+            // Update Progress
+            const progress = (currentStep / totalSteps) * 100;
+            document.getElementById('progress-indicator').style.width = `${progress}%`;
+            document.getElementById('step-count').innerText = `${currentStep} of ${totalSteps}`;
+
+            // Button Text Update
+            const nextBtn = document.getElementById('next-btn');
+            if (currentStep === totalSteps) {
+                nextBtn.querySelector('span').innerText = "Finish Ritual";
+            } else {
+                nextBtn.querySelector('span').innerText = "Next";
+            }
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                updateUI();
+            } else {
+                // Final action logic
+                alert("Calculating your perfect ritual...");
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateUI();
+            }
+        }
+
+        function selectType(el) {
+            // Clear other selections in step 1
+            const buttons = el.parentElement.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.classList.remove('border-secondary', 'bg-secondary/5');
+                btn.classList.add('border-transparent');
+            });
+            // Highlight selected
+            el.classList.remove('border-transparent');
+            el.classList.add('border-secondary', 'bg-secondary/5');
+            
+            setTimeout(() => nextStep(), 300); // Auto-advance for better UX
+        }
+
+        function selectGoal(el) {
+            const buttons = el.parentElement.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.classList.remove('border-secondary', 'ring-2', 'ring-secondary/20');
+                btn.classList.add('border-transparent');
+            });
+            el.classList.remove('border-transparent');
+            el.classList.add('border-secondary', 'ring-2', 'ring-secondary/20');
+
+            setTimeout(() => nextStep(), 300);
+        }
+
+        function toggleChip(el) {
+            const isActive = el.classList.contains('bg-secondary-container');
+            if (isActive) {
+                el.classList.remove('bg-secondary-container', 'text-white', 'border-secondary-container');
+                el.classList.add('glass-card', 'text-on-surface-variant', 'border-outline-variant');
+            } else {
+                el.classList.add('bg-secondary-container', 'text-white', 'border-secondary-container');
+                el.classList.remove('glass-card', 'text-on-surface-variant', 'border-outline-variant');
+            }
+        }
+
+        // Initialize view
+        updateUI();
+    </script>
+</body></html>

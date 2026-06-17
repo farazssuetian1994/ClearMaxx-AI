@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ClearMaxx — Subscription Pricing Plan</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI', 'Inter', Arial, sans-serif; color:#2b2440; font-size:13px; line-height:1.55; }
+  .page { padding:0 46px 46px; }
+  .hero {
+    background:linear-gradient(135deg,#ff7eb3 0%,#a86bff 55%,#6b5bff 100%);
+    color:#fff; padding:52px 46px 40px; border-radius:0 0 28px 28px;
+  }
+  .hero .kicker { letter-spacing:4px; font-size:11px; opacity:.9; text-transform:uppercase; }
+  .hero h1 { font-size:38px; margin:10px 0 8px; font-weight:800; }
+  .hero p { font-size:14px; opacity:.95; max-width:560px; }
+  .hero .meta { margin-top:18px; font-size:11px; opacity:.85; }
+  h2 { color:#6b5bff; font-size:18px; margin:34px 0 6px; }
+  .rule { height:3px; background:linear-gradient(90deg,#ff7eb3,#6b5bff); border-radius:3px; width:70px; margin-bottom:14px; }
+  table { width:100%; border-collapse:collapse; margin-top:10px; font-size:12px; }
+  th { background:#6b5bff; color:#fff; text-align:left; padding:9px 12px; font-size:11px; letter-spacing:.5px; }
+  th:first-child { border-radius:8px 0 0 0; } th:last-child { border-radius:0 8px 0 0; }
+  td { padding:9px 12px; border-bottom:1px solid #eee; }
+  tr:nth-child(even) td { background:#faf8ff; }
+  .badge { display:inline-block; padding:2px 9px; border-radius:20px; font-size:10px; font-weight:700; }
+  .b-hi { background:#ffe0ec; color:#d6336c; } .b-mid { background:#fff3d6; color:#b8860b; } .b-lo { background:#dcfce7; color:#168a4a; }
+  .cards { display:flex; gap:14px; margin-top:14px; }
+  .card { flex:1; border:2px solid #eee; border-radius:18px; padding:18px 16px; position:relative; }
+  .card.featured { border-color:#a86bff; box-shadow:0 8px 24px rgba(168,107,255,.18); }
+  .card .tag { position:absolute; top:-11px; left:50%; transform:translateX(-50%); background:linear-gradient(90deg,#ff7eb3,#6b5bff); color:#fff; font-size:9px; font-weight:700; padding:3px 12px; border-radius:20px; letter-spacing:.5px; }
+  .card h3 { font-size:14px; color:#6b5bff; } .card .price { font-size:26px; font-weight:800; margin:6px 0 2px; }
+  .card .sub { font-size:11px; color:#888; } .card ul { list-style:none; margin-top:10px; font-size:11px; }
+  .card li { padding:3px 0 3px 18px; position:relative; } .card li:before { content:'✓'; position:absolute; left:0; color:#168a4a; font-weight:700; }
+  .box { background:#faf8ff; border-left:4px solid #a86bff; border-radius:10px; padding:14px 16px; margin-top:14px; font-size:12px; }
+  .box strong { color:#6b5bff; }
+  ol.strat { margin:10px 0 0 18px; font-size:12px; } ol.strat li { margin-bottom:7px; }
+  .foot { text-align:center; color:#aaa; font-size:10px; margin-top:30px; }
+</style>
+</head>
+<body>
+  <div class="hero">
+    <div class="kicker">Monetization Plan</div>
+    <h1>ClearMaxx — Subscription Pricing</h1>
+    <p>Competitor pricing benchmark, recommended tiers, and the conversion strategy to maximize revenue from a TikTok-driven audience.</p>
+    <div class="meta">AI Skin &amp; Face Scanner &nbsp;•&nbsp; Market: US &nbsp;•&nbsp; Prepared June 17, 2026 &nbsp;•&nbsp; Audience: Gen Z &amp; Millennials</div>
+  </div>
+
+  <div class="page">
+    <h2>1 — Competitor Pricing Benchmark</h2><div class="rule"></div>
+    <table>
+      <tr><th>App</th><th>Price</th><th>Model</th><th>Aggressiveness</th></tr>
+      <tr><td>GlowScan AI</td><td>$8.99/mo &nbsp;or&nbsp; $24.99/yr (3-day trial)</td><td>Freemium hard paywall</td><td><span class="badge b-mid">Medium</span></td></tr>
+      <tr><td>MDacne</td><td>$24/mo (~$288/yr) + $9 trial</td><td>Subscription + product kit</td><td><span class="badge b-hi">High</span></td></tr>
+      <tr><td>Curology</td><td>$4.95–$39.95 / shipment</td><td>Rx + product subscription</td><td><span class="badge b-hi">High</span></td></tr>
+      <tr><td>Skinmax / Umax-style scanners</td><td>$4.99–$6.99/week &nbsp;or&nbsp; $29.99–$69.99/yr</td><td>Weekly paywall after 1st scan</td><td><span class="badge b-hi">High</span></td></tr>
+      <tr><td>Industry norm (AI scanner)</td><td>Weekly $4.99–6.99 • Yearly $39.99–69.99</td><td>Free scan → paywall full report</td><td><span class="badge b-mid">Medium</span></td></tr>
+    </table>
+    <div class="box"><strong>Takeaway:</strong> The consumer AI-scanner category lives on <strong>weekly paywalls</strong> (impulse buys from social traffic) anchored against a discounted <strong>annual</strong> plan. Avoid MDacne/Curology's product-bundle model — it's expensive and kills impulse conversion.</div>
+
+    <h2>2 — Recommended ClearMaxx Tiers</h2><div class="rule"></div>
+    <div class="cards">
+      <div class="card">
+        <h3>Free</h3><div class="price">$0</div><div class="sub">The hook</div>
+        <ul><li>1 full face scan</li><li>Overall ClearScore</li><li>Basic issue preview</li><li>Limited routine</li></ul>
+      </div>
+      <div class="card">
+        <h3>Weekly</h3><div class="price">$5.99<span style="font-size:12px;color:#888">/wk</span></div><div class="sub">Impulse / social traffic</div>
+        <ul><li>Unlimited scans</li><li>Full report + heatmap</li><li>AM/PM routine</li><li>Progress tracking</li></ul>
+      </div>
+      <div class="card featured">
+        <div class="tag">BEST VALUE</div>
+        <h3>Yearly</h3><div class="price">$39.99<span style="font-size:12px;color:#888">/yr</span></div><div class="sub">= $0.77/week • 3-day free trial</div>
+        <ul><li>Everything in Weekly</li><li>Trigger/cause engine</li><li>Ingredient scanner</li><li>AI skin coach</li><li>Glow-up share cards</li></ul>
+      </div>
+      <div class="card">
+        <h3>Lifetime</h3><div class="price">$79.99</div><div class="sub">One-time</div>
+        <ul><li>All Yearly features</li><li>Forever, no renewal</li><li>For commitment-averse users</li></ul>
+      </div>
+    </div>
+
+    <h2>3 — Conversion Strategy</h2><div class="rule"></div>
+    <ol class="strat">
+      <li><strong>Soft paywall:</strong> let users complete their <em>first</em> full scan free — the "wow" moment — then paywall the detailed report, routine, and tracking.</li>
+      <li><strong>Anchor weekly against yearly:</strong> always display "$5.99/week" beside "$39.99/year ($0.77/wk)". The contrast makes annual feel like a steal and lifts annual mix.</li>
+      <li><strong>3-day free trial on the yearly plan only</strong> — drives trial starts; reminder push on day 2 reduces churn.</li>
+      <li><strong>Default-select the yearly plan</strong> on the paywall (higher LTV, lower refund/churn than weekly).</li>
+      <li><strong>Use RevenueCat</strong> to manage trials, pricing experiments, and App Store + Play subscriptions without backend work.</li>
+      <li><strong>Run price A/B tests</strong> post-launch ($4.99 vs $5.99 weekly; $39.99 vs $49.99 yearly) to find the revenue-maximizing point.</li>
+      <li><strong>Win-back offer:</strong> 50% off yearly to lapsed/cancelled users.</li>
+    </ol>
+
+    <div class="box"><strong>Projected positioning:</strong> At $39.99/yr ClearMaxx undercuts MDacne ($288/yr) and GlowScan's annualized cost, while matching category norms on the weekly impulse tier — competitive on price <em>and</em> superior on features (all-four-pillars + cause engine).</div>
+
+    <div class="foot">ClearMaxx — Subscription Pricing Plan • Estimates for US market, June 2026 • Validate pricing with live A/B tests post-launch</div>
+  </div>
+</body>
+</html>
