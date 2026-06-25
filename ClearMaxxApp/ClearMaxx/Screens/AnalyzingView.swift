@@ -6,6 +6,7 @@
 import SwiftUI
 
 struct AnalyzingView: View {
+    @ObserveInjection var inject
     var onDone: () -> Void
     @Environment(\.dismiss) private var dismiss
 

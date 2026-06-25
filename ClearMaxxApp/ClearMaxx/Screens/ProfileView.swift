@@ -6,6 +6,7 @@
 import SwiftUI
 
 struct ProfileView: View {
+    @ObserveInjection var inject
     @EnvironmentObject var state: AppState
     @State private var showPaywall = false
 

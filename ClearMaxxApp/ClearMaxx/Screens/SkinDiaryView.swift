@@ -6,6 +6,7 @@
 import SwiftUI
 
 struct SkinDiaryView: View {
+    @ObserveInjection var inject
     @EnvironmentObject var state: AppState
     @State private var sleep = "8h"
     @State private var water = "2L"

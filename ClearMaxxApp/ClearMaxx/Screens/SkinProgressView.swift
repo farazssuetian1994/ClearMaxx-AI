@@ -6,6 +6,7 @@
 import SwiftUI
 
 struct SkinProgressView: View {
+    @ObserveInjection var inject
     @EnvironmentObject var state: AppState
     @State private var slider: CGFloat = 0.5
     @State private var showShare = false

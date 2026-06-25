@@ -6,6 +6,7 @@
 import SwiftUI
 
 struct SplashView: View {
+    @ObserveInjection var inject
     @EnvironmentObject var state: AppState
     @State private var appear = false
 

@@ -6,6 +6,7 @@
 import SwiftUI
 
 struct GoPremiumView: View {
+    @ObserveInjection var inject
     @EnvironmentObject var state: AppState
     @Environment(\.dismiss) private var dismiss
     @State private var plan: Plan = .yearly

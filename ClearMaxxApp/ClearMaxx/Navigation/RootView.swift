@@ -6,6 +6,7 @@
 import SwiftUI
 
 struct RootView: View {
+    @ObserveInjection var inject
     @EnvironmentObject var state: AppState
 
     var body: some View {

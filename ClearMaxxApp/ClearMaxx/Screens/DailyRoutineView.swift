@@ -6,6 +6,7 @@
 import SwiftUI
 
 struct DailyRoutineView: View {
+    @ObserveInjection var inject
     @EnvironmentObject var state: AppState
     @State private var time: RoutineTime = .am
     @State private var steps: [RoutineStep] = []

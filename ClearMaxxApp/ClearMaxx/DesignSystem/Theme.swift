@@ -27,37 +27,43 @@ extension Color {
     }
 }
 
+// Tokens are computed `static var`s (not `static let`) so that editing a value
+// hot-reloads live via InjectionIII — accessing the token is a function call,
+// which injection can hot-swap (a stored `let` is computed once and would not).
 enum CMColor {
-    static let coral        = Color(hex: "FF7F50")   // primary
-    static let coralDeep    = Color(hex: "A43C12")   // primary / wordmark "Clear"
-    static let violet       = Color(hex: "8A2BE2")   // secondary
-    static let violetDeep   = Color(hex: "821DDA")   // wordmark "Maxx"
-    static let ink          = Color(hex: "1C1B1B")   // on-surface text
-    static let inkSoft       = Color(hex: "57423B")  // on-surface-variant
-    static let surface      = Color(hex: "FCF9F8")   // dewy base
-    static let card         = Color.white
-    static let cardSoft     = Color(hex: "F6F3F2")
-    static let outline      = Color(hex: "DEC0B6")
-    static let success      = Color(hex: "168A4A")
-    static let error        = Color(hex: "BA1A1A")
+    static var coral: Color      { Color(hex: "FF7F50") }   // primary
+    static var coralDeep: Color  { Color(hex: "A43C12") }   // primary / wordmark "Clear"
+    static var violet: Color     { Color(hex: "8A2BE2") }   // secondary
+    static var violetDeep: Color { Color(hex: "821DDA") }   // wordmark "Maxx"
+    static var ink: Color        { Color(hex: "1C1B1B") }   // on-surface text
+    static var inkSoft: Color    { Color(hex: "57423B") }   // on-surface-variant
+    static var surface: Color    { Color(hex: "FCF9F8") }   // dewy base
+    static var card: Color       { Color.white }
+    static var cardSoft: Color   { Color(hex: "F6F3F2") }
+    static var outline: Color    { Color(hex: "DEC0B6") }
+    static var success: Color    { Color(hex: "168A4A") }
+    static var error: Color      { Color(hex: "BA1A1A") }
 }
 
 // MARK: - Gradients
 
 enum CMGradient {
     /// The signature Coral -> Violet "Aura" gradient.
-    static let aura = LinearGradient(
-        colors: [CMColor.coral, CMColor.violet],
-        startPoint: .leading, endPoint: .trailing)
+    static var aura: LinearGradient {
+        LinearGradient(colors: [CMColor.coral, CMColor.violet],
+                       startPoint: .leading, endPoint: .trailing)
+    }
 
-    static let auraDiagonal = LinearGradient(
-        colors: [CMColor.coral, CMColor.violet],
-        startPoint: .topLeading, endPoint: .bottomTrailing)
+    static var auraDiagonal: LinearGradient {
+        LinearGradient(colors: [CMColor.coral, CMColor.violet],
+                       startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
 
     /// Soft peachy-pink -> lavender background wash (never pure white).
-    static let dewy = LinearGradient(
-        colors: [Color(hex: "FDEDE6"), Color(hex: "FCF9F8"), Color(hex: "F1E9FB")],
-        startPoint: .topLeading, endPoint: .bottomTrailing)
+    static var dewy: LinearGradient {
+        LinearGradient(colors: [Color(hex: "FDEDE6"), Color(hex: "FCF9F8"), Color(hex: "F1E9FB")],
+                       startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
 }
 
 // MARK: - Typography (Inter, with system fallback)
@@ -67,14 +73,14 @@ enum CMFont {
     static func inter(_ size: CGFloat, _ weight: Font.Weight = .regular) -> Font {
         .system(size: size, weight: weight, design: .default)
     }
-    static let displayLg  = inter(48, .heavy)
-    static let headlineLg = inter(28, .bold)
-    static let headlineMd = inter(24, .semibold)
-    static let title      = inter(20, .bold)
-    static let bodyLg     = inter(18, .regular)
-    static let bodyMd     = inter(16, .regular)
-    static let labelMd    = inter(14, .semibold)
-    static let labelSm    = inter(12, .medium)
+    static var displayLg: Font  { inter(48, .heavy) }
+    static var headlineLg: Font { inter(28, .bold) }
+    static var headlineMd: Font { inter(24, .semibold) }
+    static var title: Font      { inter(20, .bold) }
+    static var bodyLg: Font     { inter(18, .regular) }
+    static var bodyMd: Font     { inter(16, .regular) }
+    static var labelMd: Font    { inter(14, .semibold) }
+    static var labelSm: Font    { inter(12, .medium) }
 }
 
 // MARK: - Shadows

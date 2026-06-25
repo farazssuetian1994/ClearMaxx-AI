@@ -6,6 +6,7 @@
 import SwiftUI
 
 struct ResultsDashboardView: View {
+    @ObserveInjection var inject
     @EnvironmentObject var state: AppState
     var onIssue: (SkinMetric) -> Void = { _ in }
     var onRescan: () -> Void = {}

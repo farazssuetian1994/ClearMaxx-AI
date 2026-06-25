@@ -6,6 +6,7 @@
 import SwiftUI
 
 struct IssueDetailView: View {
+    @ObserveInjection var inject
     let metric: SkinMetric
     @Environment(\.dismiss) private var dismiss
 

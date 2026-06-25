@@ -6,6 +6,7 @@
 import SwiftUI
 
 struct SkinQuizView: View {
+    @ObserveInjection var inject
     @EnvironmentObject var state: AppState
     @State private var step = 1
     private let totalSteps = 3

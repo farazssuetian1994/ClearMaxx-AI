@@ -28,6 +28,7 @@ enum CMTab: Int, CaseIterable {
 }
 
 struct MainTabView: View {
+    @ObserveInjection var inject
     @State private var tab: CMTab = .scan
 
     var body: some View {

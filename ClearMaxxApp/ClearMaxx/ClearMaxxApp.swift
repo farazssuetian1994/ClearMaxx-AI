@@ -9,6 +9,8 @@ import SwiftUI
 struct ClearMaxxApp: App {
     @StateObject private var state = AppState()
 
+    init() { startHotReload() }
+
     var body: some Scene {
         WindowGroup {
             RootView()

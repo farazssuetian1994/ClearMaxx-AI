@@ -6,6 +6,7 @@
 import SwiftUI
 
 struct GlowUpShareView: View {
+    @ObserveInjection var inject
     @Environment(\.dismiss) private var dismiss
     @State private var slider: CGFloat = 0.5
 

@@ -13,6 +13,7 @@ private struct OnboardSlide: Identifiable {
 }
 
 struct OnboardingView: View {
+    @ObserveInjection var inject
     @EnvironmentObject var state: AppState
     @State private var page = 0
 

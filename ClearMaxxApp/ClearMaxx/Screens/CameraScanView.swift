@@ -11,6 +11,7 @@ import AVFoundation
 enum ScanRoute: Hashable { case analyzing, results, issue(SkinMetric) }
 
 struct CameraScanView: View {
+    @ObserveInjection var inject
     @State private var path = NavigationPath()
 
     var body: some View {

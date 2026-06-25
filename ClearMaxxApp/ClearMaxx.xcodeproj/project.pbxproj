@@ -194,7 +194,13 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				EMIT_FRONTEND_COMMAND_LINES = YES;
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-Xlinker",
+					"-interposable",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.clearmaxx.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
