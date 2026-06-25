@@ -122,14 +122,25 @@ struct BeforeAfterSlider: View {
                         .padding(6).background(.black.opacity(0.3), in: Capsule()).padding(10),
                              alignment: .topTrailing)
                     .mask(HStack { Spacer().frame(width: w * value); Rectangle() })
-                // handle
-                Circle().fill(.white).frame(width: 36, height: 36)
-                    .overlay(Image(systemName: "arrow.left.and.right").foregroundStyle(CMColor.ink))
-                    .bloomShadow()
-                    .offset(x: w * value - 18)
+                // handle — only this narrow strip is draggable, so vertical
+                // scrolling on the rest of the image passes through to the ScrollView.
+                ZStack {
+                    Color.clear
+                        .frame(width: 60)
+                        .frame(maxHeight: .infinity)
+                        .contentShape(Rectangle())
+                    Circle().fill(.white).frame(width: 36, height: 36)
+                        .overlay(Image(systemName: "arrow.left.and.right").foregroundStyle(CMColor.ink))
+                        .bloomShadow()
+                }
+                .offset(x: w * value - 30)
+                .gesture(
+                    DragGesture(minimumDistance: 0, coordinateSpace: .named("beforeAfter"))
+                        .onChanged { value = max(0, min(1, $0.location.x / w)) }
+                )
             }
+            .coordinateSpace(name: "beforeAfter")
             .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-            .gesture(DragGesture().onChanged { value = max(0, min(1, $0.location.x / w)) })
         }
         .frame(height: 260)
     }

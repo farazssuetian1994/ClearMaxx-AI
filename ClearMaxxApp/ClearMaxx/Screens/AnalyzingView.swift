@@ -11,6 +11,7 @@ struct AnalyzingView: View {
 
     @State private var progress = 0
     @State private var sweep = false
+    @State private var finished = false
     private let steps = ["Texture mapping complete",
                          "Detecting hydration levels…",
                          "Cross-referencing 50,000+ data points"]
@@ -72,8 +73,13 @@ struct AnalyzingView: View {
         }
         .navigationBarBackButtonHidden(true)
         .onReceive(timer) { _ in
+            guard !finished else { return }
             if progress < 100 { progress += 1 }
-            else { onDone() }
+            else {
+                finished = true
+                timer.upstream.connect().cancel()
+                onDone()
+            }
         }
         .onAppear { withAnimation(.linear(duration: 1.4).repeatForever(autoreverses: true)) { sweep = true } }
     }
