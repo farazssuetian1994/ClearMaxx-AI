@@ -34,3 +34,14 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+
+# Copy of the chartsense backend (contains a hardcoded key) — never commit
+AiBackendProject/
+
+# ===== Secrets (NEVER commit) — pulled from Secret Manager via ./fetch-secrets.sh =====
+**/Secrets.swift
+*.env
+backend/.env
+*.key
+*.pem
+service-account*.json

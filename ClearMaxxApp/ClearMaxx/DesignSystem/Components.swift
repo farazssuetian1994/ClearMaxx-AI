@@ -164,10 +164,15 @@ struct MetricBar: View {
 struct DewyBackground<Content: View>: View {
     @ViewBuilder var content: Content
     var body: some View {
-        ZStack {
-            CMGradient.dewy.ignoresSafeArea()
-            content
-        }
+        // Apply the gradient as a safe-area-ignoring *background* rather than a
+        // ZStack sibling. A sibling that ignores the safe area inflates the
+        // ScrollView's resolved scroll region on iOS 26, which lets it
+        // over-scroll into dead space and stick. As a background, the content
+        // (ScrollView) keeps correct safe-area insets while the gradient still
+        // bleeds to every edge.
+        content
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(CMGradient.dewy.ignoresSafeArea())
     }
 }
 

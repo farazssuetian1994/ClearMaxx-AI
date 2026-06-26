@@ -37,7 +37,7 @@ struct ProfileView: View {
                     .padding(.top, 8)
 
                     VStack(spacing: 2) {
-                        Text("Elena Vance").font(CMFont.headlineLg).foregroundStyle(CMColor.ink)
+                        Text("Faraz Masroor").font(CMFont.headlineLg).foregroundStyle(CMColor.ink)
                         Text("elena.v@example.com").font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
                     }
 

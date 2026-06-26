@@ -8,90 +8,130 @@ import SwiftUI
 struct AnalyzingView: View {
     @ObserveInjection var inject
     var onDone: () -> Void
+    @EnvironmentObject var state: AppState
     @Environment(\.dismiss) private var dismiss
 
     @State private var progress = 0
     @State private var sweep = false
-    @State private var finished = false
-    private let steps = ["Texture mapping complete",
-                         "Detecting hydration levels…",
-                         "Cross-referencing 50,000+ data points"]
+    @State private var revealed = false
 
     private let timer = Timer.publish(every: 0.03, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        DewyBackground {
-            VStack(spacing: 24) {
-                CMTopBar(showBack: true, onBack: { dismiss() })
-
-                ZStack {
-                    RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        .fill(CMGradient.auraDiagonal)
-                        .frame(height: 320)
-                        .overlay(
-                            Image(systemName: "face.smiling")
-                                .font(.system(size: 120, weight: .ultraLight))
-                                .foregroundStyle(.white.opacity(0.85)))
-                        .overlay(scanline)
-                        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
-
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack {
-                            CategoryLabel(text: "AI Analysis", color: .white)
-                            Spacer()
-                            ScoreRing(score: progress, size: 52, lineWidth: 5, caption: "")
-                        }
-                        Text("Processing… \(progress)%")
-                            .font(CMFont.headlineMd).foregroundStyle(.white)
-                    }
-                    .padding(18)
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-                    .padding(20)
+        ZStack {
+            // Captured face (or a dark gradient if none)
+            Group {
+                if let img = state.pendingImage {
+                    Image(uiImage: img).resizable().scaledToFill()
+                } else {
+                    LinearGradient(colors: [Color(hex: "2A2330"), Color(hex: "14101A")],
+                                   startPoint: .top, endPoint: .bottom)
                 }
-                .padding(.horizontal, 24)
-
-                VStack(spacing: 8) {
-                    Text("Analyzing your skin…").font(CMFont.headlineLg).foregroundStyle(CMColor.ink)
-                    Text("Please stay still. Our AI is cross-referencing your profile with 50,000+ clinical dermatological data points.")
-                        .font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
-                        .multilineTextAlignment(.center).padding(.horizontal, 30)
-                }
-
-                VStack(alignment: .leading, spacing: 12) {
-                    ForEach(Array(steps.enumerated()), id: \.offset) { i, s in
-                        let reached = progress > i * 33
-                        HStack(spacing: 10) {
-                            Image(systemName: reached ? "checkmark.circle.fill" : "circle.dotted")
-                                .foregroundStyle(reached ? CMColor.success : CMColor.outline)
-                            Text(s).font(CMFont.bodyMd)
-                                .foregroundStyle(reached ? CMColor.ink : CMColor.inkSoft.opacity(0.6))
-                        }
-                    }
-                }
-                .padding(.horizontal, 40)
-                Spacer()
             }
+            .ignoresSafeArea()
+            .overlay(Color.black.opacity(0.45).ignoresSafeArea())
+
+            // Face-mesh dots
+            meshOverlay.frame(width: 260, height: 340)
+
+            // Sweeping scan laser
+            Rectangle()
+                .fill(LinearGradient(colors: [.clear, CMColor.violet, CMColor.coral, .clear],
+                                     startPoint: .leading, endPoint: .trailing))
+                .frame(width: 300, height: 4)
+                .shadow(color: CMColor.violet, radius: 16)
+                .offset(y: sweep ? 175 : -175)
+
+            VStack(spacing: 0) {
+                HStack {
+                    Button { dismiss() } label: {
+                        Image(systemName: "xmark").font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(.white).frame(width: 40, height: 40)
+                            .background(.white.opacity(0.18), in: Circle())
+                    }.buttonStyle(.plain)
+                    Spacer()
+                }
+                Text("Analyzing your skin…")
+                    .font(CMFont.headlineMd).foregroundStyle(.white).padding(.top, 6)
+
+                Spacer()
+
+                Text("\(progress)%")
+                    .font(CMFont.inter(64, .heavy)).foregroundStyle(.white)
+                    .shadow(color: CMColor.violet.opacity(0.7), radius: 18)
+                    .contentTransition(.numericText())
+                Text("Please hold still")
+                    .font(CMFont.bodyMd).foregroundStyle(.white.opacity(0.85))
+                    .padding(.bottom, 90)
+            }
+            .padding(.horizontal, 24)
+            .padding(.top, 8)
         }
         .navigationBarBackButtonHidden(true)
         .onReceive(timer) { _ in
-            guard !finished else { return }
-            if progress < 100 { progress += 1 }
-            else {
-                finished = true
-                timer.upstream.connect().cancel()
+            // Climb to 92% while the network call is in flight, then finish to 100%.
+            let cap = revealed ? 100 : 92
+            if progress < cap { progress += 1 }
+        }
+        .onAppear { withAnimation(.linear(duration: 1.4).repeatForever(autoreverses: true)) { sweep = true } }
+        .task {
+            if let img = state.pendingImage {
+                await state.runAnalysis(img)
+                if state.analysisError == nil {
+                    revealed = true
+                    try? await Task.sleep(for: .milliseconds(450))   // let the bar reach 100
+                    onDone()
+                }
+                // on error: the overlay below offers Retry / demo
+            } else {
+                // No captured image (e.g. demo flow) — show the animation, then mock results.
+                try? await Task.sleep(for: .seconds(2.2))
+                revealed = true
+                try? await Task.sleep(for: .milliseconds(450))
                 onDone()
             }
         }
-        .onAppear { withAnimation(.linear(duration: 1.4).repeatForever(autoreverses: true)) { sweep = true } }
+        .overlay { if let err = state.analysisError { errorCard(err) } }
     }
 
-    private var scanline: some View {
-        Rectangle()
-            .fill(LinearGradient(colors: [.clear, .white.opacity(0.7), .clear], startPoint: .top, endPoint: .bottom))
-            .frame(height: 60)
-            .offset(y: sweep ? 120 : -120)
-            .blendMode(.screen)
+    private func errorCard(_ message: String) -> some View {
+        ZStack {
+            Color.black.opacity(0.35).ignoresSafeArea()
+            VStack(spacing: 14) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.system(size: 40)).foregroundStyle(CMColor.coral)
+                Text("Scan failed").font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
+                Text(message).font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
+                    .multilineTextAlignment(.center)
+                AuraButton(title: "Try Again") { state.analysisError = nil; dismiss() }
+                Button("Use demo results") { state.analysisError = nil; onDone() }
+                    .font(CMFont.labelMd).foregroundStyle(CMColor.violetDeep)
+            }
+            .padding(24)
+            .background(.white, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .padding(32)
+        }
+    }
+
+    /// A grid of dots clipped to a face-shaped ellipse — the "mesh" overlay.
+    private var meshOverlay: some View {
+        Canvas { ctx, size in
+            let cols = 9, rows = 12
+            let cx = size.width / 2, cy = size.height / 2
+            let rx = size.width / 2, ry = size.height / 2
+            for r in 0...rows {
+                for c in 0...cols {
+                    let x = size.width * CGFloat(c) / CGFloat(cols)
+                    let y = size.height * CGFloat(r) / CGFloat(rows)
+                    let nx = (x - cx) / rx, ny = (y - cy) / ry
+                    if nx * nx + ny * ny <= 1 {   // inside the ellipse
+                        let dot = CGRect(x: x - 1.2, y: y - 1.2, width: 2.4, height: 2.4)
+                        ctx.fill(Path(ellipseIn: dot), with: .color(.white.opacity(0.55)))
+                    }
+                }
+            }
+        }
     }
 }
 
-#Preview { NavigationStack { AnalyzingView(onDone: {}) } }
+#Preview { NavigationStack { AnalyzingView(onDone: {}) }.environmentObject(AppState()) }

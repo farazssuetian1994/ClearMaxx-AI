@@ -4,7 +4,9 @@
 //
 
 import SwiftUI
+import UIKit
 import AVFoundation
+import PhotosUI
 
 // MARK: - Scan flow routing
 
@@ -12,23 +14,27 @@ enum ScanRoute: Hashable { case analyzing, results, issue(SkinMetric) }
 
 struct CameraScanView: View {
     @ObserveInjection var inject
+    @EnvironmentObject var state: AppState
     @State private var path = NavigationPath()
 
     var body: some View {
         NavigationStack(path: $path) {
-            ScanCaptureScreen { path.append(ScanRoute.analyzing) }
-                .navigationDestination(for: ScanRoute.self) { route in
-                    switch route {
-                    case .analyzing:
-                        AnalyzingView { path.append(ScanRoute.results) }
-                    case .results:
-                        ResultsDashboardView(
-                            onIssue: { path.append(ScanRoute.issue($0)) },
-                            onRescan: { path = NavigationPath() })
-                    case .issue(let metric):
-                        IssueDetailView(metric: metric)
-                    }
+            ScanCaptureScreen { image in
+                state.pendingImage = image
+                path.append(ScanRoute.analyzing)
+            }
+            .navigationDestination(for: ScanRoute.self) { route in
+                switch route {
+                case .analyzing:
+                    AnalyzingView { path.append(ScanRoute.results) }
+                case .results:
+                    ResultsDashboardView(
+                        onIssue: { path.append(ScanRoute.issue($0)) },
+                        onRescan: { state.resetAnalysis(); path = NavigationPath() })
+                case .issue(let metric):
+                    IssueDetailView(metric: metric)
                 }
+            }
         }
     }
 }
@@ -36,125 +42,177 @@ struct CameraScanView: View {
 // MARK: - Capture screen with AR overlay
 
 private struct ScanCaptureScreen: View {
-    var onScan: () -> Void
+    var onCapture: (UIImage) -> Void
+    @StateObject private var camera = CameraController()
+    @State private var photoItem: PhotosPickerItem?
+    @State private var galleryFallback = false
+    @State private var capturing = false
+    @State private var pulse = false
+    @State private var scan = false
+    @State private var flashOn = false
 
     var body: some View {
         ZStack {
-            CameraPreview().ignoresSafeArea()
-                .overlay(LinearGradient(colors: [.black.opacity(0.25), .clear, .black.opacity(0.35)],
-                                        startPoint: .top, endPoint: .bottom).ignoresSafeArea())
+            Color.black.ignoresSafeArea()
+            CameraPreview(session: camera.session).ignoresSafeArea()
+            LinearGradient(colors: [.black.opacity(0.55), .clear, .clear, .black.opacity(0.8)],
+                           startPoint: .top, endPoint: .bottom).ignoresSafeArea()
 
-            VStack {
-                ClearMaxxWordmark(size: 24)
-                    .colorMultiply(.white).brightness(0.4)
+            faceGuide
+
+            VStack(spacing: 0) {
+                topBar
+                Text("Hold still and look at the camera")
+                    .font(CMFont.labelMd).foregroundStyle(.white.opacity(0.95))
                     .padding(.top, 8)
-
-                ZStack {
-                    // Squircle reticle
-                    RoundedRectangle(cornerRadius: 60, style: .continuous)
-                        .stroke(CMGradient.aura, lineWidth: 3)
-                        .frame(width: 260, height: 340)
-                        .shadow(color: CMColor.violet.opacity(0.5), radius: 12)
-
-                    // Floating hotspot labels
-                    hotspot("Pores", color: CMColor.violet).offset(x: -90, y: -120)
-                    hotspot("Hydration", color: CMColor.coral).offset(x: 80, y: -40)
-                }
-
-                lightingPill.padding(.top, 8)
-
                 Spacer()
-
-                HStack(spacing: 12) {
-                    miniCard(title: "SKIN SCORE", value: "88", suffix: "/100")
-                    miniCard(title: "ANALYSIS", value: "AI", suffix: "Optimizing…")
-                }
-                .padding(.horizontal, 20)
-
-                // Capture button
-                Button(action: onScan) {
-                    ZStack {
-                        Circle().fill(CMGradient.aura).frame(width: 74, height: 74)
-                        Circle().stroke(.white, lineWidth: 4).frame(width: 74, height: 74)
-                        Image(systemName: "camera.fill").font(.system(size: 26)).foregroundStyle(.white)
-                    }
-                    .shadow(color: CMColor.coral.opacity(0.5), radius: 14, y: 6)
-                }
-                .padding(.top, 14)
-                .padding(.bottom, 90)   // clear the tab bar
+                controls.padding(.bottom, 96)   // clear the floating tab bar
             }
-            .padding(.horizontal, 8)
+            .padding(.horizontal, 20)
+            .padding(.top, 8)
+        }
+        .onAppear {
+            camera.start()
+            withAnimation(.easeInOut(duration: 1.6).repeatForever(autoreverses: true)) { pulse = true }
+            withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true)) { scan = true }
+        }
+        .onDisappear { camera.stop() }
+        .photosPicker(isPresented: $galleryFallback, selection: $photoItem, matching: .images)
+        .onChange(of: photoItem) { _, item in
+            guard let item else { return }
+            Task {
+                if let data = try? await item.loadTransferable(type: Data.self),
+                   let image = UIImage(data: data) { onCapture(image) }
+            }
         }
     }
 
-    private func hotspot(_ text: String, color: Color) -> some View {
-        Text(text.uppercased())
-            .font(CMFont.inter(10, .bold)).tracking(1)
+    // MARK: Top bar — close · "Good lighting" · flash
+    private var topBar: some View {
+        HStack {
+            circleButton("xmark") { }
+            Spacer()
+            HStack(spacing: 6) {
+                Image(systemName: "checkmark.circle.fill")
+                Text("Good lighting").font(CMFont.labelSm)
+            }
             .foregroundStyle(.white)
-            .padding(.horizontal, 12).padding(.vertical, 7)
-            .background(.ultraThinMaterial, in: Capsule())
-            .overlay(Capsule().stroke(color, lineWidth: 1.5))
-    }
-
-    private var lightingPill: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "sun.max.fill").foregroundStyle(CMColor.coral)
-            Text("Lighting: Perfect").font(CMFont.labelMd).foregroundStyle(CMColor.ink)
+            .padding(.horizontal, 14).padding(.vertical, 8)
+            .background(CMColor.success, in: Capsule())
+            Spacer()
+            circleButton(flashOn ? "bolt.fill" : "bolt.slash.fill") { flashOn.toggle() }
         }
-        .padding(.horizontal, 16).padding(.vertical, 10)
-        .background(.white.opacity(0.9), in: Capsule())
-        .bloomShadow()
     }
 
-    private func miniCard(title: String, value: String, suffix: String) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            CategoryLabel(text: title)
-            HStack(alignment: .firstTextBaseline, spacing: 4) {
-                Text(value).font(CMFont.inter(26, .heavy)).foregroundStyle(CMColor.ink)
-                Text(suffix).font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
+    private func circleButton(_ icon: String, _ action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: icon)
+                .font(.system(size: 16, weight: .semibold)).foregroundStyle(.white)
+                .frame(width: 40, height: 40)
+                .background(.white.opacity(0.18), in: Circle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: Oval face guide with a sweeping scan line + breathing pulse
+    private var faceGuide: some View {
+        ZStack {
+            Rectangle()
+                .fill(LinearGradient(colors: [.clear, CMColor.violet, CMColor.coral, .clear],
+                                     startPoint: .leading, endPoint: .trailing))
+                .frame(width: 250, height: 3)
+                .shadow(color: CMColor.violet, radius: 10)
+                .offset(y: scan ? 150 : -150)
+                .frame(width: 250, height: 330)
+                .mask(Ellipse().frame(width: 250, height: 330))   // keep the beam inside the oval
+
+            Ellipse().stroke(.white.opacity(0.9), lineWidth: 3)
+                .frame(width: 250, height: 330)
+
+            // N/E/S/W tick marks
+            ForEach(0..<4) { i in
+                Capsule().fill(.white)
+                    .frame(width: i % 2 == 0 ? 4 : 22, height: i % 2 == 0 ? 22 : 4)
+                    .offset(x: i == 1 ? 125 : (i == 3 ? -125 : 0),
+                            y: i == 0 ? -165 : (i == 2 ? 165 : 0))
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(14)
-        .background(.white.opacity(0.85), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .bloomShadow()
+        .scaleEffect(pulse ? 1.0 : 0.97)
+    }
+
+    // MARK: Bottom controls — gallery · shutter · flip
+    private var controls: some View {
+        HStack {
+            // Gallery
+            PhotosPicker(selection: $photoItem, matching: .images, photoLibrary: .shared()) {
+                Image(systemName: "photo.on.rectangle")
+                    .font(.system(size: 22, weight: .medium)).foregroundStyle(.white)
+                    .frame(width: 54, height: 54)
+                    .background(.white.opacity(0.18), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            }
+            .buttonStyle(.plain)
+
+            Spacer()
+
+            // Shutter (camera capture)
+            Button(action: capture) {
+                ZStack {
+                    Circle().stroke(.white, lineWidth: 4).frame(width: 82, height: 82)
+                    Circle().fill(.white).frame(width: 66, height: 66)
+                    if capturing { ProgressView().tint(.black) }
+                }
+            }
+            .buttonStyle(.plain)
+            .disabled(capturing)
+
+            Spacer()
+
+            // Flip camera
+            Button { camera.flip() } label: {
+                Image(systemName: "arrow.triangle.2.circlepath")
+                    .font(.system(size: 22, weight: .semibold)).foregroundStyle(.white)
+                    .frame(width: 54, height: 54)
+                    .background(.white.opacity(0.18), in: Circle())
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 20)
+    }
+
+    private func capture() {
+        capturing = true
+        Task {
+            let image = await camera.capture()
+            capturing = false
+            if let image {
+                onCapture(image)
+            } else {
+                galleryFallback = true   // Simulator / no camera → use the photo library
+            }
+        }
     }
 }
 
-// MARK: - AVFoundation front-camera preview
+// MARK: - AVFoundation camera preview (driven by CameraController's session)
 
 struct CameraPreview: UIViewRepresentable {
+    let session: AVCaptureSession
+
     func makeUIView(context: Context) -> PreviewView {
         let view = PreviewView()
         view.backgroundColor = .black
-        AVCaptureDevice.requestAccess(for: .video) { granted in
-            guard granted else { return }
-            DispatchQueue.global(qos: .userInitiated).async { view.configureSession() }
-        }
+        view.previewLayer.session = session
+        view.previewLayer.videoGravity = .resizeAspectFill
         return view
     }
-    func updateUIView(_ uiView: PreviewView, context: Context) {}
+
+    func updateUIView(_ uiView: PreviewView, context: Context) {
+        uiView.previewLayer.session = session
+    }
 
     final class PreviewView: UIView {
         override class var layerClass: AnyClass { AVCaptureVideoPreviewLayer.self }
-        private var previewLayer: AVCaptureVideoPreviewLayer { layer as! AVCaptureVideoPreviewLayer }
-        private let session = AVCaptureSession()
-
-        func configureSession() {
-            session.beginConfiguration()
-            session.sessionPreset = .high
-            if let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front),
-               let input = try? AVCaptureDeviceInput(device: device),
-               session.canAddInput(input) {
-                session.addInput(input)
-            }
-            session.commitConfiguration()
-            DispatchQueue.main.async {
-                self.previewLayer.session = self.session
-                self.previewLayer.videoGravity = .resizeAspectFill
-            }
-            session.startRunning()
-        }
+        var previewLayer: AVCaptureVideoPreviewLayer { layer as! AVCaptureVideoPreviewLayer }
     }
 }
 

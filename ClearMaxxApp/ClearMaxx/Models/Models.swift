@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 // MARK: - Skin issue / metric
 
@@ -14,6 +15,7 @@ struct SkinMetric: Identifiable, Hashable {
     let tint: Color
     let blurb: String           // "what this means"
     let ingredients: [String]
+    var tips: [String] = []     // per-issue tips (from AI; empty = use defaults)
 }
 
 // MARK: - Routine
@@ -49,6 +51,59 @@ final class AppState: ObservableObject {
     @Published var clearScore = 84
     @Published var scanStreak = 12
     @Published var isPremium = false
+
+    // MARK: Live AI analysis (nil until a real scan completes)
+    @Published var analysis: SkinAnalysis?
+    @Published var isAnalyzing = false
+    @Published var analysisError: String?
+    var pendingImage: UIImage?
+
+    /// Score shown on the results ring — real if available, else the mock baseline.
+    var displayScore: Int { analysis?.clearScore ?? clearScore }
+    var scanConfidence: Int { analysis?.confidence ?? 98 }
+
+    /// Metrics shown on the dashboard — mapped from the API when present.
+    var displayMetrics: [SkinMetric] {
+        guard let a = analysis else { return metrics }
+        return a.metrics.map { m in
+            SkinMetric(name: m.name, value: m.value, tint: Self.tint(for: m.name),
+                       blurb: m.summary, ingredients: m.ingredients, tips: m.tips)
+        }
+    }
+
+    static func tint(for name: String) -> Color {
+        switch name {
+        case "Acne":         return CMColor.coral
+        case "Pores":        return CMColor.violet
+        case "Hydration":    return Color(hex: "2BB3C0")
+        case "Dark Spots":   return Color(hex: "B8860B")
+        case "Redness":      return CMColor.error
+        case "Wrinkles":     return CMColor.inkSoft
+        case "Oiliness":     return Color(hex: "E08A2B")
+        case "Dark Circles": return CMColor.violetDeep
+        default:             return CMColor.violet
+        }
+    }
+
+    /// Runs a real scan against the backend. Updates `analysis` / `analysisError`.
+    func runAnalysis(_ image: UIImage) async {
+        isAnalyzing = true
+        analysisError = nil
+        do {
+            let result = try await SkinAnalysisService.analyze(image: image)
+            analysis = result
+            clearScore = result.clearScore   // keep Progress/Profile tabs in sync
+        } catch {
+            analysisError = error.localizedDescription
+        }
+        isAnalyzing = false
+    }
+
+    func resetAnalysis() {
+        analysis = nil
+        analysisError = nil
+        pendingImage = nil
+    }
 
     // Mock analysis results matching the Stitch results dashboard
     let metrics: [SkinMetric] = [

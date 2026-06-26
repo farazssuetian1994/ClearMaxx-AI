@@ -23,6 +23,12 @@ BUNDLE_ID="com.clearmaxx.app"
 PREFERRED_DEVICE="iPhone 17"
 BUILD_LOG="/tmp/clearmaxx-build.log"
 
+# Ensure git-ignored secrets exist (pulled from Secret Manager) before building.
+if [ ! -f "$SRC_DIR/Services/Secrets.swift" ]; then
+  echo "▶︎ Secrets.swift missing — running ./fetch-secrets.sh…"
+  "$ROOT/fetch-secrets.sh"
+fi
+
 uuid_re='[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}'
 
 pick_sim() {

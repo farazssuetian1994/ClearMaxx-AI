@@ -1,0 +1,8 @@
+flask
+flask-cors
+gunicorn
+werkzeug
+Pillow
+google-generativeai
+google-cloud-secret-manager
+python-dotenv

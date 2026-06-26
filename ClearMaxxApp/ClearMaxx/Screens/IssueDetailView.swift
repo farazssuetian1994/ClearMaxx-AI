@@ -18,11 +18,13 @@ struct IssueDetailView: View {
         }
     }
 
-    private let rituals = [
+    private let defaultRituals = [
         "Cool your products in the fridge before applying to instantly constrict blood vessels.",
         "Avoid hot water while cleansing; lukewarm is the golden rule for reactive skin.",
         "Pat dry with a fresh micro-fiber towel instead of rubbing to minimize friction."
     ]
+    /// Prefer the AI's per-issue tips; fall back to the generic rituals.
+    private var rituals: [String] { metric.tips.isEmpty ? defaultRituals : metric.tips }
 
     var body: some View {
         DewyBackground {

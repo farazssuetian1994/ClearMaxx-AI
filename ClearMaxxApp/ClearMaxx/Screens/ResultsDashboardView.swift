@@ -20,8 +20,14 @@ struct ResultsDashboardView: View {
                 VStack(spacing: 20) {
                     // Score ring + delta
                     VStack(spacing: 8) {
-                        ScoreRing(score: state.clearScore, size: 150, lineWidth: 14)
+                        ScoreRing(score: state.displayScore, size: 150, lineWidth: 14)
                         TagChip(text: "▲ Improving (+4.2%)", tint: CMColor.success)
+                        if let summary = state.analysis?.summary, !summary.isEmpty {
+                            Text(summary)
+                                .font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 12).padding(.top, 4)
+                        }
                     }
                     .padding(.top, 8)
 
@@ -39,7 +45,7 @@ struct ResultsDashboardView: View {
                                     .font(.system(size: 90, weight: .ultraLight)).foregroundStyle(.white.opacity(0.8)))
                             HStack {
                                 Image(systemName: "checkmark.seal.fill").foregroundStyle(CMColor.success)
-                                Text("AI scan complete (98% confidence)").font(CMFont.labelMd).foregroundStyle(CMColor.ink)
+                                Text("AI scan complete (\(state.scanConfidence)% confidence)").font(CMFont.labelMd).foregroundStyle(CMColor.ink)
                             }
                             .padding(10).frame(maxWidth: .infinity)
                             .background(.ultraThinMaterial)
@@ -49,7 +55,7 @@ struct ResultsDashboardView: View {
 
                     // Metric grid
                     LazyVGrid(columns: cols, spacing: 14) {
-                        ForEach(state.metrics) { m in
+                        ForEach(state.displayMetrics) { m in
                             Button { onIssue(m) } label: {
                                 GlassCard {
                                     MetricBar(label: m.name, value: m.value, tint: m.tint)
@@ -60,7 +66,7 @@ struct ResultsDashboardView: View {
                     }
 
                     AuraButton(title: "See Detailed Analysis", systemImage: "sparkles") {
-                        if let first = state.metrics.first { onIssue(first) }
+                        if let first = state.displayMetrics.first { onIssue(first) }
                     }
 
                     Button(action: onRescan) {
