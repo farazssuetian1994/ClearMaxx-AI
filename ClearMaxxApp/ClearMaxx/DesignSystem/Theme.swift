@@ -2,7 +2,7 @@
 //  Theme.swift
 //  ClearMaxx — "Radiance Aesthetic" design system
 //
-//  Aura Gradient (Coral -> Violet), dewy backgrounds, glassmorphism, Inter typography.
+//  Aura Gradient (Primary -> Primary Dark), dewy backgrounds, glassmorphism, Inter typography.
 //
 
 import SwiftUI
@@ -31,16 +31,25 @@ extension Color {
 // hot-reloads live via InjectionIII — accessing the token is a function call,
 // which injection can hot-swap (a stored `let` is computed once and would not).
 enum CMColor {
-    static var coral: Color      { Color(hex: "FF7F50") }   // primary
-    static var coralDeep: Color  { Color(hex: "A43C12") }   // primary / wordmark "Clear"
-    static var violet: Color     { Color(hex: "8A2BE2") }   // secondary
-    static var violetDeep: Color { Color(hex: "821DDA") }   // wordmark "Maxx"
-    static var ink: Color        { Color(hex: "1C1B1B") }   // on-surface text
-    static var inkSoft: Color    { Color(hex: "57423B") }   // on-surface-variant
-    static var surface: Color    { Color(hex: "FCF9F8") }   // dewy base
-    static var card: Color       { Color.white }
-    static var cardSoft: Color   { Color(hex: "F6F3F2") }
-    static var outline: Color    { Color(hex: "DEC0B6") }
+    // Brand palette
+    static var primary: Color     { Color(hex: "FF7F50") }
+    static var primaryDark: Color { Color(hex: "F2643A") }
+    static var background: Color  { Color(hex: "F8F6FC") }
+    static var surface: Color     { Color(hex: "FFFFFF") }
+    static var text: Color        { Color(hex: "111111") }
+    static var subtext: Color     { Color(hex: "6B7280") }
+    static var border: Color      { Color(hex: "EEEAF8") }
+
+    // Legacy aliases — kept so existing call sites stay on the brand palette above.
+    static var coral: Color      { primary }
+    static var coralDeep: Color  { text }
+    static var violet: Color     { primary }
+    static var violetDeep: Color { primaryDark }
+    static var ink: Color        { text }
+    static var inkSoft: Color    { subtext }
+    static var card: Color       { surface }
+    static var cardSoft: Color   { background }
+    static var outline: Color    { border }
     static var success: Color    { Color(hex: "168A4A") }
     static var error: Color      { Color(hex: "BA1A1A") }
 }
@@ -48,20 +57,20 @@ enum CMColor {
 // MARK: - Gradients
 
 enum CMGradient {
-    /// The signature Coral -> Violet "Aura" gradient.
+    /// The signature Primary -> Primary Dark "Aura" gradient.
     static var aura: LinearGradient {
-        LinearGradient(colors: [CMColor.coral, CMColor.violet],
+        LinearGradient(colors: [CMColor.primary, CMColor.primaryDark],
                        startPoint: .leading, endPoint: .trailing)
     }
 
     static var auraDiagonal: LinearGradient {
-        LinearGradient(colors: [CMColor.coral, CMColor.violet],
+        LinearGradient(colors: [CMColor.primary, CMColor.primaryDark],
                        startPoint: .topLeading, endPoint: .bottomTrailing)
     }
 
-    /// Soft peachy-pink -> lavender background wash (never pure white).
+    /// Soft lavender-white background wash (never pure white).
     static var dewy: LinearGradient {
-        LinearGradient(colors: [Color(hex: "FDEDE6"), Color(hex: "FCF9F8"), Color(hex: "F1E9FB")],
+        LinearGradient(colors: [CMColor.background, CMColor.surface, CMColor.border],
                        startPoint: .topLeading, endPoint: .bottomTrailing)
     }
 }

@@ -74,15 +74,15 @@ final class AppState: ObservableObject {
 
     static func tint(for name: String) -> Color {
         switch name {
-        case "Acne":         return CMColor.coral
-        case "Pores":        return CMColor.violet
+        case "Acne":         return CMColor.primary
+        case "Pores":        return Color(hex: "8A2BE2")
         case "Hydration":    return Color(hex: "2BB3C0")
         case "Dark Spots":   return Color(hex: "B8860B")
         case "Redness":      return CMColor.error
         case "Wrinkles":     return CMColor.inkSoft
         case "Oiliness":     return Color(hex: "E08A2B")
-        case "Dark Circles": return CMColor.violetDeep
-        default:             return CMColor.violet
+        case "Dark Circles": return Color(hex: "821DDA")
+        default:             return CMColor.primary
         }
     }
 
@@ -108,10 +108,10 @@ final class AppState: ObservableObject {
 
     // Mock analysis results matching the Stitch results dashboard
     let metrics: [SkinMetric] = [
-        .init(name: "Acne", value: 32, tint: CMColor.coral,
+        .init(name: "Acne", value: 32, tint: CMColor.primary,
               blurb: "Localized breakouts detected in the T-zone. Driven by excess sebum and clogged pores.",
               ingredients: ["Salicylic Acid", "Niacinamide"]),
-        .init(name: "Pores", value: 45, tint: CMColor.violet,
+        .init(name: "Pores", value: 45, tint: Color(hex: "8A2BE2"),
               blurb: "Mildly enlarged pores around the nose and cheeks.",
               ingredients: ["Niacinamide", "Retinol"]),
         .init(name: "Hydration", value: 78, tint: Color(hex: "2BB3C0"),
