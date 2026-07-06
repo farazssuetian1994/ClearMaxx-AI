@@ -110,15 +110,18 @@ struct SkinProgressView: View {
 // Draggable before/after comparison
 struct BeforeAfterSlider: View {
     @Binding var value: CGFloat
+    var beforeImage: UIImage? = nil
+    var afterImage: UIImage? = nil
+
     var body: some View {
         GeometryReader { geo in
             let w = geo.size.width
             ZStack(alignment: .leading) {
-                LinearGradient(colors: [Color(hex: "C98F6A"), Color(hex: "9A6A4A")], startPoint: .top, endPoint: .bottom)
+                beforeLayer
                     .overlay(Text("BEFORE").font(CMFont.inter(10, .bold)).foregroundStyle(.white)
                         .padding(6).background(.black.opacity(0.4), in: Capsule()).padding(10),
                              alignment: .topLeading)
-                CMGradient.auraDiagonal
+                afterLayer
                     .overlay(Text("AFTER").font(CMFont.inter(10, .bold)).foregroundStyle(.white)
                         .padding(6).background(.black.opacity(0.3), in: Capsule()).padding(10),
                              alignment: .topTrailing)
@@ -144,6 +147,22 @@ struct BeforeAfterSlider: View {
             .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
         }
         .frame(height: 260)
+    }
+
+    @ViewBuilder private var beforeLayer: some View {
+        if let beforeImage {
+            Image(uiImage: beforeImage).resizable().scaledToFill()
+        } else {
+            LinearGradient(colors: [Color(hex: "C98F6A"), Color(hex: "9A6A4A")], startPoint: .top, endPoint: .bottom)
+        }
+    }
+
+    @ViewBuilder private var afterLayer: some View {
+        if let afterImage {
+            Image(uiImage: afterImage).resizable().scaledToFill()
+        } else {
+            CMGradient.auraDiagonal
+        }
     }
 }
 
