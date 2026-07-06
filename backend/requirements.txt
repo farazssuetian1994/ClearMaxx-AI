@@ -3,6 +3,6 @@ flask-cors
 gunicorn
 werkzeug
 Pillow
-google-generativeai
+google-genai
 google-cloud-secret-manager
 python-dotenv

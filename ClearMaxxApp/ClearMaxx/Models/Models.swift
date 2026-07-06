@@ -56,6 +56,7 @@ final class AppState: ObservableObject {
     @Published var analysis: SkinAnalysis?
     @Published var isAnalyzing = false
     @Published var analysisError: String?
+    @Published var hideTabBar = false
     var pendingImage: UIImage?
 
     /// Score shown on the results ring — real if available, else the mock baseline.

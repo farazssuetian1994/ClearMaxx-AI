@@ -29,6 +29,7 @@ enum CMTab: Int, CaseIterable {
 
 struct MainTabView: View {
     @ObserveInjection var inject
+    @EnvironmentObject var state: AppState
     @State private var tab: CMTab = .scan
 
     var body: some View {
@@ -44,8 +45,12 @@ struct MainTabView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            CMTabBar(selected: $tab)
+            if !state.hideTabBar {
+                CMTabBar(selected: $tab)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
         }
+        .animation(.easeInOut(duration: 0.25), value: state.hideTabBar)
         .ignoresSafeArea(.keyboard)
     }
 }

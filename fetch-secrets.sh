@@ -3,13 +3,14 @@
 # fetch-secrets.sh — pull secrets from Google Secret Manager into LOCAL,
 # git-ignored files so the project can build/run. Nothing here is ever committed.
 #
-#   backend/.env                         <- GEMINI_API_KEY, APP_TOKEN  (local backend dev)
+#   backend/.env                         <- APP_TOKEN  (local backend dev)
 #   ClearMaxxApp/.../Services/Secrets.swift  <- CMSecrets.appToken      (iOS build)
 #
-# Requires: authenticated gcloud with access to project ai-backend-project-482118.
+# The backend runs on VERTEX AI (no Gemini API key), so only the app token is
+# fetched. Requires: authenticated gcloud with access to project faraz-mobile-apps.
 #
 set -euo pipefail
-PROJECT="ai-backend-project-482118"
+PROJECT="faraz-mobile-apps"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SECRETS_SWIFT="$ROOT/ClearMaxxApp/ClearMaxx/Services/Secrets.swift"
 BACKEND_ENV="$ROOT/backend/.env"
@@ -18,7 +19,6 @@ get() { gcloud secrets versions access latest --secret="$1" --project "$PROJECT"
 
 echo "▶︎ Fetching secrets from Secret Manager ($PROJECT)…"
 APP_TOKEN="$(get clearmaxx-app-token)"
-GEMINI_KEY="$(get clearmaxx-gemini-key)"
 
 if [ -z "${APP_TOKEN:-}" ]; then
   echo "✗ Could not read clearmaxx-app-token. Is gcloud authed with access to $PROJECT?" >&2
@@ -38,9 +38,10 @@ echo "  ✓ wrote $SECRETS_SWIFT"
 
 # backend local dev (git-ignored)
 cat > "$BACKEND_ENV" <<EOF
-# Local dev only (git-ignored). Production reads these from Secret Manager.
-GEMINI_API_KEY=${GEMINI_KEY}
+# Local dev only (git-ignored). Production reads the token from Secret Manager;
+# Vertex AI auth comes from ADC (gcloud auth application-default login).
 APP_TOKEN=${APP_TOKEN}
+VERTEX_LOCATION=us-central1
 PORT=8080
 EOF
 echo "  ✓ wrote $BACKEND_ENV"

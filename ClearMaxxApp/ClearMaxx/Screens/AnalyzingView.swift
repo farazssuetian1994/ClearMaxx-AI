@@ -73,7 +73,11 @@ struct AnalyzingView: View {
             let cap = revealed ? 100 : 92
             if progress < cap { progress += 1 }
         }
-        .onAppear { withAnimation(.linear(duration: 1.4).repeatForever(autoreverses: true)) { sweep = true } }
+        .onAppear {
+            state.hideTabBar = true
+            withAnimation(.linear(duration: 1.4).repeatForever(autoreverses: true)) { sweep = true }
+        }
+        .onDisappear { state.hideTabBar = false }
         .task {
             if let img = state.pendingImage {
                 await state.runAnalysis(img)

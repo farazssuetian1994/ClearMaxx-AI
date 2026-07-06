@@ -2,14 +2,15 @@
 ClearMaxx AI — skin/face analysis backend.
 
 Flask service for Google App Engine. Receives a face photo from the ClearMaxx
-iOS app, sends it to Gemini vision, and returns a structured skin analysis that
-maps directly onto the app's Results dashboard (per-metric scores + an overall
-ClearScore + suggestions).
+iOS app, sends it to Gemini (via Vertex AI), and returns a structured skin
+analysis that maps directly onto the app's Results dashboard (per-metric scores
++ an overall ClearScore + suggestions).
 
-Security model:
-  * The Gemini API key is loaded ONLY from Google Secret Manager
-    (secret: `clearmaxx-gemini-key`). It is never in this file, in app.yaml,
-    or in the iOS app. A local `.env` (git-ignored) may supply it for dev only.
+Auth / security model:
+  * Gemini runs on VERTEX AI — there is NO API key anywhere. Auth uses the App
+    Engine service account's Application Default Credentials (ADC), which holds
+    the `roles/aiplatform.user` role on the project. Locally, `gcloud auth
+    application-default login` supplies ADC.
   * Requests must carry a shared `X-App-Token` header that matches the secret
     `clearmaxx-app-token`, so the public URL can't be used to burn the quota.
 """
@@ -22,7 +23,9 @@ import hmac
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import google.generativeai as genai
+from google import genai
+from google.genai import types
+from google.genai.types import HttpOptions
 from PIL import Image
 
 try:
@@ -37,26 +40,29 @@ CORS(app)
 PRIMARY_MODEL = "gemini-2.5-flash"
 FALLBACK_MODEL = "gemini-2.5-flash-lite"
 
+# Vertex config. GOOGLE_CLOUD_PROJECT is injected automatically by App Engine;
+# VERTEX_LOCATION is set in app.yaml (must be a region that serves Gemini).
+PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT") or os.getenv("VERTEX_PROJECT")
+LOCATION = os.getenv("VERTEX_LOCATION", "us-central1")
+
 
 # --------------------------------------------------------------------------- #
-# Secrets
+# Secrets (only the app token now — Vertex needs no key)
 # --------------------------------------------------------------------------- #
 def _access_secret(secret_id: str) -> str | None:
     """Read a secret value from Secret Manager (preferred) or env (dev fallback)."""
     # Local/dev fallback first so you don't need cloud creds to run locally.
-    env_map = {"clearmaxx-gemini-key": "GEMINI_API_KEY",
-               "clearmaxx-app-token": "APP_TOKEN"}
+    env_map = {"clearmaxx-app-token": "APP_TOKEN"}
     env_val = os.getenv(env_map.get(secret_id, ""))
     if env_val:
         return env_val.strip()
 
     try:
         from google.cloud import secretmanager
-        project_id = os.getenv("GOOGLE_CLOUD_PROJECT")
-        if not project_id:
+        if not PROJECT_ID:
             return None
         client = secretmanager.SecretManagerServiceClient()
-        name = f"projects/{project_id}/secrets/{secret_id}/versions/latest"
+        name = f"projects/{PROJECT_ID}/secrets/{secret_id}/versions/latest"
         resp = client.access_secret_version(request={"name": name})
         # .strip() guards against trailing newlines introduced when a secret
         # value is piped in from a file.
@@ -66,30 +72,19 @@ def _access_secret(secret_id: str) -> str | None:
         return None
 
 
-API_KEY = _access_secret("clearmaxx-gemini-key")
 APP_TOKEN = _access_secret("clearmaxx-app-token")
 
-if API_KEY:
-    genai.configure(api_key=API_KEY)
-    print(f"[OK] Gemini configured (key {API_KEY[:6]}…).")
-else:
-    print("[WARN] No Gemini key found — /api/skin/analyze will 500.")
-
-
-def _model():
-    """Return the best available configured model, preferring the cheap flash tiers."""
+# One Vertex client for the process, authenticated via ADC (the App Engine SA).
+_client = None
+if PROJECT_ID:
     try:
-        available = {
-            m.name.replace("models/", "")
-            for m in genai.list_models()
-            if "generateContent" in m.supported_generation_methods
-        }
-        for name in (PRIMARY_MODEL, FALLBACK_MODEL, "gemini-1.5-flash"):
-            if name in available:
-                return genai.GenerativeModel(name)
+        _client = genai.Client(vertexai=True, project=PROJECT_ID, location=LOCATION,
+                               http_options=HttpOptions(api_version="v1"))
+        print(f"[OK] Vertex AI client ready (project={PROJECT_ID}, location={LOCATION}).")
     except Exception as e:
-        print(f"[WARN] list_models failed ({e}); using {PRIMARY_MODEL}.")
-    return genai.GenerativeModel(PRIMARY_MODEL)
+        print(f"[WARN] Could not init Vertex client: {e}")
+else:
+    print("[WARN] No GOOGLE_CLOUD_PROJECT — /api/skin/analyze will 500.")
 
 
 # --------------------------------------------------------------------------- #
@@ -165,12 +160,13 @@ def _normalize(parsed: dict) -> dict:
 @app.route("/")
 def home():
     return jsonify({"service": "ClearMaxx AI backend", "status": "running",
-                    "gemini_configured": API_KEY is not None})
+                    "vertex_configured": _client is not None,
+                    "project": PROJECT_ID, "location": LOCATION})
 
 
 @app.route("/health")
 def health():
-    return jsonify({"status": "ok", "gemini_configured": API_KEY is not None,
+    return jsonify({"status": "ok", "vertex_configured": _client is not None,
                     "auth_required": APP_TOKEN is not None})
 
 
@@ -182,10 +178,27 @@ def _authorized(req) -> bool:
     return hmac.compare_digest(sent, APP_TOKEN)
 
 
+def _generate(img_bytes: bytes) -> str:
+    """Call Vertex Gemini with the prompt + image; retry on the lite tier."""
+    image_part = types.Part.from_bytes(data=img_bytes, mime_type="image/jpeg")
+    config = types.GenerateContentConfig(response_mime_type="application/json",
+                                         temperature=0.4)
+    last_err = None
+    for model in (PRIMARY_MODEL, FALLBACK_MODEL):
+        try:
+            resp = _client.models.generate_content(
+                model=model, contents=[ANALYSIS_PROMPT, image_part], config=config)
+            return (resp.text or "").strip()
+        except Exception as e:  # e.g. model unavailable in region → try lite
+            last_err = e
+            print(f"[WARN] {model} failed ({e}); trying next tier.")
+    raise last_err or RuntimeError("No Vertex model succeeded")
+
+
 @app.route("/api/skin/analyze", methods=["POST"])
 def analyze_skin():
-    if not API_KEY:
-        return jsonify({"error": "Server not configured (no Gemini key)"}), 500
+    if _client is None:
+        return jsonify({"error": "Server not configured (Vertex client unavailable)"}), 500
     if not _authorized(request):
         return jsonify({"error": "Unauthorized"}), 401
 
@@ -203,16 +216,15 @@ def analyze_skin():
             image = Image.open(io.BytesIO(request.files["image"].read()))
         else:
             return jsonify({"error": "No image provided"}), 400
+        # Normalize to JPEG bytes so Vertex always gets a valid, known mime type.
+        buf = io.BytesIO()
+        image.convert("RGB").save(buf, format="JPEG", quality=90)
+        img_bytes = buf.getvalue()
     except Exception as e:
         return jsonify({"error": f"Could not read image: {e}"}), 400
 
     try:
-        model = _model()
-        resp = model.generate_content(
-            [ANALYSIS_PROMPT, image],
-            generation_config={"response_mime_type": "application/json", "temperature": 0.4},
-        )
-        raw = (resp.text or "").strip()
+        raw = _generate(img_bytes)
         try:
             parsed = json.loads(raw)
         except json.JSONDecodeError:

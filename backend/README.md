@@ -1,48 +1,57 @@
 # ClearMaxx AI — backend
 
 Flask service on **Google App Engine** that analyzes a face photo with **Gemini
-2.5 Flash** and returns a structured skin report for the ClearMaxx iOS app.
+2.5 Flash on Vertex AI** and returns a structured skin report for the ClearMaxx
+iOS app.
 
-- **Project:** `ai-backend-project-482118`
+- **Project:** `faraz-mobile-apps`
 - **Service:** `clearmaxx` (separate from the `default` service so it does not
-  clobber the chartsense backend in the same project)
-- **URL:** https://clearmaxx-dot-ai-backend-project-482118.uc.r.appspot.com
+  clobber anything else in the project)
+- **URL:** https://clearmaxx-dot-faraz-mobile-apps.uc.r.appspot.com
+- **AI:** Vertex AI (`aiplatform.googleapis.com`), region `us-central1`,
+  model `gemini-2.5-flash` (falls back to `gemini-2.5-flash-lite`)
 
-## Security
+## Auth / security
 
-- The Gemini key and the app token are stored **only in Google Secret Manager**
-  (`clearmaxx-gemini-key`, `clearmaxx-app-token`). They are never in the code,
-  in `app.yaml`, or in the iOS app.
+- **No API key anywhere.** Gemini runs on **Vertex AI**, authenticated by the App
+  Engine service account (`faraz-mobile-apps@appspot.gserviceaccount.com`) via
+  Application Default Credentials. That SA holds `roles/aiplatform.user`.
+- The **app token** is the only secret, stored in **Secret Manager**
+  (`clearmaxx-app-token`). The SA has `roles/secretmanager.secretAccessor` on it.
 - Every `POST /api/skin/analyze` request must send the header
   `X-App-Token: <clearmaxx-app-token>`; otherwise it returns `401`.
 
 ## Endpoints
 
-| Method | Path                  | Notes                                   |
-|--------|-----------------------|-----------------------------------------|
-| GET    | `/health`             | liveness + config flags                 |
+| Method | Path                  | Notes                                    |
+|--------|-----------------------|------------------------------------------|
+| GET    | `/health`             | liveness + `{vertex_configured, auth_required}` |
 | POST   | `/api/skin/analyze`   | body `{ "image_base64": "..." }` + token |
 
 ## Deploy
 
 ```bash
 cd backend
-gcloud app deploy app.yaml --project ai-backend-project-482118
+gcloud app deploy app.yaml --project faraz-mobile-apps
 ```
 
-## Rotate / set a secret value (value never touches git)
+App Engine injects `GOOGLE_CLOUD_PROJECT`; `VERTEX_LOCATION` is set in `app.yaml`.
+
+## Rotate the app token (value never touches git)
 
 ```bash
-printf '%s' 'NEW_KEY_VALUE' | \
-  gcloud secrets versions add clearmaxx-gemini-key --data-file=- \
-  --project ai-backend-project-482118
-gcloud app deploy app.yaml --project ai-backend-project-482118   # pick up latest
+printf '%s' 'NEW_TOKEN_VALUE' | \
+  gcloud secrets versions add clearmaxx-app-token --data-file=- \
+  --project faraz-mobile-apps
+gcloud app deploy app.yaml --project faraz-mobile-apps   # pick up latest
+# then update the iOS token: ./fetch-secrets.sh
 ```
 
 ## Local dev
 
 ```bash
-cp .env.example .env          # fill GEMINI_API_KEY + APP_TOKEN (git-ignored)
+gcloud auth application-default login   # supplies ADC for Vertex
+cp .env.example .env                    # fill APP_TOKEN (git-ignored)
 pip install -r requirements.txt
-python main.py                # http://localhost:8080
+python main.py                          # http://localhost:8080
 ```
