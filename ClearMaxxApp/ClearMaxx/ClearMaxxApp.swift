@@ -16,6 +16,7 @@ struct ClearMaxxApp: App {
             RootView()
                 .environmentObject(state)
                 .tint(CMColor.violet)
+                .preferredColorScheme(.light)
         }
     }
 }
