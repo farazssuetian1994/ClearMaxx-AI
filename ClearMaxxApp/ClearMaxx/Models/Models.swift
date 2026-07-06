@@ -139,7 +139,10 @@ final class AppState: ObservableObject {
             predicate: #Predicate { $0.day == startOfDay })
         descriptor.fetchLimit = 1
         let existing = try? modelContext.fetch(descriptor).first
-        let doneByTitle = Dictionary(uniqueKeysWithValues: (existing?.steps ?? []).map { ($0.title, $0.done) })
+        // Routine-step titles are AI-generated and not guaranteed unique, so use a
+        // duplicate-tolerant initializer (first-wins) instead of `uniqueKeysWithValues`,
+        // which traps at runtime if two steps share a title.
+        let doneByTitle = Dictionary((existing?.steps ?? []).map { ($0.title, $0.done) }, uniquingKeysWith: { first, _ in first })
 
         let newSteps = apiSteps.map { step in
             PersistedRoutineStep(time: step.time, category: step.category, title: step.title,
