@@ -10,6 +10,7 @@ struct AnalyzingView: View {
     var onDone: () -> Void
     @EnvironmentObject var state: AppState
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
 
     @State private var progress = 0
     @State private var sweep = false
@@ -80,7 +81,7 @@ struct AnalyzingView: View {
         .onDisappear { state.hideTabBar = false }
         .task {
             if let img = state.pendingImage {
-                await state.runAnalysis(img)
+                await state.runAnalysis(img, modelContext: modelContext)
                 if state.analysisError == nil {
                     revealed = true
                     try? await Task.sleep(for: .milliseconds(450))   // let the bar reach 100
