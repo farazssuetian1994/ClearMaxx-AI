@@ -1,15 +1,21 @@
 //
 //  SkinProgressView.swift
-//  ClearMaxx — Progress tab. Before/after slider, ClearScore trend, AI analysis, share.
+//  ClearMaxx — Progress tab. Real scan history: before/after, ClearScore trend, per-metric deltas.
 //
 
 import SwiftUI
+import SwiftData
 
 struct SkinProgressView: View {
     @ObserveInjection var inject
     @EnvironmentObject var state: AppState
+    @Query(sort: \ScanRecord.date) private var scanRecords: [ScanRecord]
     @State private var slider: CGFloat = 0.5
     @State private var showShare = false
+
+    private var first: ScanRecord? { scanRecords.first }
+    private var latest: ScanRecord? { scanRecords.last }
+    private var previous: ScanRecord? { scanRecords.count >= 2 ? scanRecords[scanRecords.count - 2] : nil }
 
     var body: some View {
         DewyBackground {
@@ -30,77 +36,115 @@ struct SkinProgressView: View {
                         .background(CMGradient.aura, in: Capsule())
                     }
 
-                    BeforeAfterSlider(value: $slider)
+                    if scanRecords.isEmpty {
+                        emptyState(title: "No scans yet",
+                                   body: "Scan your face to start tracking your skin's progress.")
+                    } else {
+                        BeforeAfterSlider(value: $slider,
+                                          beforeImage: first.flatMap { ScanPhotoStore.load($0.photoFileName) },
+                                          afterImage: latest.flatMap { ScanPhotoStore.load($0.photoFileName) })
 
-                    // ClearScore trend card
-                    GlassCard {
-                        VStack(alignment: .leading, spacing: 12) {
-                            HStack(alignment: .firstTextBaseline) {
-                                VStack(alignment: .leading) {
-                                    Text("ClearScore").font(CMFont.title).foregroundStyle(CMColor.ink)
-                                    Text("+12% from last month").font(CMFont.labelSm).foregroundStyle(CMColor.success)
-                                }
-                                Spacer()
-                                Text("\(state.clearScore)").font(CMFont.inter(40, .heavy)).foregroundStyle(CMColor.coralDeep)
-                            }
-                            // Gradient trend bars
-                            HStack(alignment: .bottom, spacing: 6) {
-                                ForEach(0..<8, id: \.self) { i in
-                                    RoundedRectangle(cornerRadius: 5)
-                                        .fill(i >= 6 ? AnyShapeStyle(CMGradient.aura) : AnyShapeStyle(CMColor.outline.opacity(0.35)))
-                                        .frame(height: CGFloat(30 + i * 8))
-                                        .frame(maxWidth: .infinity)
-                                }
-                            }
-                            HStack {
-                                Text("30 DAYS AGO").font(CMFont.inter(9, .semibold)).foregroundStyle(CMColor.inkSoft)
-                                Spacer()
-                                Text("TODAY").font(CMFont.inter(9, .semibold)).foregroundStyle(CMColor.inkSoft)
-                            }
+                        clearScoreTrendCard
+
+                        if scanRecords.count < 2 {
+                            emptyState(title: "Scan again to see your trend",
+                                       body: "One more scan will start showing how each metric is changing.")
+                        } else {
+                            metricDeltaCard
                         }
-                    }
 
-                    // Two stat cards
-                    HStack(spacing: 14) {
-                        statCard(icon: "drop.fill", tint: CMColor.violet, title: "Hydration", value: "92%")
-                        statCard(icon: "wand.and.stars", tint: CMColor.coral, title: "Texture", value: "Smooth")
+                        AuraButton(title: "Share My Glow-Up", systemImage: "square.and.arrow.up") { showShare = true }
+                            .padding(.bottom, 100)
                     }
-
-                    // AI analysis
-                    GlassCard {
-                        VStack(alignment: .leading, spacing: 14) {
-                            Text("AI Analysis").font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
-                            aiRow(icon: "checkmark.seal.fill", tint: CMColor.success, title: "Redness Reduced",
-                                  body: "Your skin barrier is healing effectively. Continue using the Vitamin C serum daily.")
-                            aiRow(icon: "moon.stars.fill", tint: CMColor.violet, title: "Night Routine Hack",
-                                  body: "Apply moisturizer on slightly damp skin to boost your hydration score to 95%+.")
-                        }
-                    }
-
-                    AuraButton(title: "Share My Glow-Up", systemImage: "square.and.arrow.up") { showShare = true }
-                        .padding(.bottom, 100)
                 }
                 .padding(.horizontal, 24).padding(.top, 8)
             }
         }
-        .sheet(isPresented: $showShare) { GlowUpShareView() }
+        .sheet(isPresented: $showShare) {
+            GlowUpShareView(
+                beforeImage: first.flatMap { ScanPhotoStore.load($0.photoFileName) },
+                afterImage: latest.flatMap { ScanPhotoStore.load($0.photoFileName) },
+                scoreDelta: (latest?.clearScore ?? 0) - (first?.clearScore ?? 0))
+        }
     }
 
-    private func statCard(icon: String, tint: Color, title: String, value: String) -> some View {
+    private var clearScoreTrendCard: some View {
         GlassCard {
-            VStack(alignment: .leading, spacing: 8) {
-                Image(systemName: icon).foregroundStyle(tint).font(.system(size: 22))
-                Text(title).font(CMFont.labelMd).foregroundStyle(CMColor.inkSoft)
-                Text(value).font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(alignment: .firstTextBaseline) {
+                    VStack(alignment: .leading) {
+                        Text("ClearScore").font(CMFont.title).foregroundStyle(CMColor.ink)
+                        if let first, let latest {
+                            let delta = latest.clearScore - first.clearScore
+                            Text(delta >= 0 ? "+\(delta) since your first scan" : "\(delta) since your first scan")
+                                .font(CMFont.labelSm).foregroundStyle(delta >= 0 ? CMColor.success : CMColor.error)
+                        }
+                    }
+                    Spacer()
+                    Text("\(latest?.clearScore ?? state.clearScore)")
+                        .font(CMFont.inter(40, .heavy)).foregroundStyle(CMColor.coralDeep)
+                }
+                HStack(alignment: .bottom, spacing: 6) {
+                    let recent = Array(scanRecords.suffix(8))
+                    ForEach(Array(recent.enumerated()), id: \.offset) { i, record in
+                        RoundedRectangle(cornerRadius: 5)
+                            .fill(i == recent.count - 1
+                                  ? AnyShapeStyle(CMGradient.aura) : AnyShapeStyle(CMColor.outline.opacity(0.35)))
+                            .frame(height: max(8, CGFloat(record.clearScore) * 0.9))
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+                .frame(height: 100, alignment: .bottom)
+                HStack {
+                    Text(first?.date.formatted(date: .abbreviated, time: .omitted) ?? "")
+                        .font(CMFont.inter(9, .semibold)).foregroundStyle(CMColor.inkSoft)
+                    Spacer()
+                    Text("TODAY").font(CMFont.inter(9, .semibold)).foregroundStyle(CMColor.inkSoft)
+                }
             }
         }
     }
 
-    private func aiRow(icon: String, tint: Color, title: String, body: String) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: icon).foregroundStyle(tint).font(.system(size: 18))
+    private var metricDeltaCard: some View {
+        GlassCard {
+            VStack(alignment: .leading, spacing: 14) {
+                Text("Metric Progress").font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
+                ForEach(latest?.metrics ?? [], id: \.name) { metric in
+                    metricRow(metric)
+                }
+            }
+        }
+    }
+
+    private func metricRow(_ metric: PersistedMetric) -> some View {
+        let prevMetric = previous?.metrics.first(where: { $0.name == metric.name })
+        let justResolved = metric.severity == "Good" && prevMetric?.severity != "Good"
+        return HStack(alignment: .top, spacing: 12) {
+            Image(systemName: justResolved ? "checkmark.seal.fill" : "chart.line.uptrend.xyaxis")
+                .foregroundStyle(justResolved ? CMColor.success : CMColor.violet)
+                .font(.system(size: 18))
             VStack(alignment: .leading, spacing: 2) {
-                Text(title).font(CMFont.labelMd).foregroundStyle(CMColor.ink)
+                HStack {
+                    Text(metric.name).font(CMFont.labelMd).foregroundStyle(CMColor.ink)
+                    if justResolved {
+                        Text("Cleared 🎉").font(CMFont.labelSm).foregroundStyle(CMColor.success)
+                    }
+                }
+                if let prevValue = prevMetric?.value {
+                    let delta = metric.value - prevValue
+                    Text("\(prevValue) → \(metric.value) (\(delta >= 0 ? "+" : "")\(delta)) since last scan")
+                        .font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
+                } else {
+                    Text("Value: \(metric.value)").font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
+                }
+            }
+        }
+    }
+
+    private func emptyState(title: String, body: String) -> some View {
+        GlassCard {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(title).font(CMFont.title).foregroundStyle(CMColor.ink)
                 Text(body).font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
             }
         }
@@ -110,15 +154,18 @@ struct SkinProgressView: View {
 // Draggable before/after comparison
 struct BeforeAfterSlider: View {
     @Binding var value: CGFloat
+    var beforeImage: UIImage? = nil
+    var afterImage: UIImage? = nil
+
     var body: some View {
         GeometryReader { geo in
             let w = geo.size.width
             ZStack(alignment: .leading) {
-                LinearGradient(colors: [Color(hex: "C98F6A"), Color(hex: "9A6A4A")], startPoint: .top, endPoint: .bottom)
+                beforeLayer
                     .overlay(Text("BEFORE").font(CMFont.inter(10, .bold)).foregroundStyle(.white)
                         .padding(6).background(.black.opacity(0.4), in: Capsule()).padding(10),
                              alignment: .topLeading)
-                CMGradient.auraDiagonal
+                afterLayer
                     .overlay(Text("AFTER").font(CMFont.inter(10, .bold)).foregroundStyle(.white)
                         .padding(6).background(.black.opacity(0.3), in: Capsule()).padding(10),
                              alignment: .topTrailing)
@@ -145,6 +192,26 @@ struct BeforeAfterSlider: View {
         }
         .frame(height: 260)
     }
+
+    @ViewBuilder private var beforeLayer: some View {
+        if let beforeImage {
+            Image(uiImage: beforeImage).resizable().scaledToFill()
+        } else {
+            LinearGradient(colors: [Color(hex: "C98F6A"), Color(hex: "9A6A4A")], startPoint: .top, endPoint: .bottom)
+        }
+    }
+
+    @ViewBuilder private var afterLayer: some View {
+        if let afterImage {
+            Image(uiImage: afterImage).resizable().scaledToFill()
+        } else {
+            CMGradient.auraDiagonal
+        }
+    }
 }
 
-#Preview { SkinProgressView().environmentObject(AppState()) }
+#Preview {
+    SkinProgressView()
+        .environmentObject(AppState())
+        .modelContainer(for: [ScanRecord.self, DailyRoutineChecklist.self], inMemory: true)
+}

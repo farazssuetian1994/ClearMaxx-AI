@@ -1,15 +1,30 @@
 //
 //  DailyRoutineView.swift
-//  ClearMaxx — Routine tab. AM/PM toggle, numbered steps, weekly consistency chart.
+//  ClearMaxx — Routine tab. AM/PM toggle over today's AI-generated checklist.
 //
 
 import SwiftUI
+import SwiftData
 
 struct DailyRoutineView: View {
     @ObserveInjection var inject
     @EnvironmentObject var state: AppState
     @State private var time: RoutineTime = .am
-    @State private var steps: [RoutineStep] = []
+    @Query private var checklists: [DailyRoutineChecklist]
+
+    init() {
+        let startOfDay = Calendar.current.startOfDay(for: Date())
+        _checklists = Query(filter: #Predicate<DailyRoutineChecklist> { $0.day == startOfDay })
+    }
+
+    private var todaySteps: [PersistedRoutineStep] { checklists.first?.steps ?? [] }
+
+    private var filteredSteps: [(offset: Int, step: PersistedRoutineStep)] {
+        let wanted = time == .am ? "AM" : "PM"
+        return Array(todaySteps.enumerated())
+            .filter { $0.element.time == wanted }
+            .map { (offset: $0.offset, step: $0.element) }
+    }
 
     var body: some View {
         DewyBackground {
@@ -24,7 +39,7 @@ struct DailyRoutineView: View {
                     // AM/PM segmented toggle
                     HStack(spacing: 0) {
                         ForEach(RoutineTime.allCases, id: \.self) { t in
-                            Button { withAnimation { time = t; loadSteps() } } label: {
+                            Button { withAnimation { time = t } } label: {
                                 HStack(spacing: 6) {
                                     Image(systemName: t == .am ? "sun.max.fill" : "moon.fill")
                                     Text(t.rawValue)
@@ -41,12 +56,23 @@ struct DailyRoutineView: View {
                     .padding(4)
                     .background(CMColor.cardSoft, in: Capsule())
 
-                    // Steps
-                    ForEach($steps) { $step in
-                        RoutineStepCard(step: $step)
+                    if todaySteps.isEmpty {
+                        GlassCard {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("No routine yet").font(CMFont.title).foregroundStyle(CMColor.ink)
+                                Text("Scan your face to get today's AI-recommended routine.")
+                                    .font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
+                            }
+                        }
+                    } else {
+                        ForEach(filteredSteps, id: \.step.title) { entry in
+                            RoutineStepCard(index: entry.offset + 1, step: entry.step) {
+                                toggleDone(at: entry.offset)
+                            }
+                        }
                     }
 
-                    // Weekly consistency
+                    // Weekly consistency — still illustrative, out of scope for this pass.
                     GlassCard {
                         VStack(alignment: .leading, spacing: 14) {
                             HStack {
@@ -74,19 +100,24 @@ struct DailyRoutineView: View {
                 .padding(.horizontal, 24).padding(.top, 8)
             }
         }
-        .onAppear { if steps.isEmpty { loadSteps() } }
     }
 
-    private func loadSteps() { steps = state.routine(for: time) }
+    private func toggleDone(at index: Int) {
+        guard let checklist = checklists.first else { return }
+        checklist.steps[index].done.toggle()
+    }
 }
 
 private struct RoutineStepCard: View {
-    @Binding var step: RoutineStep
+    let index: Int
+    let step: PersistedRoutineStep
+    let onToggle: () -> Void
+
     var body: some View {
         HStack(alignment: .top, spacing: 14) {
             ZStack {
                 Circle().stroke(CMColor.violet.opacity(0.3), lineWidth: 1.5).frame(width: 40, height: 40)
-                Text(String(format: "%02d", step.index))
+                Text(String(format: "%02d", index))
                     .font(CMFont.labelMd).foregroundStyle(CMColor.violetDeep)
             }
             GlassCard {
@@ -94,7 +125,7 @@ private struct RoutineStepCard: View {
                     HStack {
                         CategoryLabel(text: step.category, color: CMColor.coralDeep)
                         Spacer()
-                        Button { step.done.toggle() } label: {
+                        Button(action: onToggle) {
                             Image(systemName: step.done ? "checkmark.circle.fill" : "circle")
                                 .font(.system(size: 22))
                                 .foregroundStyle(step.done ? CMColor.success : CMColor.outline.opacity(0.6))
@@ -111,4 +142,8 @@ private struct RoutineStepCard: View {
     }
 }
 
-#Preview { DailyRoutineView().environmentObject(AppState()) }
+#Preview {
+    DailyRoutineView()
+        .environmentObject(AppState())
+        .modelContainer(for: [ScanRecord.self, DailyRoutineChecklist.self], inMemory: true)
+}

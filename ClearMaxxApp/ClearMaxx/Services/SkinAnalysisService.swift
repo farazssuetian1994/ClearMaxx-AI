@@ -23,7 +23,7 @@ struct SkinAnalysis: Codable {
     let skinType: String
     let summary: String
     let metrics: [APIMetric]
-    let routineSuggestions: [String]
+    let routineSteps: [APIRoutineStep]
 }
 
 struct APIMetric: Codable {
@@ -33,6 +33,14 @@ struct APIMetric: Codable {
     let summary: String
     let ingredients: [String]
     let tips: [String]
+}
+
+struct APIRoutineStep: Codable {
+    let time: String       // "AM" or "PM"
+    let category: String
+    let title: String
+    let detail: String
+    let tags: [String]
 }
 
 private struct AnalyzeResponse: Codable {

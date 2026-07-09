@@ -5,6 +5,7 @@
 
 import SwiftUI
 import UIKit
+import SwiftData
 
 // MARK: - Skin issue / metric
 
@@ -21,16 +22,6 @@ struct SkinMetric: Identifiable, Hashable {
 // MARK: - Routine
 
 enum RoutineTime: String, CaseIterable { case am = "AM Routine", pm = "PM Routine" }
-
-struct RoutineStep: Identifiable, Hashable {
-    let id = UUID()
-    let index: Int
-    let category: String
-    let title: String
-    let detail: String
-    let tags: [String]
-    var done: Bool = false
-}
 
 // MARK: - Diary
 
@@ -59,6 +50,11 @@ final class AppState: ObservableObject {
     @Published var hideTabBar = false
     var pendingImage: UIImage?
 
+    // MARK: Set right after a successful scan, read by the celebration screen
+    @Published var newlyResolved: [PersistedMetric] = []
+    @Published var celebrationBeforeImage: UIImage?
+    @Published var celebrationScoreDelta: Int = 0
+
     /// Score shown on the results ring — real if available, else the mock baseline.
     var displayScore: Int { analysis?.clearScore ?? clearScore }
     var scanConfidence: Int { analysis?.confidence ?? 98 }
@@ -86,24 +82,88 @@ final class AppState: ObservableObject {
         }
     }
 
-    /// Runs a real scan against the backend. Updates `analysis` / `analysisError`.
-    func runAnalysis(_ image: UIImage) async {
+    /// Runs a real scan against the backend. Updates `analysis` / `analysisError`,
+    /// and — on success — persists the scan into SwiftData.
+    func runAnalysis(_ image: UIImage, modelContext: ModelContext) async {
         isAnalyzing = true
         analysisError = nil
+        newlyResolved = []
         do {
             let result = try await SkinAnalysisService.analyze(image: image)
             analysis = result
             clearScore = result.clearScore   // keep Progress/Profile tabs in sync
+            persistScan(image: image, result: result, modelContext: modelContext)
         } catch {
             analysisError = error.localizedDescription
         }
         isAnalyzing = false
     }
 
+    private func persistScan(image: UIImage, result: SkinAnalysis, modelContext: ModelContext) {
+        guard let photoFileName = try? ScanPhotoStore.save(image) else {
+            print("[AppState] Could not save scan photo — skipping history for this scan.")
+            return
+        }
+        let persistedMetrics = result.metrics.map {
+            PersistedMetric(name: $0.name, value: $0.value, severity: $0.severity)
+        }
+
+        var previousDescriptor = FetchDescriptor<ScanRecord>(sortBy: [SortDescriptor(\.date, order: .reverse)])
+        previousDescriptor.fetchLimit = 1
+        let previous = try? modelContext.fetch(previousDescriptor).first
+
+        newlyResolved = ResolutionDiff.newlyResolved(current: persistedMetrics, previous: previous?.metrics)
+        celebrationBeforeImage = previous.flatMap { ScanPhotoStore.load($0.photoFileName) }
+        celebrationScoreDelta = result.clearScore - (previous?.clearScore ?? result.clearScore)
+
+        let record = ScanRecord(date: Date(), clearScore: result.clearScore, confidence: result.confidence,
+                                 skinType: result.skinType, summary: result.summary,
+                                 metrics: persistedMetrics, photoFileName: photoFileName)
+        modelContext.insert(record)
+
+        upsertTodayChecklist(from: result.routineSteps, modelContext: modelContext)
+
+        do {
+            try modelContext.save()
+        } catch {
+            print("[AppState] Could not save scan history: \(error)")
+        }
+    }
+
+    /// Regenerates today's checklist from the latest scan's AI routine, preserving
+    /// `done` state for any step whose title survives from the prior version of
+    /// today's checklist (so a mid-day rescan doesn't wipe checked-off items).
+    private func upsertTodayChecklist(from apiSteps: [APIRoutineStep], modelContext: ModelContext) {
+        let startOfDay = Calendar.current.startOfDay(for: Date())
+        var descriptor = FetchDescriptor<DailyRoutineChecklist>(
+            predicate: #Predicate { $0.day == startOfDay })
+        descriptor.fetchLimit = 1
+        let existing = try? modelContext.fetch(descriptor).first
+        // Routine-step titles are AI-generated and not guaranteed unique, so use a
+        // duplicate-tolerant initializer (first-wins) instead of `uniqueKeysWithValues`,
+        // which traps at runtime if two steps share a title.
+        let doneByTitle = Dictionary((existing?.steps ?? []).map { ($0.title, $0.done) }, uniquingKeysWith: { first, _ in first })
+
+        let newSteps = apiSteps.map { step in
+            PersistedRoutineStep(time: step.time, category: step.category, title: step.title,
+                                  detail: step.detail, tags: step.tags,
+                                  done: doneByTitle[step.title] ?? false)
+        }
+
+        if let existing {
+            existing.steps = newSteps
+        } else {
+            modelContext.insert(DailyRoutineChecklist(day: startOfDay, steps: newSteps))
+        }
+    }
+
     func resetAnalysis() {
         analysis = nil
         analysisError = nil
         pendingImage = nil
+        newlyResolved = []
+        celebrationBeforeImage = nil
+        celebrationScoreDelta = 0
     }
 
     // Mock analysis results matching the Stitch results dashboard
@@ -127,35 +187,6 @@ final class AppState: ObservableObject {
               blurb: "Very early fine-line activity. Prevention with SPF and antioxidants is key.",
               ingredients: ["Retinol", "Vitamin C", "Peptides"])
     ]
-
-    func routine(for time: RoutineTime) -> [RoutineStep] {
-        switch time {
-        case .am:
-            return [
-                .init(index: 1, category: "Cleanser", title: "Gentle Cloud Foam",
-                      detail: "A pH-balanced formula that lifts impurities without stripping your skin's natural barrier.",
-                      tags: ["Squalane", "Amino Acids"]),
-                .init(index: 2, category: "Vitamin C Serum", title: "Morning Glow Drops",
-                      detail: "Potent antioxidant protection to brighten dark spots and shield against pollution.",
-                      tags: ["Vitamin C"]),
-                .init(index: 3, category: "Moisturizer & SPF", title: "HydraShield SPF 50",
-                      detail: "Double-duty hydration with broad-spectrum protection. Lightweight and non-greasy.",
-                      tags: ["SPF 50"])
-            ]
-        case .pm:
-            return [
-                .init(index: 1, category: "Cleanser", title: "Midnight Melt Balm",
-                      detail: "Dissolves sunscreen, makeup and grime so actives absorb cleanly.",
-                      tags: ["Squalane"]),
-                .init(index: 2, category: "Treatment", title: "Clarifying Night Serum",
-                      detail: "Salicylic acid clears congestion while you sleep, reducing breakouts.",
-                      tags: ["Salicylic Acid", "Niacinamide"]),
-                .init(index: 3, category: "Moisturizer", title: "Barrier Repair Cream",
-                      detail: "Ceramide-rich cream locks in hydration and rebuilds the skin barrier overnight.",
-                      tags: ["Ceramides", "Hyaluronic Acid"])
-            ]
-        }
-    }
 
     let recentDiary: [DiaryEntry] = [
         .init(day: "Yesterday", notes: ["8h Sleep", "2.5L Water"], emoji: "✨"),

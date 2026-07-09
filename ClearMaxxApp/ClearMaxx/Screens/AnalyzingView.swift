@@ -10,12 +10,10 @@ struct AnalyzingView: View {
     var onDone: () -> Void
     @EnvironmentObject var state: AppState
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
 
-    @State private var progress = 0
     @State private var sweep = false
     @State private var revealed = false
-
-    private let timer = Timer.publish(every: 0.03, on: .main, in: .common).autoconnect()
 
     var body: some View {
         ZStack {
@@ -56,23 +54,31 @@ struct AnalyzingView: View {
 
                 Spacer()
 
-                Text("\(progress)%")
-                    .font(CMFont.inter(64, .heavy)).foregroundStyle(.white)
-                    .shadow(color: CMColor.violet.opacity(0.7), radius: 18)
-                    .contentTransition(.numericText())
-                Text("Please hold still")
+                // Real loading state — an indeterminate spinner while the network
+                // call is in flight (we have no true byte-progress signal from the
+                // backend), then a checkmark once the result actually arrives.
+                Group {
+                    if revealed {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 56)).foregroundStyle(.white)
+                    } else {
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                            .tint(.white)
+                            .scaleEffect(1.8)
+                    }
+                }
+                .frame(height: 56)
+                .shadow(color: CMColor.violet.opacity(0.7), radius: 18)
+                Text(revealed ? "Almost there" : "Please hold still")
                     .font(CMFont.bodyMd).foregroundStyle(.white.opacity(0.85))
+                    .padding(.top, 14)
                     .padding(.bottom, 90)
             }
             .padding(.horizontal, 24)
             .padding(.top, 8)
         }
         .navigationBarBackButtonHidden(true)
-        .onReceive(timer) { _ in
-            // Climb to 92% while the network call is in flight, then finish to 100%.
-            let cap = revealed ? 100 : 92
-            if progress < cap { progress += 1 }
-        }
         .onAppear {
             state.hideTabBar = true
             withAnimation(.linear(duration: 1.4).repeatForever(autoreverses: true)) { sweep = true }
@@ -80,10 +86,10 @@ struct AnalyzingView: View {
         .onDisappear { state.hideTabBar = false }
         .task {
             if let img = state.pendingImage {
-                await state.runAnalysis(img)
+                await state.runAnalysis(img, modelContext: modelContext)
                 if state.analysisError == nil {
                     revealed = true
-                    try? await Task.sleep(for: .milliseconds(450))   // let the bar reach 100
+                    try? await Task.sleep(for: .milliseconds(450))   // let the checkmark register
                     onDone()
                 }
                 // on error: the overlay below offers Retry / demo
@@ -100,20 +106,22 @@ struct AnalyzingView: View {
 
     private func errorCard(_ message: String) -> some View {
         ZStack {
-            Color.black.opacity(0.35).ignoresSafeArea()
+            Color.black.opacity(0.4).ignoresSafeArea()
             VStack(spacing: 14) {
                 Image(systemName: "exclamationmark.triangle.fill")
-                    .font(.system(size: 40)).foregroundStyle(CMColor.coral)
+                    .font(.system(size: 36)).foregroundStyle(CMColor.coral)
                 Text("Scan failed").font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
                 Text(message).font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
                     .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
                 AuraButton(title: "Try Again") { state.analysisError = nil; dismiss() }
                 Button("Use demo results") { state.analysisError = nil; onDone() }
                     .font(CMFont.labelMd).foregroundStyle(CMColor.violetDeep)
             }
             .padding(24)
+            .frame(maxWidth: 320)
             .background(.white, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-            .padding(32)
+            .shadow(color: .black.opacity(0.25), radius: 24, y: 12)
         }
     }
 

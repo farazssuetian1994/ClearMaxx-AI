@@ -113,7 +113,16 @@ Analyze the FACE in the image and return ONLY a JSON object (no markdown) with E
     }}
     // EXACTLY one object per metric in {METRICS}, in that order
   ],
-  "routineSuggestions": [<3-5 short routine steps tailored to this face>]
+  "routineSteps": [
+    {{
+      "time": <"AM" or "PM">,
+      "category": <e.g. "Cleanser","Treatment","Moisturizer","Sunscreen">,
+      "title": <short product/step name, max 40 chars>,
+      "detail": <one sentence on why/how, max 140 chars>,
+      "tags": [<0-3 short tags, e.g. "Fragrance-free">]
+    }}
+    // 4-8 steps total, a mix of AM and PM, tailored to the metrics above
+  ]
 }}
 
 Rules:
@@ -128,6 +137,18 @@ def _safe_int(v, default=0):
         return max(0, min(100, int(round(float(v)))))
     except Exception:
         return default
+
+
+def _normalize_routine_step(s: dict) -> dict:
+    """Coerce one routine-step object into the exact shape the app expects."""
+    time = s.get("time") if s.get("time") in {"AM", "PM"} else "AM"
+    return {
+        "time": time,
+        "category": str(s.get("category", ""))[:40],
+        "title": str(s.get("title", ""))[:40],
+        "detail": str(s.get("detail", ""))[:160],
+        "tags": [str(x) for x in (s.get("tags") or [])][:3],
+    }
 
 
 def _normalize(parsed: dict) -> dict:
@@ -150,7 +171,10 @@ def _normalize(parsed: dict) -> dict:
         "skinType": parsed.get("skinType", "Normal"),
         "summary": str(parsed.get("summary", ""))[:200],
         "metrics": metrics,
-        "routineSuggestions": [str(x) for x in (parsed.get("routineSuggestions") or [])][:5],
+        "routineSteps": [
+            _normalize_routine_step(s) for s in (parsed.get("routineSteps") or [])
+            if isinstance(s, dict)
+        ][:8],
     }
 
 

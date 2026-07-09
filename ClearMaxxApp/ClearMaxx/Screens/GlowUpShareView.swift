@@ -1,6 +1,6 @@
 //
 //  GlowUpShareView.swift
-//  ClearMaxx — shareable before/after card "+18 ClearScore", social share buttons.
+//  ClearMaxx — before/after celebration + share card, fed real scan data.
 //
 
 import SwiftUI
@@ -9,6 +9,15 @@ struct GlowUpShareView: View {
     @ObserveInjection var inject
     @Environment(\.dismiss) private var dismiss
     @State private var slider: CGFloat = 0.5
+    @State private var saveConfirmation = false
+
+    var beforeImage: UIImage? = nil
+    var afterImage: UIImage? = nil
+    var scoreDelta: Int = 0
+    var resolvedMetricNames: [String] = []
+    /// Non-nil when shown as a post-scan celebration (adds a "Continue" button);
+    /// nil when shown as the plain "Share My Glow-Up" sheet from Progress.
+    var onContinue: (() -> Void)? = nil
 
     var body: some View {
         DewyBackground {
@@ -22,13 +31,21 @@ struct GlowUpShareView: View {
                 }
                 .padding(.horizontal, 24).padding(.top, 12)
 
+                if !resolvedMetricNames.isEmpty {
+                    Text("\(resolvedMetricNames.joined(separator: " & ")) Cleared! 🎉")
+                        .font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 24)
+                }
+
                 // Share card
                 VStack(spacing: 0) {
-                    BeforeAfterSlider(value: $slider).frame(height: 300)
+                    BeforeAfterSlider(value: $slider, beforeImage: beforeImage, afterImage: afterImage)
+                        .frame(height: 300)
                         .overlay(alignment: .bottom) {
                             VStack(spacing: 2) {
-                                Text("+18 ClearScore").font(CMFont.inter(26, .heavy)).foregroundStyle(.white)
-                                Text("in 30 days").font(CMFont.labelMd).foregroundStyle(.white.opacity(0.9))
+                                Text(scoreDeltaText).font(CMFont.inter(26, .heavy)).foregroundStyle(.white)
+                                Text("ClearScore change").font(CMFont.labelMd).foregroundStyle(.white.opacity(0.9))
                             }
                             .frame(maxWidth: .infinity).padding(.vertical, 14)
                             .background(CMGradient.aura.opacity(0.92))
@@ -58,12 +75,31 @@ struct GlowUpShareView: View {
                 }
                 .padding(.horizontal, 24)
 
-                AuraButton(title: "Save to Photos", systemImage: "square.and.arrow.down")
-                    .padding(.horizontal, 24)
+                AuraButton(title: saveConfirmation ? "Saved!" : "Save to Photos",
+                           systemImage: saveConfirmation ? "checkmark" : "square.and.arrow.down") {
+                    saveToPhotos()
+                }
+                .padding(.horizontal, 24)
+
+                if let onContinue {
+                    Button("Continue", action: onContinue)
+                        .font(CMFont.labelMd).foregroundStyle(CMColor.violetDeep)
+                }
+
                 Spacer()
             }
         }
         .presentationDragIndicator(.visible)
+    }
+
+    private var scoreDeltaText: String {
+        scoreDelta >= 0 ? "+\(scoreDelta) ClearScore" : "\(scoreDelta) ClearScore"
+    }
+
+    private func saveToPhotos() {
+        guard let afterImage else { return }
+        UIImageWriteToSavedPhotosAlbum(afterImage, nil, nil, nil)
+        saveConfirmation = true
     }
 
     private func shareButton(_ label: String, _ icon: String, _ bg: Color?) -> some View {

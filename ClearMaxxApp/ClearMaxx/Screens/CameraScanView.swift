@@ -10,7 +10,7 @@ import PhotosUI
 
 // MARK: - Scan flow routing
 
-enum ScanRoute: Hashable { case analyzing, results, issue(SkinMetric) }
+enum ScanRoute: Hashable { case analyzing, results, issue(SkinMetric), celebration }
 
 struct CameraScanView: View {
     @ObserveInjection var inject
@@ -26,7 +26,20 @@ struct CameraScanView: View {
             .navigationDestination(for: ScanRoute.self) { route in
                 switch route {
                 case .analyzing:
-                    AnalyzingView { path.append(ScanRoute.results) }
+                    AnalyzingView {
+                        if state.newlyResolved.isEmpty {
+                            path.append(ScanRoute.results)
+                        } else {
+                            path.append(ScanRoute.celebration)
+                        }
+                    }
+                case .celebration:
+                    GlowUpShareView(
+                        beforeImage: state.celebrationBeforeImage,
+                        afterImage: state.pendingImage,
+                        scoreDelta: state.celebrationScoreDelta,
+                        resolvedMetricNames: state.newlyResolved.map(\.name),
+                        onContinue: { path.append(ScanRoute.results) })
                 case .results:
                     ResultsDashboardView(
                         onIssue: { path.append(ScanRoute.issue($0)) },
@@ -50,6 +63,8 @@ private struct ScanCaptureScreen: View {
     @State private var pulse = false
     @State private var scan = false
     @State private var flashOn = false
+    @State private var checkingGalleryPhoto = false
+    @State private var noFaceInGalleryPhoto = false
 
     var body: some View {
         ZStack {
@@ -70,6 +85,14 @@ private struct ScanCaptureScreen: View {
             }
             .padding(.horizontal, 20)
             .padding(.top, 8)
+
+            if checkingGalleryPhoto {
+                Color.black.opacity(0.5).ignoresSafeArea()
+                VStack(spacing: 12) {
+                    ProgressView().tint(.white)
+                    Text("Checking photo…").font(CMFont.labelMd).foregroundStyle(.white)
+                }
+            }
         }
         .onAppear {
             camera.start()
@@ -81,27 +104,66 @@ private struct ScanCaptureScreen: View {
         .onChange(of: photoItem) { _, item in
             guard let item else { return }
             Task {
-                if let data = try? await item.loadTransferable(type: Data.self),
-                   let image = UIImage(data: data) { onCapture(image) }
+                defer { photoItem = nil }   // reset so re-picking the same photo re-triggers this
+                guard let data = try? await item.loadTransferable(type: Data.self),
+                      let image = UIImage(data: data) else { return }
+                checkingGalleryPhoto = true
+                let hasFace = await FaceDetector.containsFace(image)
+                checkingGalleryPhoto = false
+                if hasFace {
+                    onCapture(image)
+                } else {
+                    noFaceInGalleryPhoto = true
+                }
             }
+        }
+        .alert("No Face Detected", isPresented: $noFaceInGalleryPhoto) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("We couldn't find a face in that photo. Please choose a clear photo of your face.")
         }
     }
 
-    // MARK: Top bar — close · "Good lighting" · flash
+    // MARK: Top bar — close · live face-detection status · flash
     private var topBar: some View {
         HStack {
             circleButton("xmark") { }
             Spacer()
             HStack(spacing: 6) {
-                Image(systemName: "checkmark.circle.fill")
-                Text("Good lighting").font(CMFont.labelSm)
+                Image(systemName: faceStatusIcon)
+                Text(faceStatusText).font(CMFont.labelSm)
             }
             .foregroundStyle(.white)
             .padding(.horizontal, 14).padding(.vertical, 8)
-            .background(CMColor.success, in: Capsule())
+            .background(faceStatusColor, in: Capsule())
             Spacer()
             circleButton(flashOn ? "bolt.fill" : "bolt.slash.fill") { flashOn.toggle() }
         }
+    }
+
+    // Reflects live Vision face detection once the real camera is up; on the
+    // Simulator (no camera, `camera.isReady == false`) this stays as it always
+    // was — a static "Good lighting" badge — since there's no live feed to judge.
+    private var faceStatusIcon: String {
+        guard camera.isReady else { return "checkmark.circle.fill" }
+        return camera.faceDetected ? "checkmark.circle.fill" : "person.crop.circle.badge.exclamationmark"
+    }
+    private var faceStatusText: String {
+        guard camera.isReady else { return "Good lighting" }
+        return camera.faceDetected ? "Face detected" : "Position your face"
+    }
+    private var faceStatusColor: Color {
+        guard camera.isReady else { return CMColor.success }
+        return camera.faceDetected ? CMColor.success : .black.opacity(0.45)
+    }
+
+    /// True only when we have a live camera feed and it isn't currently seeing a face —
+    /// gates the shutter so a scan can't be submitted without a detected face.
+    private var shutterBlockedByNoFace: Bool { camera.isReady && !camera.faceDetected }
+
+    private var faceGuideStrokeColor: Color {
+        guard camera.isReady else { return .white.opacity(0.9) }   // Simulator: no live feed to judge
+        return camera.faceDetected ? CMColor.success : .white.opacity(0.5)
     }
 
     private func circleButton(_ icon: String, _ action: @escaping () -> Void) -> some View {
@@ -126,7 +188,7 @@ private struct ScanCaptureScreen: View {
                 .frame(width: 250, height: 330)
                 .mask(Ellipse().frame(width: 250, height: 330))   // keep the beam inside the oval
 
-            Ellipse().stroke(.white.opacity(0.9), lineWidth: 3)
+            Ellipse().stroke(faceGuideStrokeColor, lineWidth: 3)
                 .frame(width: 250, height: 330)
 
             // N/E/S/W tick marks
@@ -154,16 +216,17 @@ private struct ScanCaptureScreen: View {
 
             Spacer()
 
-            // Shutter (camera capture)
+            // Shutter (camera capture) — dims and disables while no face is in frame.
             Button(action: capture) {
                 ZStack {
                     Circle().stroke(.white, lineWidth: 4).frame(width: 82, height: 82)
                     Circle().fill(.white).frame(width: 66, height: 66)
                     if capturing { ProgressView().tint(.black) }
                 }
+                .opacity(shutterBlockedByNoFace ? 0.4 : 1.0)
             }
             .buttonStyle(.plain)
-            .disabled(capturing)
+            .disabled(capturing || shutterBlockedByNoFace)
 
             Spacer()
 

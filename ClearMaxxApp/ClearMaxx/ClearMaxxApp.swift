@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct ClearMaxxApp: App {
@@ -18,5 +19,6 @@ struct ClearMaxxApp: App {
                 .tint(CMColor.violet)
                 .preferredColorScheme(.light)
         }
+        .modelContainer(for: [ScanRecord.self, DailyRoutineChecklist.self])
     }
 }
