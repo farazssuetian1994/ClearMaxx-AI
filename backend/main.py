@@ -118,16 +118,25 @@ Analyze the FACE in the image and return ONLY a JSON object (no markdown) with E
       "time": <"AM" or "PM">,
       "category": <e.g. "Cleanser","Treatment","Moisturizer","Sunscreen">,
       "title": <short product/step name, max 40 chars>,
-      "detail": <one sentence on why/how, max 140 chars>,
+      "detail": <one sentence, max 140 chars, naming the SPECIFIC metric/severity from
+                 THIS scan that this step addresses — e.g. "Targets your Moderate acne
+                 with gentle exfoliation" not a generic "cleanses skin">,
       "tags": [<0-3 short tags, e.g. "Fragrance-free">]
     }}
-    // 4-8 steps total, a mix of AM and PM, tailored to the metrics above
+    // 4-8 steps total, a mix of AM and PM
   ]
 }}
 
 Rules:
 - If the image is not a clear human face, set confidence below 30 and give neutral mid values.
 - Be encouraging and non-diagnostic; never claim to detect medical conditions.
+- routineSteps MUST be derived from THIS face's actual metrics, not generic boilerplate:
+  prioritize steps that address whichever metrics scored "Moderate" or "Severe" here (if
+  none did, focus on maintenance for the mildest/lowest-scoring ones instead), and pick
+  product types appropriate to the detected skinType (e.g. don't recommend heavy oils for
+  Oily skin, don't recommend harsh actives for Sensitive skin). Two different faces with
+  different metrics/skinType must get visibly different routines — same metrics/skinType
+  should still get independently-generated, not templated, wording.
 - Output raw JSON only.
 """.strip()
 
