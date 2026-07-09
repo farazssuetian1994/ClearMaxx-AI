@@ -6,6 +6,10 @@
 	objectVersion = 70;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		463A23E439C0032A82932CD9 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 4115F57C3210E5E10F50258F /* RevenueCat */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		AA0000000000000000000006 /* ClearMaxx.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClearMaxx.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -19,6 +23,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				463A23E439C0032A82932CD9 /* RevenueCat in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -60,6 +65,9 @@
 				AA0000000000000000000004 /* ClearMaxx */,
 			);
 			name = ClearMaxx;
+			packageProductDependencies = (
+				4115F57C3210E5E10F50258F /* RevenueCat */,
+			);
 			productName = ClearMaxx;
 			productReference = AA0000000000000000000006 /* ClearMaxx.app */;
 			productType = "com.apple.product-type.application";
@@ -89,6 +97,9 @@
 			);
 			mainGroup = AA0000000000000000000002;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				B1D3B87BF6AC693AC653C2B0 /* XCRemoteSwiftPackageReference "purchases-ios" */,
+			);
 			productRefGroup = AA0000000000000000000003 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -258,6 +269,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B1D3B87BF6AC693AC653C2B0 /* XCRemoteSwiftPackageReference "purchases-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RevenueCat/purchases-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4115F57C3210E5E10F50258F /* RevenueCat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B1D3B87BF6AC693AC653C2B0 /* XCRemoteSwiftPackageReference "purchases-ios" */;
+			productName = RevenueCat;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = AA0000000000000000000001 /* Project object */;
 }

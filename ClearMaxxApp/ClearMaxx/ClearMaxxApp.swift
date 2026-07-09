@@ -10,7 +10,10 @@ import SwiftData
 struct ClearMaxxApp: App {
     @StateObject private var state = AppState()
 
-    init() { startHotReload() }
+    init() {
+        startHotReload()
+        PurchaseService.shared.configure()
+    }
 
     var body: some Scene {
         WindowGroup {

@@ -4,14 +4,26 @@
 //
 
 import SwiftUI
+import RevenueCat
 
 struct GoPremiumView: View {
     @ObserveInjection var inject
     @EnvironmentObject var state: AppState
     @Environment(\.dismiss) private var dismiss
     @State private var plan: Plan = .yearly
+    @State private var offering: Offering?
+    @State private var isPurchasing = false
+    @State private var errorMessage: String?
+    @Environment(\.openURL) private var openURL
+
+    private let privacyURL = URL(string: "https://clearmaxxai.blogspot.com/p/privacy-policy.html")!
+    private let termsURL = URL(string: "https://clearmaxxai.blogspot.com/p/terms-of-service.html")!
 
     enum Plan { case weekly, yearly }
+
+    private var weeklyPackage: Package? { offering?.availablePackages.first { $0.packageType == .weekly } }
+    private var yearlyPackage: Package? { offering?.availablePackages.first { $0.packageType == .annual } }
+    private var selectedPackage: Package? { plan == .weekly ? weeklyPackage : yearlyPackage }
 
     private let features: [(String, String, String)] = [
         ("flame.fill", "Deep AI Scans", "Analyze 14 distinct skin metrics with sub-dermal precision."),
@@ -66,25 +78,70 @@ struct GoPremiumView: View {
 
                     // Plan toggle
                     HStack(spacing: 12) {
-                        planCard(.weekly, title: "Weekly", price: "$5.99", note: nil)
-                        planCard(.yearly, title: "Yearly", price: "$39.99", note: "SAVE 87%")
+                        planCard(.weekly, title: "Weekly",
+                                 price: weeklyPackage?.storeProduct.localizedPriceString ?? "$5.99", note: nil)
+                        planCard(.yearly, title: "Yearly",
+                                 price: yearlyPackage?.storeProduct.localizedPriceString ?? "$39.99", note: "SAVE 87%")
                     }
 
-                    Text("Try 3 days for free, then $39.99/year.")
+                    Text("Try 3 days for free, then \(yearlyPackage?.storeProduct.localizedPriceString ?? "$39.99")/year.")
                         .font(CMFont.labelMd).foregroundStyle(CMColor.ink)
                     Text("Cancel anytime. No commitment.")
                         .font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
 
-                    AuraButton(title: "Start Free Trial") {
-                        state.isPremium = true; dismiss()
+                    if let errorMessage {
+                        Text(errorMessage).font(CMFont.labelSm).foregroundStyle(CMColor.error)
                     }
 
+                    AuraButton(title: isPurchasing ? "Purchasing…" : "Start Free Trial") {
+                        purchase()
+                    }
+                    .disabled(isPurchasing || selectedPackage == nil)
+
                     HStack(spacing: 24) {
-                        Text("Terms of Service"); Text("Privacy Policy"); Text("Restore Purchases").fontWeight(.bold)
+                        Text("Terms of Service").onTapGesture { openURL(termsURL) }
+                        Text("Privacy Policy").onTapGesture { openURL(privacyURL) }
+                        Text("Restore Purchases").fontWeight(.bold).onTapGesture { restore() }
                     }
                     .font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft).padding(.bottom, 20)
                 }
                 .padding(.horizontal, 24).padding(.top, 12)
+            }
+        }
+        .task {
+            offering = try? await PurchaseService.shared.fetchOfferings()
+        }
+    }
+
+    private func purchase() {
+        guard let package = selectedPackage else { return }
+        isPurchasing = true
+        errorMessage = nil
+        Task {
+            do {
+                let entitled = try await PurchaseService.shared.purchase(package)
+                state.isPremium = entitled
+                isPurchasing = false
+                if entitled { dismiss() }
+            } catch {
+                isPurchasing = false
+                errorMessage = error.localizedDescription
+            }
+        }
+    }
+
+    private func restore() {
+        isPurchasing = true
+        errorMessage = nil
+        Task {
+            do {
+                let entitled = try await PurchaseService.shared.restorePurchases()
+                state.isPremium = entitled
+                isPurchasing = false
+                if entitled { dismiss() } else { errorMessage = "No active subscription found." }
+            } catch {
+                isPurchasing = false
+                errorMessage = error.localizedDescription
             }
         }
     }

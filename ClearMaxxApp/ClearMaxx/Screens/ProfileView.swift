@@ -5,17 +5,36 @@
 
 import SwiftUI
 
+private enum SettingsAction {
+    case about
+    case restorePurchases
+    case url(URL)
+    case mail(String)
+}
+
+private struct SettingsItem {
+    let icon: String
+    let title: String
+    let action: SettingsAction
+}
+
 struct ProfileView: View {
     @ObserveInjection var inject
     @EnvironmentObject var state: AppState
+    @Environment(\.openURL) private var openURL
     @State private var showPaywall = false
+    @State private var showAbout = false
+    @State private var isRestoring = false
+    @State private var restoreMessage: String?
 
-    private let settings: [(String, String)] = [
-        ("bell.fill", "Reminders"),
-        ("face.smiling", "Skin Profile"),
-        ("person.crop.circle.badge.plus", "Account"),
-        ("slider.horizontal.3", "Notifications"),
-        ("questionmark.circle", "Support")
+    private let settings: [SettingsItem] = [
+        SettingsItem(icon: "info.circle", title: "About", action: .about),
+        SettingsItem(icon: "arrow.clockwise", title: "Restore Purchases", action: .restorePurchases),
+        SettingsItem(icon: "hand.raised", title: "Privacy Policy",
+                     action: .url(URL(string: "https://clearmaxxai.blogspot.com/p/privacy-policy.html")!)),
+        SettingsItem(icon: "doc.text", title: "Terms of Use",
+                     action: .url(URL(string: "https://clearmaxxai.blogspot.com/p/terms-of-service.html")!)),
+        SettingsItem(icon: "questionmark.circle", title: "Support", action: .mail("support@clearmaxxai.com"))
     ]
 
     var body: some View {
@@ -24,22 +43,19 @@ struct ProfileView: View {
                 VStack(spacing: 18) {
                     CMTopBar(showBack: true)
 
-                    // Avatar
+                    // Avatar — PREMIUM badge only shows when the user actually is premium.
                     ZStack(alignment: .bottom) {
                         Circle().fill(CMGradient.auraDiagonal).frame(width: 120, height: 120)
                             .overlay(Image(systemName: "person.fill").font(.system(size: 54)).foregroundStyle(.white.opacity(0.9)))
                             .overlay(Circle().stroke(CMGradient.aura, lineWidth: 3))
-                        Text("PREMIUM").font(CMFont.inter(10, .bold)).foregroundStyle(.white)
-                            .padding(.horizontal, 14).padding(.vertical, 5)
-                            .background(CMGradient.aura, in: Capsule())
-                            .offset(y: 12)
+                        if state.isPremium {
+                            Text("PREMIUM").font(CMFont.inter(10, .bold)).foregroundStyle(.white)
+                                .padding(.horizontal, 14).padding(.vertical, 5)
+                                .background(CMGradient.aura, in: Capsule())
+                                .offset(y: 12)
+                        }
                     }
                     .padding(.top, 8)
-
-                    VStack(spacing: 2) {
-                        Text("Faraz Masroor").font(CMFont.headlineLg).foregroundStyle(CMColor.ink)
-                        Text("elena.v@example.com").font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
-                    }
 
                     HStack(spacing: 14) {
                         statCard(title: "Skin Score", value: "\(state.clearScore)", suffix: "/100", tint: CMColor.violetDeep)
@@ -64,33 +80,72 @@ struct ProfileView: View {
                     GlassCard {
                         VStack(spacing: 0) {
                             ForEach(Array(settings.enumerated()), id: \.offset) { i, item in
-                                HStack(spacing: 14) {
-                                    Image(systemName: item.0).foregroundStyle(CMColor.violet)
-                                        .frame(width: 40, height: 40)
-                                        .background(CMColor.violet.opacity(0.1), in: Circle())
-                                    Text(item.1).font(CMFont.bodyLg).foregroundStyle(CMColor.ink)
-                                    Spacer()
-                                    Image(systemName: "chevron.right").foregroundStyle(CMColor.outline)
+                                Button { handle(item.action) } label: {
+                                    HStack(spacing: 14) {
+                                        Image(systemName: item.icon).foregroundStyle(CMColor.violet)
+                                            .frame(width: 40, height: 40)
+                                            .background(CMColor.violet.opacity(0.1), in: Circle())
+                                        Text(item.title).font(CMFont.bodyLg).foregroundStyle(CMColor.ink)
+                                        Spacer()
+                                        if isRestoring, case .restorePurchases = item.action {
+                                            ProgressView()
+                                        } else {
+                                            Image(systemName: "chevron.right").foregroundStyle(CMColor.outline)
+                                        }
+                                    }
+                                    .padding(.vertical, 10)
+                                    .contentShape(Rectangle())
                                 }
-                                .padding(.vertical, 10)
+                                .buttonStyle(.plain)
+                                .disabled(isRestoring)
                                 if i < settings.count - 1 { Divider().opacity(0.4) }
                             }
                         }
                     }
 
-                    Button { } label: {
-                        Text("Log Out").font(CMFont.title).foregroundStyle(CMColor.error)
-                            .frame(maxWidth: .infinity).padding(.vertical, 16)
-                            .background(CMColor.error.opacity(0.08), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-                    }.buttonStyle(.plain)
-
-                    Text("ClearMaxx v1.0.0").font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft.opacity(0.6))
+                    Text(appVersionString).font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft.opacity(0.6))
                         .padding(.bottom, 100)
                 }
                 .padding(.horizontal, 24)
             }
         }
         .sheet(isPresented: $showPaywall) { GoPremiumView() }
+        .sheet(isPresented: $showAbout) { AboutView() }
+        .alert("Restore Purchases", isPresented: .constant(restoreMessage != nil), presenting: restoreMessage) { _ in
+            Button("OK") { restoreMessage = nil }
+        } message: { Text($0) }
+    }
+
+    private var appVersionString: String {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
+        return "ClearMaxx v\(version)"
+    }
+
+    private func handle(_ action: SettingsAction) {
+        switch action {
+        case .about:
+            showAbout = true
+        case .url(let url):
+            openURL(url)
+        case .mail(let address):
+            openURL(URL(string: "mailto:\(address)")!)
+        case .restorePurchases:
+            restore()
+        }
+    }
+
+    private func restore() {
+        isRestoring = true
+        Task {
+            do {
+                let entitled = try await PurchaseService.shared.restorePurchases()
+                state.isPremium = entitled
+                restoreMessage = entitled ? "Your ClearMaxx Plus subscription was restored." : "No active subscription found for this Apple ID."
+            } catch {
+                restoreMessage = error.localizedDescription
+            }
+            isRestoring = false
+        }
     }
 
     private func statCard(title: String, value: String, suffix: String, tint: Color) -> some View {
