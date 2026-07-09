@@ -4,10 +4,12 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct RootView: View {
     @ObserveInjection var inject
     @EnvironmentObject var state: AppState
+    @Environment(\.modelContext) private var modelContext
 
     var body: some View {
         ZStack {
@@ -27,6 +29,8 @@ struct RootView: View {
             }
         }
         .animation(.easeInOut(duration: 0.4), value: state.stage)
+        .task { await state.refreshPremiumStatus() }
+        .task { state.refreshScanStreak(modelContext: modelContext) }
     }
 }
 

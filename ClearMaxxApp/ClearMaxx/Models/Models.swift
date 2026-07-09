@@ -40,7 +40,7 @@ final class AppState: ObservableObject {
     @Published var stage: Stage = .splash
     @Published var hasCompletedOnboarding = false
     @Published var clearScore = 84
-    @Published var scanStreak = 12
+    @Published var scanStreak = 0
     @Published var isPremium = false
 
     // MARK: Live AI analysis (nil until a real scan completes)
@@ -128,6 +128,15 @@ final class AppState: ObservableObject {
         } catch {
             print("[AppState] Could not save scan history: \(error)")
         }
+
+        refreshScanStreak(modelContext: modelContext)
+    }
+
+    /// Recomputes `scanStreak` from real scan history. Call on launch and after
+    /// every persisted scan — cheap (one date-only fetch), no reason to cache further.
+    func refreshScanStreak(modelContext: ModelContext) {
+        let dates = (try? modelContext.fetch(FetchDescriptor<ScanRecord>()))?.map(\.date) ?? []
+        scanStreak = ScanStreak.current(scanDates: dates)
     }
 
     /// Regenerates today's checklist from the latest scan's AI routine, preserving
@@ -164,6 +173,11 @@ final class AppState: ObservableObject {
         newlyResolved = []
         celebrationBeforeImage = nil
         celebrationScoreDelta = 0
+    }
+
+    /// Syncs `isPremium` with RevenueCat on launch (e.g. restored subscription from a prior install).
+    func refreshPremiumStatus() async {
+        isPremium = await PurchaseService.shared.refreshEntitlement()
     }
 
     // Mock analysis results matching the Stitch results dashboard

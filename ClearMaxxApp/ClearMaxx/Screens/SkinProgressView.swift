@@ -40,9 +40,7 @@ struct SkinProgressView: View {
                         emptyState(title: "No scans yet",
                                    body: "Scan your face to start tracking your skin's progress.")
                     } else {
-                        BeforeAfterSlider(value: $slider,
-                                          beforeImage: first.flatMap { ScanPhotoStore.load($0.photoFileName) },
-                                          afterImage: latest.flatMap { ScanPhotoStore.load($0.photoFileName) })
+                        beforeAfterCard
 
                         clearScoreTrendCard
 
@@ -66,6 +64,27 @@ struct SkinProgressView: View {
                 afterImage: latest.flatMap { ScanPhotoStore.load($0.photoFileName) },
                 scoreDelta: (latest?.clearScore ?? 0) - (first?.clearScore ?? 0))
         }
+    }
+
+    private var beforeAfterCard: some View {
+        BeforeAfterSlider(value: $slider,
+                          beforeImage: first.flatMap { ScanPhotoStore.load($0.photoFileName) },
+                          afterImage: latest.flatMap { ScanPhotoStore.load($0.photoFileName) })
+            .overlay(alignment: .bottom) {
+                if let first, let latest {
+                    let delta = latest.clearScore - first.clearScore
+                    VStack(spacing: 2) {
+                        Text(delta >= 0 ? "+\(delta) ClearScore" : "\(delta) ClearScore")
+                            .font(CMFont.inter(24, .heavy)).foregroundStyle(.white)
+                        Text("since your first scan")
+                            .font(CMFont.labelSm).foregroundStyle(.white.opacity(0.9))
+                    }
+                    .frame(maxWidth: .infinity).padding(.vertical, 14)
+                    .background(CMGradient.aura.opacity(0.92))
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .bloomShadow()
     }
 
     private var clearScoreTrendCard: some View {
@@ -109,36 +128,67 @@ struct SkinProgressView: View {
         GlassCard {
             VStack(alignment: .leading, spacing: 14) {
                 Text("Metric Progress").font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
-                ForEach(latest?.metrics ?? [], id: \.name) { metric in
+                let rows = latest?.metrics ?? []
+                ForEach(Array(rows.enumerated()), id: \.element.name) { index, metric in
                     metricRow(metric)
+                    if index < rows.count - 1 {
+                        Divider().overlay(CMColor.outline.opacity(0.25))
+                    }
                 }
             }
         }
     }
 
+    /// Severity is already direction-aware (backend always encodes "Good" as
+    /// healthy regardless of whether the metric's raw value is higher- or
+    /// lower-is-better), so trend comes from the severity rank, not the value.
+    private static let severityRank = ["Good": 0, "Mild": 1, "Moderate": 2, "Severe": 3]
+
     private func metricRow(_ metric: PersistedMetric) -> some View {
         let prevMetric = previous?.metrics.first(where: { $0.name == metric.name })
         let justResolved = metric.severity == "Good" && prevMetric?.severity != "Good"
+        let curRank = Self.severityRank[metric.severity] ?? 1
+        let prevRank = prevMetric.map { Self.severityRank[$0.severity] ?? 1 }
+        let icon: String
+        let tint: Color
+        switch (justResolved, prevRank) {
+        case (true, _):
+            icon = "checkmark.seal.fill"; tint = CMColor.success
+        case (false, .some(let p)) where curRank < p:
+            icon = "arrow.down.circle.fill"; tint = CMColor.success
+        case (false, .some(let p)) where curRank > p:
+            icon = "arrow.up.circle.fill"; tint = CMColor.error
+        case (false, .some):
+            icon = "minus.circle.fill"; tint = CMColor.inkSoft
+        case (false, .none):
+            icon = "chart.line.uptrend.xyaxis"; tint = CMColor.violet
+        }
+
         return HStack(alignment: .top, spacing: 12) {
-            Image(systemName: justResolved ? "checkmark.seal.fill" : "chart.line.uptrend.xyaxis")
-                .foregroundStyle(justResolved ? CMColor.success : CMColor.violet)
-                .font(.system(size: 18))
-            VStack(alignment: .leading, spacing: 2) {
-                HStack {
+            ZStack {
+                Circle().fill(tint.opacity(0.15)).frame(width: 34, height: 34)
+                Image(systemName: icon).foregroundStyle(tint).font(.system(size: 15, weight: .semibold))
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 6) {
                     Text(metric.name).font(CMFont.labelMd).foregroundStyle(CMColor.ink)
                     if justResolved {
-                        Text("Cleared 🎉").font(CMFont.labelSm).foregroundStyle(CMColor.success)
+                        Text("Cleared 🎉").font(CMFont.inter(11, .bold)).foregroundStyle(.white)
+                            .padding(.horizontal, 8).padding(.vertical, 3)
+                            .background(CMColor.success, in: Capsule())
                     }
                 }
                 if let prevValue = prevMetric?.value {
                     let delta = metric.value - prevValue
                     Text("\(prevValue) → \(metric.value) (\(delta >= 0 ? "+" : "")\(delta)) since last scan")
-                        .font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
+                        .font(CMFont.bodyMd).foregroundStyle(tint)
                 } else {
                     Text("Value: \(metric.value)").font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
                 }
             }
+            Spacer(minLength: 0)
         }
+        .padding(.vertical, 2)
     }
 
     private func emptyState(title: String, body: String) -> some View {
