@@ -1,18 +1,17 @@
 //
 //  MainTabView.swift
-//  ClearMaxx — custom glass bottom tab bar (Scan · Progress · Routine · Diary · Profile)
+//  ClearMaxx — custom glass bottom tab bar (Scan · Progress · Routine · Profile)
 //
 
 import SwiftUI
 
 enum CMTab: Int, CaseIterable {
-    case scan, progress, routine, diary, profile
+    case scan, progress, routine, profile
     var title: String {
         switch self {
         case .scan: return "Scan"
         case .progress: return "Progress"
         case .routine: return "Routine"
-        case .diary: return "Diary"
         case .profile: return "Profile"
         }
     }
@@ -21,7 +20,6 @@ enum CMTab: Int, CaseIterable {
         case .scan: return "camera.viewfinder"
         case .progress: return "chart.line.uptrend.xyaxis"
         case .routine: return "leaf.fill"
-        case .diary: return "book.closed.fill"
         case .profile: return "person.crop.circle"
         }
     }
@@ -39,7 +37,6 @@ struct MainTabView: View {
                 case .scan:     CameraScanView()
                 case .progress: SkinProgressView()
                 case .routine:  DailyRoutineView()
-                case .diary:    SkinDiaryView()
                 case .profile:  ProfileView()
                 }
             }
