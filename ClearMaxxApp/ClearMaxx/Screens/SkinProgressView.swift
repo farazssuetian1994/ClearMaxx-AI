@@ -52,7 +52,7 @@ struct SkinProgressView: View {
                         }
 
                         AuraButton(title: "Share My Glow-Up", systemImage: "square.and.arrow.up") { showShare = true }
-                            .padding(.bottom, 100)
+                            .padding(.bottom, 24)
                     }
                 }
                 .padding(.horizontal, 24).padding(.top, 8)

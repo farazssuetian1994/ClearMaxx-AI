@@ -95,7 +95,7 @@ struct DailyRoutineView: View {
                             .frame(height: 110, alignment: .bottom)
                         }
                     }
-                    .padding(.bottom, 100)
+                    .padding(.bottom, 24)
                 }
                 .padding(.horizontal, 24).padding(.top, 8)
             }

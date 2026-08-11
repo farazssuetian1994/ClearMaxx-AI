@@ -79,7 +79,7 @@ struct SkinDiaryView: View {
                             }
                         }
                     }
-                    .padding(.bottom, 100)
+                    .padding(.bottom, 24)
                 }
                 .padding(.horizontal, 24).padding(.top, 8)
             }

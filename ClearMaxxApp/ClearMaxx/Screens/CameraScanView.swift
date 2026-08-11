@@ -81,7 +81,10 @@ private struct ScanCaptureScreen: View {
                     .font(CMFont.labelMd).foregroundStyle(.white.opacity(0.95))
                     .padding(.top, 8)
                 Spacer()
-                controls.padding(.bottom, 96)   // clear the floating tab bar
+                // This screen intentionally ignores the safe area (full-bleed camera preview),
+                // so MainTabView's bottom safeAreaInset cannot lift these controls for us —
+                // they must clear the floating tab bar and home indicator themselves.
+                controls.padding(.bottom, 96)
             }
             .padding(.horizontal, 20)
             .padding(.top, 8)

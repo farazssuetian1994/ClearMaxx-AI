@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 private enum SettingsAction {
     case about
@@ -26,6 +27,8 @@ struct ProfileView: View {
     @State private var showAbout = false
     @State private var isRestoring = false
     @State private var restoreMessage: String?
+    @State private var avatarImage: UIImage?
+    @State private var avatarPickerItem: PhotosPickerItem?
 
     private let settings: [SettingsItem] = [
         SettingsItem(icon: "info.circle", title: "About", action: .about),
@@ -43,18 +46,38 @@ struct ProfileView: View {
                 VStack(spacing: 18) {
                     CMTopBar(showBack: true)
 
-                    // Avatar — PREMIUM badge only shows when the user actually is premium.
-                    ZStack(alignment: .bottom) {
-                        Circle().fill(CMGradient.auraDiagonal).frame(width: 120, height: 120)
-                            .overlay(Image(systemName: "person.fill").font(.system(size: 54)).foregroundStyle(.white.opacity(0.9)))
+                    // Avatar — tap to pick a photo; PREMIUM badge only shows when actually premium.
+                    PhotosPicker(selection: $avatarPickerItem, matching: .images) {
+                        ZStack(alignment: .bottom) {
+                            Group {
+                                if let avatarImage {
+                                    Image(uiImage: avatarImage).resizable().scaledToFill()
+                                } else {
+                                    Circle().fill(CMGradient.auraDiagonal)
+                                        .overlay(Image(systemName: "person.fill").font(.system(size: 54)).foregroundStyle(.white.opacity(0.9)))
+                                }
+                            }
+                            .frame(width: 120, height: 120)
+                            .clipShape(Circle())
                             .overlay(Circle().stroke(CMGradient.aura, lineWidth: 3))
-                        if state.isPremium {
-                            Text("PREMIUM").font(CMFont.inter(10, .bold)).foregroundStyle(.white)
-                                .padding(.horizontal, 14).padding(.vertical, 5)
-                                .background(CMGradient.aura, in: Capsule())
-                                .offset(y: 12)
+                            .overlay(alignment: .topTrailing) {
+                                Image(systemName: "camera.fill")
+                                    .font(.system(size: 13, weight: .semibold)).foregroundStyle(.white)
+                                    .frame(width: 32, height: 32)
+                                    .background(CMGradient.aura, in: Circle())
+                                    .overlay(Circle().stroke(.white, lineWidth: 2))
+                                    .offset(x: 2, y: 2)
+                            }
+                            if state.isPremium {
+                                Text("PREMIUM").font(CMFont.inter(10, .bold)).foregroundStyle(.white)
+                                    .padding(.horizontal, 14).padding(.vertical, 5)
+                                    .background(CMGradient.aura, in: Capsule())
+                                    .offset(y: 12)
+                            }
                         }
                     }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Profile photo. Tap to change.")
                     .padding(.top, 8)
 
                     HStack(spacing: 14) {
@@ -104,7 +127,7 @@ struct ProfileView: View {
                     }
 
                     Text(appVersionString).font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft.opacity(0.6))
-                        .padding(.bottom, 100)
+                        .padding(.bottom, 24)
                 }
                 .padding(.horizontal, 24)
             }
@@ -114,6 +137,19 @@ struct ProfileView: View {
         .alert("Restore Purchases", isPresented: .constant(restoreMessage != nil), presenting: restoreMessage) { _ in
             Button("OK") { restoreMessage = nil }
         } message: { Text($0) }
+        .onAppear {
+            if avatarImage == nil { avatarImage = ProfileAvatarStore.load() }
+        }
+        .onChange(of: avatarPickerItem) { _, item in
+            guard let item else { return }
+            Task {
+                defer { avatarPickerItem = nil }
+                guard let data = try? await item.loadTransferable(type: Data.self),
+                      let image = UIImage(data: data) else { return }
+                avatarImage = image
+                ProfileAvatarStore.save(image)
+            }
+        }
     }
 
     private var appVersionString: String {
