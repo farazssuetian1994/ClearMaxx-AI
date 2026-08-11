@@ -8,14 +8,39 @@
 
 /* Begin PBXBuildFile section */
 		463A23E439C0032A82932CD9 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 4115F57C3210E5E10F50258F /* RevenueCat */; };
+		6A2113DA45C15296E200E56D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C4E23F304F85057863E01176 /* Foundation.framework */; };
+		EF7B4A41774BD00DBCDDAD7D /* ClearMaxxTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC9039F2009AF4EA6BB983DA /* ClearMaxxTests.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		50C819D43CFB11C917B107B8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AA0000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA0000000000000000000005;
+			remoteInfo = ClearMaxx;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		AA0000000000000000000006 /* ClearMaxx.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClearMaxx.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AC9039F2009AF4EA6BB983DA /* ClearMaxxTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ClearMaxxTests.swift; sourceTree = "<group>"; };
+		C4E23F304F85057863E01176 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		DAB67B2AFFAC65B049020655 /* ClearMaxxTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ClearMaxxTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		AA0000000000000000000004 /* ClearMaxx */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = ClearMaxx; sourceTree = "<group>"; };
+		AA0000000000000000000004 /* ClearMaxx */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = ClearMaxx;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -27,14 +52,40 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CD0B3F237DC8D1D3E86F9CFF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6A2113DA45C15296E200E56D /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1D54836B8C83A52636D3047A /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				C4E23F304F85057863E01176 /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		4654676DD0DE9F89C5D6C8F4 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1D54836B8C83A52636D3047A /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		AA0000000000000000000002 = {
 			isa = PBXGroup;
 			children = (
 				AA0000000000000000000004 /* ClearMaxx */,
 				AA0000000000000000000003 /* Products */,
+				4654676DD0DE9F89C5D6C8F4 /* Frameworks */,
+				C6F69F3B790A88FF88DA3378 /* ClearMaxxTests */,
 			);
 			sourceTree = "<group>";
 		};
@@ -42,13 +93,41 @@
 			isa = PBXGroup;
 			children = (
 				AA0000000000000000000006 /* ClearMaxx.app */,
+				DAB67B2AFFAC65B049020655 /* ClearMaxxTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		C6F69F3B790A88FF88DA3378 /* ClearMaxxTests */ = {
+			isa = PBXGroup;
+			children = (
+				AC9039F2009AF4EA6BB983DA /* ClearMaxxTests.swift */,
+			);
+			name = ClearMaxxTests;
+			path = ClearMaxxTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		0558D848F88A46D766B52D53 /* ClearMaxxTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 661FD3312E8680E2CDCB4809 /* Build configuration list for PBXNativeTarget "ClearMaxxTests" */;
+			buildPhases = (
+				6712BBE8A256315138772490 /* Sources */,
+				CD0B3F237DC8D1D3E86F9CFF /* Frameworks */,
+				A6B315E3B05CB89BEB172183 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8CB7AFC981C306D28F166ADF /* PBXTargetDependency */,
+			);
+			name = ClearMaxxTests;
+			productName = ClearMaxxTests;
+			productReference = DAB67B2AFFAC65B049020655 /* ClearMaxxTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		AA0000000000000000000005 /* ClearMaxx */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = AA000000000000000000000B /* Build configuration list for PBXNativeTarget "ClearMaxx" */;
@@ -105,11 +184,19 @@
 			projectRoot = "";
 			targets = (
 				AA0000000000000000000005 /* ClearMaxx */,
+				0558D848F88A46D766B52D53 /* ClearMaxxTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		A6B315E3B05CB89BEB172183 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AA0000000000000000000009 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -120,6 +207,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		6712BBE8A256315138772490 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EF7B4A41774BD00DBCDDAD7D /* ClearMaxxTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AA0000000000000000000007 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -129,7 +224,32 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		8CB7AFC981C306D28F166ADF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = ClearMaxx;
+			target = AA0000000000000000000005 /* ClearMaxx */;
+			targetProxy = 50C819D43CFB11C917B107B8 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		07AED95BF5E255B4D4915457 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.clearmaxx.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ClearMaxx.app/ClearMaxx";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		AA000000000000000000000C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -247,9 +367,33 @@
 			};
 			name = Release;
 		};
+		B3BB1AAC709C05B85A240DCD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.clearmaxx.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ClearMaxx.app/ClearMaxx";
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		661FD3312E8680E2CDCB4809 /* Build configuration list for PBXNativeTarget "ClearMaxxTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				07AED95BF5E255B4D4915457 /* Release */,
+				B3BB1AAC709C05B85A240DCD /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		AA000000000000000000000A /* Build configuration list for PBXProject "ClearMaxx" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
