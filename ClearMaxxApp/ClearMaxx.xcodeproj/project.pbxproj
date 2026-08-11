@@ -11,6 +11,7 @@
 		6A2113DA45C15296E200E56D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C4E23F304F85057863E01176 /* Foundation.framework */; };
 		812D998162049F66C0C9A5BA /* SeverityRankTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA10DE6D801CEC5A88936F93 /* SeverityRankTests.swift */; };
 		EF7B4A41774BD00DBCDDAD7D /* ClearMaxxTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC9039F2009AF4EA6BB983DA /* ClearMaxxTests.swift */; };
+		153271D41D5AFFFD7760D185 /* ProgressTrendCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A7EC54917B10DE6DB576E3 /* ProgressTrendCalculatorTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,6 +30,7 @@
 		C4E23F304F85057863E01176 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		CA10DE6D801CEC5A88936F93 /* SeverityRankTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SeverityRankTests.swift; sourceTree = "<group>"; };
 		DAB67B2AFFAC65B049020655 /* ClearMaxxTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ClearMaxxTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1A7EC54917B10DE6DB576E3 /* ProgressTrendCalculatorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProgressTrendCalculatorTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -105,6 +107,7 @@
 			children = (
 				AC9039F2009AF4EA6BB983DA /* ClearMaxxTests.swift */,
 				CA10DE6D801CEC5A88936F93 /* SeverityRankTests.swift */,
+				A1A7EC54917B10DE6DB576E3 /* ProgressTrendCalculatorTests.swift */,
 			);
 			name = ClearMaxxTests;
 			path = ClearMaxxTests;
@@ -216,6 +219,7 @@
 			files = (
 				EF7B4A41774BD00DBCDDAD7D /* ClearMaxxTests.swift in Sources */,
 				812D998162049F66C0C9A5BA /* SeverityRankTests.swift in Sources */,
+				153271D41D5AFFFD7760D185 /* ProgressTrendCalculatorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
