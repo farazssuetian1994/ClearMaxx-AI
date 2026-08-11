@@ -139,16 +139,11 @@ struct SkinProgressView: View {
         }
     }
 
-    /// Severity is already direction-aware (backend always encodes "Good" as
-    /// healthy regardless of whether the metric's raw value is higher- or
-    /// lower-is-better), so trend comes from the severity rank, not the value.
-    private static let severityRank = ["Good": 0, "Mild": 1, "Moderate": 2, "Severe": 3]
-
     private func metricRow(_ metric: PersistedMetric) -> some View {
         let prevMetric = previous?.metrics.first(where: { $0.name == metric.name })
         let justResolved = metric.severity == "Good" && prevMetric?.severity != "Good"
-        let curRank = Self.severityRank[metric.severity] ?? 1
-        let prevRank = prevMetric.map { Self.severityRank[$0.severity] ?? 1 }
+        let curRank = SeverityRank.rank(metric.severity)
+        let prevRank = prevMetric.map { SeverityRank.rank($0.severity) }
         let icon: String
         let tint: Color
         switch (justResolved, prevRank) {
