@@ -22,6 +22,6 @@ struct ClearMaxxApp: App {
                 .tint(CMColor.violet)
                 .preferredColorScheme(.light)
         }
-        .modelContainer(for: [ScanRecord.self, DailyRoutineChecklist.self])
+        .modelContainer(for: [ScanRecord.self, DailyRoutineChecklist.self, ProgressReportCache.self])
     }
 }

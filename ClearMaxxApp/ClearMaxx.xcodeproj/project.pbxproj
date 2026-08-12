@@ -7,11 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		153271D41D5AFFFD7760D185 /* ProgressTrendCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A7EC54917B10DE6DB576E3 /* ProgressTrendCalculatorTests.swift */; };
 		463A23E439C0032A82932CD9 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 4115F57C3210E5E10F50258F /* RevenueCat */; };
+		4CBEAE57E42E66246B7A41CB /* ProgressReportCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019C465D5024AD746C5B1782 /* ProgressReportCacheTests.swift */; };
 		6A2113DA45C15296E200E56D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C4E23F304F85057863E01176 /* Foundation.framework */; };
 		812D998162049F66C0C9A5BA /* SeverityRankTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA10DE6D801CEC5A88936F93 /* SeverityRankTests.swift */; };
 		EF7B4A41774BD00DBCDDAD7D /* ClearMaxxTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC9039F2009AF4EA6BB983DA /* ClearMaxxTests.swift */; };
-		153271D41D5AFFFD7760D185 /* ProgressTrendCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A7EC54917B10DE6DB576E3 /* ProgressTrendCalculatorTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -25,12 +26,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		019C465D5024AD746C5B1782 /* ProgressReportCacheTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProgressReportCacheTests.swift; sourceTree = "<group>"; };
+		A1A7EC54917B10DE6DB576E3 /* ProgressTrendCalculatorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProgressTrendCalculatorTests.swift; sourceTree = "<group>"; };
 		AA0000000000000000000006 /* ClearMaxx.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClearMaxx.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AC9039F2009AF4EA6BB983DA /* ClearMaxxTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ClearMaxxTests.swift; sourceTree = "<group>"; };
 		C4E23F304F85057863E01176 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		CA10DE6D801CEC5A88936F93 /* SeverityRankTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SeverityRankTests.swift; sourceTree = "<group>"; };
 		DAB67B2AFFAC65B049020655 /* ClearMaxxTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ClearMaxxTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		A1A7EC54917B10DE6DB576E3 /* ProgressTrendCalculatorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProgressTrendCalculatorTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -108,6 +110,7 @@
 				AC9039F2009AF4EA6BB983DA /* ClearMaxxTests.swift */,
 				CA10DE6D801CEC5A88936F93 /* SeverityRankTests.swift */,
 				A1A7EC54917B10DE6DB576E3 /* ProgressTrendCalculatorTests.swift */,
+				019C465D5024AD746C5B1782 /* ProgressReportCacheTests.swift */,
 			);
 			name = ClearMaxxTests;
 			path = ClearMaxxTests;
@@ -220,6 +223,7 @@
 				EF7B4A41774BD00DBCDDAD7D /* ClearMaxxTests.swift in Sources */,
 				812D998162049F66C0C9A5BA /* SeverityRankTests.swift in Sources */,
 				153271D41D5AFFFD7760D185 /* ProgressTrendCalculatorTests.swift in Sources */,
+				4CBEAE57E42E66246B7A41CB /* ProgressReportCacheTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
