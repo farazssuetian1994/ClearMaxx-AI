@@ -244,20 +244,23 @@ Rules:
 """.strip()
 
 
-def _normalize_progress(parsed: dict, metric_names: set) -> dict:
-    """Coerce progress-analysis model output into the exact shape the app expects."""
-    verdict = parsed.get("verdict") if parsed.get("verdict") in VERDICTS else "steady"
+def _normalize_progress(parsed: dict, trends: list) -> dict:
+    """Coerce progress-analysis model output into the exact shape the app expects.
 
-    def _filtered_names(key):
-        return [str(x) for x in (parsed.get(key) or []) if str(x) in metric_names]
+    working/stalled/watch are derived directly from `trends` (the Swift-computed,
+    ground-truth direction per metric) — NEVER from the model's own bucketing —
+    so a model mistake or hallucination can never mislabel a metric's trend.
+    """
+    verdict = parsed.get("verdict") if parsed.get("verdict") in VERDICTS else "steady"
+    valid_trends = [t for t in trends if isinstance(t, dict) and t.get("name")]
 
     return {
         "verdict": verdict,
         "headline": str(parsed.get("headline", ""))[:120],
         "narrative": str(parsed.get("narrative", ""))[:400],
-        "working": _filtered_names("working"),
-        "stalled": _filtered_names("stalled"),
-        "watch": _filtered_names("watch"),
+        "working": [t["name"] for t in valid_trends if t.get("direction") == "better"],
+        "stalled": [t["name"] for t in valid_trends if t.get("direction") == "flat"],
+        "watch": [t["name"] for t in valid_trends if t.get("direction") == "worse"],
         "updatedRoutine": [
             _normalize_routine_step(s) for s in (parsed.get("updatedRoutine") or [])
             if isinstance(s, dict)
@@ -296,7 +299,7 @@ def _generate(parts: list, prompt: str) -> str:
     the same model-fallback behavior and the same bounded output budget.
     """
     config = types.GenerateContentConfig(response_mime_type="application/json",
-                                         temperature=0.4, max_output_tokens=2048)
+                                         temperature=0.4, max_output_tokens=4096)
     last_err = None
     for model in (PRIMARY_MODEL, FALLBACK_MODEL):
         try:
@@ -346,6 +349,8 @@ def analyze_skin():
             # last-resort: pull the outermost JSON object
             s, e = raw.find("{"), raw.rfind("}")
             parsed = json.loads(raw[s:e + 1]) if s != -1 and e != -1 else {}
+        if not raw.strip() or not parsed:
+            raise RuntimeError("Model returned no usable content")
         return jsonify({"success": True, "result": _normalize(parsed)})
     except Exception as e:
         print(f"[ERROR] analyze failed: {e}")
@@ -365,11 +370,18 @@ def analyze_progress():
     if not isinstance(trends, list) or not trends or not isinstance(overall, dict):
         return jsonify({"error": "Missing or invalid trends/overall"}), 400
 
+    # Defensive caps regardless of what the client actually sent.
+    trends = trends[:12]
+    history = (data.get("history") or [])[:8]
+    current_routine = (data.get("current_routine") or [])[:8]
+
     def _decode_image(b64):
         if not b64:
             return None
         if "," in b64:
             b64 = b64.split(",", 1)[1]
+        if len(b64) > 8_000_000:
+            return None
         try:
             image = Image.open(io.BytesIO(base64.b64decode(b64)))
         except Exception:
@@ -388,10 +400,15 @@ def analyze_progress():
         trends_json=json.dumps({
             "overall": overall,
             "metrics": trends,
-            "history": data.get("history") or [],
+            "history": history,
+            "spanDays": data.get("span_days"),
+            "scanCount": data.get("scan_count"),
         }),
-        routine_json=json.dumps(data.get("current_routine") or []),
+        routine_json=json.dumps(current_routine),
     )
+    if not parts:
+        prompt = ("NOTE: No photos were provided for this comparison — rely entirely on "
+                  "TRENDS below; do not describe or reference any visual appearance.\n\n") + prompt
 
     try:
         raw = _generate(parts, prompt)
@@ -400,8 +417,9 @@ def analyze_progress():
         except json.JSONDecodeError:
             s, e = raw.find("{"), raw.rfind("}")
             parsed = json.loads(raw[s:e + 1]) if s != -1 and e != -1 else {}
-        metric_names = {t.get("name") for t in trends if isinstance(t, dict)}
-        return jsonify({"success": True, "result": _normalize_progress(parsed, metric_names)})
+        if not raw.strip() or not parsed:
+            raise RuntimeError("Model returned no usable content")
+        return jsonify({"success": True, "result": _normalize_progress(parsed, trends)})
     except Exception as e:
         print(f"[ERROR] progress analysis failed: {e}")
         return jsonify({"error": str(e)}), 500

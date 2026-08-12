@@ -18,6 +18,7 @@ struct ProgressReportView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     VStack(alignment: .leading, spacing: 6) {
+                        verdictBadge
                         Text(report.headline).font(CMFont.headlineLg).foregroundStyle(CMColor.ink)
                         Text(report.narrative).font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
                     }
@@ -44,6 +45,17 @@ struct ProgressReportView: View {
                 .padding(.horizontal, 24).padding(.top, 8).padding(.bottom, 24)
             }
         }
+    }
+
+    private var verdictBadge: some View {
+        let (label, color): (String, Color) = {
+            switch report.verdict {
+            case "improving": return ("Improving", CMColor.success)
+            case "worsening": return ("Needs Attention", CMColor.error)
+            default:          return ("Steady", CMColor.inkSoft)
+            }
+        }()
+        return TagChip(text: label, tint: color, filled: true)
     }
 
     private func trendSection(title: String, names: [String], color: Color) -> some View {

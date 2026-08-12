@@ -142,7 +142,7 @@ final class AppState: ObservableObject {
     /// Regenerates today's checklist from the latest scan's AI routine, preserving
     /// `done` state for any step whose title survives from the prior version of
     /// today's checklist (so a mid-day rescan doesn't wipe checked-off items).
-    func upsertTodayChecklist(from apiSteps: [APIRoutineStep], modelContext: ModelContext) {
+    private func upsertTodayChecklist(from apiSteps: [APIRoutineStep], modelContext: ModelContext) {
         let startOfDay = Calendar.current.startOfDay(for: Date())
         var descriptor = FetchDescriptor<DailyRoutineChecklist>(
             predicate: #Predicate { $0.day == startOfDay })

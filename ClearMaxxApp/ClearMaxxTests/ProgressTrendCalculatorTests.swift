@@ -115,4 +115,17 @@ final class ProgressTrendCalculatorTests: XCTestCase {
         }
         XCTAssertEqual(trend.scanCount, 40)
     }
+
+    func test_overallDirection_atExactFlatThreshold_isFlat() {
+        let scans = [scan(daysAgo: 10, score: 50), scan(daysAgo: 0, score: 53)]  // delta exactly 3
+        guard case .eligible(let trend) = ProgressTrendCalculator.eligibility(for: scans) else {
+            return XCTFail("expected eligible")
+        }
+        XCTAssertEqual(trend.overallDirection, .flat)
+    }
+
+    func test_eligibility_atSixDaysRemaining_isTooRecent() {
+        let scans = [scan(daysAgo: 1, score: 50), scan(daysAgo: 0, score: 55)]  // 1-day span, 6 days remaining
+        XCTAssertEqual(ProgressTrendCalculator.eligibility(for: scans), .tooRecentSpan(daysRemaining: 6))
+    }
 }

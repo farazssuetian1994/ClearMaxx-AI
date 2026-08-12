@@ -78,15 +78,16 @@ def test_normalize_progress_valid_passthrough():
         "verdict": "improving",
         "headline": "Great progress",
         "narrative": "Your acne cleared up.",
-        "working": ["Acne"],
-        "stalled": ["Dark Spots"],
-        "watch": [],
         "updatedRoutine": [
             {"time": "AM", "category": "Cleanser", "title": "Foam Wash",
              "detail": "Cleanses gently.", "tags": ["Fragrance-free"]},
         ],
     }
-    result = _normalize_progress(parsed, metric_names={"Acne", "Dark Spots"})
+    trends = [
+        {"name": "Acne", "first_value": 55, "latest_value": 30, "direction": "better"},
+        {"name": "Dark Spots", "first_value": 48, "latest_value": 47, "direction": "flat"},
+    ]
+    result = _normalize_progress(parsed, trends)
     assert result["verdict"] == "improving"
     assert result["working"] == ["Acne"]
     assert result["stalled"] == ["Dark Spots"]
@@ -94,21 +95,25 @@ def test_normalize_progress_valid_passthrough():
 
 
 def test_normalize_progress_invalid_verdict_defaults_to_steady():
-    parsed = {"verdict": "amazing!!", "working": [], "stalled": [], "watch": []}
-    result = _normalize_progress(parsed, metric_names=set())
+    parsed = {"verdict": "amazing!!"}
+    result = _normalize_progress(parsed, trends=[])
     assert result["verdict"] == "steady"
 
 
-def test_normalize_progress_filters_hallucinated_metric_names():
-    parsed = {"verdict": "steady", "working": ["Acne", "NotARealMetric"], "stalled": [], "watch": []}
-    result = _normalize_progress(parsed, metric_names={"Acne"})
+def test_normalize_progress_derives_buckets_from_trends_not_model_output():
+    # Model tries to claim Acne is "watch" even though the given trend direction
+    # is "better" — normalize must ignore the model's own bucketing entirely.
+    parsed = {"verdict": "steady", "working": [], "stalled": [], "watch": ["Acne"]}
+    trends = [{"name": "Acne", "first_value": 55, "latest_value": 30, "direction": "better"}]
+    result = _normalize_progress(parsed, trends)
     assert result["working"] == ["Acne"]
+    assert result["watch"] == []
 
 
 def test_normalize_progress_caps_updated_routine_at_eight():
     one_step = {"time": "AM", "category": "C", "title": "T", "detail": "D", "tags": []}
-    parsed = {"verdict": "steady", "working": [], "stalled": [], "watch": [], "updatedRoutine": [one_step] * 10}
-    result = _normalize_progress(parsed, metric_names=set())
+    parsed = {"verdict": "steady", "updatedRoutine": [one_step] * 10}
+    result = _normalize_progress(parsed, trends=[])
     assert len(result["updatedRoutine"]) == 8
 
 

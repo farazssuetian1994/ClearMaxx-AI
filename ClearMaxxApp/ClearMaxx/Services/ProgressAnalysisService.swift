@@ -72,7 +72,7 @@ enum ProgressAnalysisService {
 
         var req = URLRequest(url: CMConfig.backendURL.appendingPathComponent("api/skin/progress"))
         req.httpMethod = "POST"
-        req.timeoutInterval = 60
+        req.timeoutInterval = 90
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.setValue(CMConfig.appToken, forHTTPHeaderField: "X-App-Token")
         do {

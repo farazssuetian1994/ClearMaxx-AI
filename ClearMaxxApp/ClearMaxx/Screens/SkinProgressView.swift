@@ -275,6 +275,16 @@ struct SkinProgressView: View {
                 trend: trend, firstImage: firstImage, latestImage: latestImage,
                 currentRoutine: currentRoutineForAnalysis)
 
+            // A structurally-valid-but-empty report (blank headline/narrative) can
+            // result from a degenerate model response — never cache or show that;
+            // treat it the same as a thrown error so the user gets a retry path.
+            guard !report.headline.isEmpty, !report.narrative.isEmpty else {
+                throw ProgressAnalysisError.unknown
+            }
+
+            for existing in progressCaches {
+                modelContext.delete(existing)
+            }
             let cache = ProgressReportCache(latestScanDate: latest.date, report: report)
             modelContext.insert(cache)
             try? modelContext.save()
