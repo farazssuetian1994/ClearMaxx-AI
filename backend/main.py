@@ -187,6 +187,84 @@ def _normalize(parsed: dict) -> dict:
     }
 
 
+VERDICTS = {"improving", "steady", "worsening"}
+
+PROGRESS_PROMPT = """
+You are a dermatology-aware skin progress analyst for a consumer skincare app.
+You are given TWO photos of the SAME person's face — the FIRST photo is their
+earliest scan, the SECOND photo is their most recent scan — plus PRECOMPUTED,
+ALREADY-CORRECT trend facts comparing their metrics between those two scans.
+
+CRITICAL: The numeric trends given below are already computed correctly by
+the app. Do NOT recompute, re-derive, or contradict them. Treat every value
+in TRENDS as ground truth. Your job is to (1) visually compare the two
+photos ONLY to describe what changed (texture, clarity, redness, etc.) — if
+lighting, angle, or distance differ enough that the photos aren't visually
+comparable, say so implicitly by relying on the given trends rather than
+guessing from the images, (2) explain WHY the trends look the way they do in
+plain, encouraging language, and (3) adapt the routine.
+
+TRENDS (ground truth, do not alter the numbers):
+{trends_json}
+
+CURRENT ROUTINE:
+{routine_json}
+
+Return ONLY a JSON object (no markdown) with EXACTLY this shape:
+{{
+  "verdict": <one of "improving","steady","worsening">,
+  "headline": <one short encouraging sentence, max 80 chars, consistent with verdict>,
+  "narrative": <2-3 sentences explaining the trend in plain language, max 400 chars>,
+  "working": [<metric names from TRENDS whose direction is "better">],
+  "stalled": [<metric names from TRENDS whose direction is "flat">],
+  "watch": [<metric names from TRENDS whose direction is "worse">],
+  "updatedRoutine": [
+    {{
+      "time": <"AM" or "PM">,
+      "category": <e.g. "Cleanser","Treatment","Moisturizer","Sunscreen">,
+      "title": <short product/step name, max 40 chars>,
+      "detail": <one sentence, max 140 chars, tied to a specific trend above>,
+      "tags": [<0-3 short tags>]
+    }}
+    // 4-8 steps, adapted from CURRENT ROUTINE: keep steps tied to metrics
+    // that are "working" as-is, and change the approach (different active
+    // ingredient, different category) for steps tied to "stalled" or
+    // "watch" metrics rather than repeating what evidently isn't moving them
+  ]
+}}
+
+Rules:
+- verdict MUST be consistent with the given trends: "improving" only if the
+  overall trend or at least one metric is "better" and none are "worse";
+  "worsening" only if at least one is "worse" and none improved; otherwise
+  "steady".
+- Never claim to detect medical conditions. Be encouraging but honest — do
+  not claim improvement that the given trends do not support.
+- Output raw JSON only.
+""".strip()
+
+
+def _normalize_progress(parsed: dict, metric_names: set) -> dict:
+    """Coerce progress-analysis model output into the exact shape the app expects."""
+    verdict = parsed.get("verdict") if parsed.get("verdict") in VERDICTS else "steady"
+
+    def _filtered_names(key):
+        return [str(x) for x in (parsed.get(key) or []) if str(x) in metric_names]
+
+    return {
+        "verdict": verdict,
+        "headline": str(parsed.get("headline", ""))[:120],
+        "narrative": str(parsed.get("narrative", ""))[:400],
+        "working": _filtered_names("working"),
+        "stalled": _filtered_names("stalled"),
+        "watch": _filtered_names("watch"),
+        "updatedRoutine": [
+            _normalize_routine_step(s) for s in (parsed.get("updatedRoutine") or [])
+            if isinstance(s, dict)
+        ][:8],
+    }
+
+
 # --------------------------------------------------------------------------- #
 # Routes
 # --------------------------------------------------------------------------- #
@@ -211,16 +289,19 @@ def _authorized(req) -> bool:
     return hmac.compare_digest(sent, APP_TOKEN)
 
 
-def _generate(img_bytes: bytes) -> str:
-    """Call Vertex Gemini with the prompt + image; retry on the lite tier."""
-    image_part = types.Part.from_bytes(data=img_bytes, mime_type="image/jpeg")
+def _generate(parts: list, prompt: str) -> str:
+    """Call Vertex Gemini with an arbitrary prompt + content parts; retry on the lite tier.
+
+    Shared by /api/skin/analyze and /api/skin/progress so both endpoints get
+    the same model-fallback behavior and the same bounded output budget.
+    """
     config = types.GenerateContentConfig(response_mime_type="application/json",
-                                         temperature=0.4)
+                                         temperature=0.4, max_output_tokens=2048)
     last_err = None
     for model in (PRIMARY_MODEL, FALLBACK_MODEL):
         try:
             resp = _client.models.generate_content(
-                model=model, contents=[ANALYSIS_PROMPT, image_part], config=config)
+                model=model, contents=[prompt, *parts], config=config)
             return (resp.text or "").strip()
         except Exception as e:  # e.g. model unavailable in region → try lite
             last_err = e
@@ -257,7 +338,8 @@ def analyze_skin():
         return jsonify({"error": f"Could not read image: {e}"}), 400
 
     try:
-        raw = _generate(img_bytes)
+        image_part = types.Part.from_bytes(data=img_bytes, mime_type="image/jpeg")
+        raw = _generate([image_part], ANALYSIS_PROMPT)
         try:
             parsed = json.loads(raw)
         except json.JSONDecodeError:
@@ -267,6 +349,61 @@ def analyze_skin():
         return jsonify({"success": True, "result": _normalize(parsed)})
     except Exception as e:
         print(f"[ERROR] analyze failed: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/skin/progress", methods=["POST"])
+def analyze_progress():
+    if _client is None:
+        return jsonify({"error": "Server not configured (Vertex client unavailable)"}), 500
+    if not _authorized(request):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json(silent=True) or {}
+    trends = data.get("trends")
+    overall = data.get("overall")
+    if not isinstance(trends, list) or not trends or not isinstance(overall, dict):
+        return jsonify({"error": "Missing or invalid trends/overall"}), 400
+
+    def _decode_image(b64):
+        if not b64:
+            return None
+        if "," in b64:
+            b64 = b64.split(",", 1)[1]
+        try:
+            image = Image.open(io.BytesIO(base64.b64decode(b64)))
+        except Exception:
+            return None
+        buf = io.BytesIO()
+        image.convert("RGB").save(buf, format="JPEG", quality=90)
+        return buf.getvalue()
+
+    parts = []
+    for key in ("first_image_base64", "latest_image_base64"):
+        img_bytes = _decode_image(data.get(key))
+        if img_bytes:
+            parts.append(types.Part.from_bytes(data=img_bytes, mime_type="image/jpeg"))
+
+    prompt = PROGRESS_PROMPT.format(
+        trends_json=json.dumps({
+            "overall": overall,
+            "metrics": trends,
+            "history": data.get("history") or [],
+        }),
+        routine_json=json.dumps(data.get("current_routine") or []),
+    )
+
+    try:
+        raw = _generate(parts, prompt)
+        try:
+            parsed = json.loads(raw)
+        except json.JSONDecodeError:
+            s, e = raw.find("{"), raw.rfind("}")
+            parsed = json.loads(raw[s:e + 1]) if s != -1 and e != -1 else {}
+        metric_names = {t.get("name") for t in trends if isinstance(t, dict)}
+        return jsonify({"success": True, "result": _normalize_progress(parsed, metric_names)})
+    except Exception as e:
+        print(f"[ERROR] progress analysis failed: {e}")
         return jsonify({"error": str(e)}), 500
 
 
