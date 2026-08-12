@@ -514,7 +514,7 @@ git commit -m "iOS: add ProgressTrendCalculator pure trend/eligibility logic"
 - Consumes: `APIRoutineStep` (from `SkinAnalysisService.swift`, already `Codable`).
 - Produces:
   - `struct ProgressReport: Codable { let verdict: String; let headline: String; let narrative: String; let working: [String]; let stalled: [String]; let watch: [String]; let updatedRoutine: [APIRoutineStep] }`
-  - `@Model final class ProgressReportCache { var latestScanID: PersistentIdentifier; ...; init(latestScanID:report:); var report: ProgressReport { get } }`
+  - `@Model final class ProgressReportCache { var latestScanDate: Date; ...; init(latestScanDate:report:); var report: ProgressReport { get } }` — keyed to the scan's `Date`, not its `PersistentIdentifier`: SwiftData on iOS 17 cannot persist `PersistentIdentifier` as a stored `@Model` property (it wraps an `NSManagedObjectID` that crashes schema generation with "Class property within Persisted Struct/Enum is not supported: NSManagedObjectID"). `ScanRecord.date` is a plain `Date` set once at scan time, already proven storable by `ScanRecord` itself, and is a safe-enough natural key here — a collision would only mean a stale cache hit (fixed by a normal cache-miss retry), never a crash.
 - Used by: Task 6 (decodes `ProgressReport` from the network response), Task 9 (reads/writes `ProgressReportCache` via `@Query`/`ModelContext`).
 
 - [ ] **Step 1: Write the failing test**
@@ -542,12 +542,12 @@ final class ProgressReportCacheTests: XCTestCase {
             updatedRoutine: [APIRoutineStep(time: "AM", category: "Cleanser", title: "Foam Wash",
                                             detail: "Gentle daily cleanse.", tags: ["Fragrance-free"])])
 
-        let cache = ProgressReportCache(latestScanID: scan.persistentModelID, report: report)
+        let cache = ProgressReportCache(latestScanDate: scan.date, report: report)
         context.insert(cache)
         try context.save()
 
         let fetched = try context.fetch(FetchDescriptor<ProgressReportCache>()).first
-        XCTAssertEqual(fetched?.latestScanID, scan.persistentModelID)
+        XCTAssertEqual(fetched?.latestScanDate, scan.date)
         XCTAssertEqual(fetched?.report.verdict, "improving")
         XCTAssertEqual(fetched?.report.working, ["Acne"])
         XCTAssertEqual(fetched?.report.updatedRoutine.first?.title, "Foam Wash")
@@ -585,12 +585,17 @@ struct ProgressReport: Codable {
 }
 
 /// Caches the most recent `ProgressReport` so re-opening it with no new scan
-/// since costs zero API calls. Keyed to the latest `ScanRecord` it was built
-/// from — a new scan simply won't match this key, which is how the cache
+/// since costs zero API calls. Keyed to the latest `ScanRecord`'s `date` —
+/// a new scan simply won't match this key, which is how the cache
 /// "invalidates" itself with no TTL bookkeeping.
+///
+/// Keyed to `Date`, not `PersistentIdentifier`: SwiftData on iOS 17 cannot
+/// persist `PersistentIdentifier` as a stored `@Model` property (it wraps an
+/// `NSManagedObjectID` that SwiftData's schema generator rejects at runtime
+/// with a fatal error). `Date` is a plain, already-storable field.
 @Model
 final class ProgressReportCache {
-    var latestScanID: PersistentIdentifier
+    var latestScanDate: Date
     var verdict: String
     var headline: String
     var narrative: String
@@ -599,8 +604,8 @@ final class ProgressReportCache {
     var watch: [String]
     var updatedRoutineData: Data
 
-    init(latestScanID: PersistentIdentifier, report: ProgressReport) {
-        self.latestScanID = latestScanID
+    init(latestScanDate: Date, report: ProgressReport) {
+        self.latestScanDate = latestScanDate
         self.verdict = report.verdict
         self.headline = report.headline
         self.narrative = report.narrative
@@ -1432,7 +1437,7 @@ In the same file, add these members inside `SkinProgressView` (after the `metric
         }
         guard let latest else { return }
 
-        if let cached = progressCaches.first(where: { $0.latestScanID == latest.persistentModelID }) {
+        if let cached = progressCaches.first(where: { $0.latestScanDate == latest.date }) {
             progressReport = cached.report
             showProgressReport = true
             return
@@ -1449,7 +1454,7 @@ In the same file, add these members inside `SkinProgressView` (after the `metric
                 trend: trend, firstImage: firstImage, latestImage: latestImage,
                 currentRoutine: currentRoutineForAnalysis)
 
-            let cache = ProgressReportCache(latestScanID: latest.persistentModelID, report: report)
+            let cache = ProgressReportCache(latestScanDate: latest.date, report: report)
             modelContext.insert(cache)
             try? modelContext.save()
 
@@ -1496,7 +1501,7 @@ Expected: `** BUILD SUCCEEDED **`.
 4. As a **premium** test account: confirm tapping the button shows "Analyzing…", then presents `ProgressReportView` with a verdict, headline, narrative, and (if returned) working/stalled/watch chips.
 5. Tap "Update My Routine" and confirm the Routine tab's today checklist reflects the new steps, with any previously-checked items whose titles survived still checked.
 6. Dismiss and reopen the progress report (same latest scan): confirm it appears **instantly with no loading state** — this is the cache hit. Optionally confirm via a network proxy or by temporarily adding a `print` in `ProgressAnalysisService.analyze` that no second call fires.
-7. Take a new scan, then tap "Analyze My Progress" again: confirm a fresh network call fires (cache miss on the new `latestScanID`) and a new report is cached.
+7. Take a new scan, then tap "Analyze My Progress" again: confirm a fresh network call fires (cache miss on the new `latestScanDate`) and a new report is cached.
 
 - [ ] **Step 7: Commit**
 
