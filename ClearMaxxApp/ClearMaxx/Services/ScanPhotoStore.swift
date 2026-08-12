@@ -29,3 +29,12 @@ enum ScanPhotoStore {
         UIImage(contentsOfFile: directory.appendingPathComponent(fileName).path)
     }
 }
+
+extension ScanPhotoStore {
+    /// Loads a saved scan photo downscaled to `maxEdge` on its longest side —
+    /// used by progress analysis to keep upload payloads (and Gemini's
+    /// per-image tiling cost) small without touching the full-res original.
+    static func downscaled(_ fileName: String, maxEdge: CGFloat) -> UIImage? {
+        load(fileName)?.cm_resized(maxDimension: maxEdge)
+    }
+}

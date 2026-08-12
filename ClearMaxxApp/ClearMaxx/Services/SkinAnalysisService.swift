@@ -125,7 +125,7 @@ enum SkinAnalysisService {
     }
 }
 
-private extension UIImage {
+extension UIImage {
     /// Downscale so the longest edge is `maxDimension` (keeps payload + latency small).
     func cm_resized(maxDimension: CGFloat) -> UIImage {
         let longest = max(size.width, size.height)
