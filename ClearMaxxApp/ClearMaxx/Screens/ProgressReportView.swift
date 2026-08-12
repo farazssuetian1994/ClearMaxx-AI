@@ -50,7 +50,7 @@ struct ProgressReportView: View {
         GlassCard {
             VStack(alignment: .leading, spacing: 10) {
                 Text(title).font(CMFont.title).foregroundStyle(CMColor.ink)
-                HStack { ForEach(names, id: \.self) { TagChip(text: $0) } }
+                HStack { ForEach(names, id: \.self) { TagChip(text: $0, tint: color) } }
             }
         }
     }
