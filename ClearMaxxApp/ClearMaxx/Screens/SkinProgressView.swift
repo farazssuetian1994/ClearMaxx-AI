@@ -9,13 +9,43 @@ import SwiftData
 struct SkinProgressView: View {
     @ObserveInjection var inject
     @EnvironmentObject var state: AppState
+    @Environment(\.modelContext) private var modelContext
     @Query(sort: \ScanRecord.date) private var scanRecords: [ScanRecord]
+    @Query private var progressCaches: [ProgressReportCache]
+    @Query private var todayChecklist: [DailyRoutineChecklist]
     @State private var slider: CGFloat = 0.5
     @State private var showShare = false
+    @State private var showPaywall = false
+    @State private var isAnalyzingProgress = false
+    @State private var progressReport: ProgressReport?
+    @State private var showProgressReport = false
+    @State private var progressAnalysisError: String?
+
+    // `todayChecklist` needs a predicate, so every other @Query on this view
+    // must also be assigned explicitly here (SwiftData requires all @Query
+    // properties to be set together once any one of them gets a custom init) —
+    // same pattern DailyRoutineView already uses for its own filtered query.
+    init() {
+        _scanRecords = Query(sort: \ScanRecord.date)
+        _progressCaches = Query()
+        let startOfDay = Calendar.current.startOfDay(for: Date())
+        _todayChecklist = Query(filter: #Predicate<DailyRoutineChecklist> { $0.day == startOfDay })
+    }
 
     private var first: ScanRecord? { scanRecords.first }
     private var latest: ScanRecord? { scanRecords.last }
     private var previous: ScanRecord? { scanRecords.count >= 2 ? scanRecords[scanRecords.count - 2] : nil }
+    private var eligibility: ProgressEligibility { ProgressTrendCalculator.eligibility(for: scanRecords) }
+
+    /// The routine actually on the user's checklist today (persists across
+    /// launches), not `state.analysis` — which is only populated in-memory
+    /// right after a scan and is `nil` again the next time the app opens.
+    private var currentRoutineForAnalysis: [APIRoutineStep] {
+        (todayChecklist.first?.steps ?? []).map {
+            APIRoutineStep(time: $0.time, category: $0.category, title: $0.title,
+                           detail: $0.detail, tags: $0.tags)
+        }
+    }
 
     var body: some View {
         DewyBackground {
@@ -50,6 +80,8 @@ struct SkinProgressView: View {
                         } else {
                             metricDeltaCard
                         }
+
+                        progressAnalysisSection
 
                         AuraButton(title: "Share My Glow-Up", systemImage: "square.and.arrow.up") { showShare = true }
                             .padding(.bottom, 24)
@@ -186,6 +218,74 @@ struct SkinProgressView: View {
         .padding(.vertical, 2)
     }
 
+    @ViewBuilder
+    private var progressAnalysisSection: some View {
+        GlassCard {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Analyze My Progress").font(CMFont.title).foregroundStyle(CMColor.ink)
+
+                switch eligibility {
+                case .notEnoughScans:
+                    Text("Scan at least twice to see whether it's working.")
+                        .font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
+                case .tooRecentSpan(let daysRemaining):
+                    Text("Your scans span less than a week — give your skin \(daysRemaining) more day\(daysRemaining == 1 ? "" : "s") before checking progress.")
+                        .font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
+                case .eligible:
+                    if let progressAnalysisError {
+                        Text(progressAnalysisError).font(CMFont.bodyMd).foregroundStyle(CMColor.error)
+                    }
+                    AuraButton(title: isAnalyzingProgress ? "Analyzing…" : "Analyze My Progress",
+                              systemImage: "sparkles") {
+                        Task { await requestProgressAnalysis() }
+                    }
+                    .disabled(isAnalyzingProgress)
+                }
+            }
+        }
+        .sheet(isPresented: $showPaywall) { GoPremiumView() }
+        .sheet(isPresented: $showProgressReport) {
+            if let progressReport { ProgressReportView(report: progressReport) }
+        }
+    }
+
+    @MainActor
+    private func requestProgressAnalysis() async {
+        guard case .eligible(let trend) = eligibility else { return }
+        guard state.isPremium else {
+            showPaywall = true
+            return
+        }
+        guard let latest else { return }
+
+        if let cached = progressCaches.first(where: { $0.latestScanDate == latest.date }) {
+            progressReport = cached.report
+            showProgressReport = true
+            return
+        }
+
+        progressAnalysisError = nil
+        isAnalyzingProgress = true
+        defer { isAnalyzingProgress = false }
+
+        do {
+            let firstImage = first.flatMap { ScanPhotoStore.downscaled($0.photoFileName, maxEdge: 768) }
+            let latestImage = ScanPhotoStore.downscaled(latest.photoFileName, maxEdge: 768)
+            let report = try await ProgressAnalysisService.analyze(
+                trend: trend, firstImage: firstImage, latestImage: latestImage,
+                currentRoutine: currentRoutineForAnalysis)
+
+            let cache = ProgressReportCache(latestScanDate: latest.date, report: report)
+            modelContext.insert(cache)
+            try? modelContext.save()
+
+            progressReport = report
+            showProgressReport = true
+        } catch {
+            progressAnalysisError = error.localizedDescription
+        }
+    }
+
     private func emptyState(title: String, body: String) -> some View {
         GlassCard {
             VStack(alignment: .leading, spacing: 8) {
@@ -258,5 +358,5 @@ struct BeforeAfterSlider: View {
 #Preview {
     SkinProgressView()
         .environmentObject(AppState())
-        .modelContainer(for: [ScanRecord.self, DailyRoutineChecklist.self], inMemory: true)
+        .modelContainer(for: [ScanRecord.self, DailyRoutineChecklist.self, ProgressReportCache.self], inMemory: true)
 }
