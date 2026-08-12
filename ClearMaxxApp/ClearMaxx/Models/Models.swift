@@ -142,7 +142,7 @@ final class AppState: ObservableObject {
     /// Regenerates today's checklist from the latest scan's AI routine, preserving
     /// `done` state for any step whose title survives from the prior version of
     /// today's checklist (so a mid-day rescan doesn't wipe checked-off items).
-    private func upsertTodayChecklist(from apiSteps: [APIRoutineStep], modelContext: ModelContext) {
+    func upsertTodayChecklist(from apiSteps: [APIRoutineStep], modelContext: ModelContext) {
         let startOfDay = Calendar.current.startOfDay(for: Date())
         var descriptor = FetchDescriptor<DailyRoutineChecklist>(
             predicate: #Predicate { $0.day == startOfDay })
@@ -163,6 +163,18 @@ final class AppState: ObservableObject {
             existing.steps = newSteps
         } else {
             modelContext.insert(DailyRoutineChecklist(day: startOfDay, steps: newSteps))
+        }
+    }
+
+    /// Replaces today's routine checklist with the AI's progress-adapted
+    /// steps, preserving `done` state exactly like a normal rescan would
+    /// (via `upsertTodayChecklist`'s existing title-matching behavior).
+    func applyUpdatedRoutine(_ steps: [APIRoutineStep], modelContext: ModelContext) {
+        upsertTodayChecklist(from: steps, modelContext: modelContext)
+        do {
+            try modelContext.save()
+        } catch {
+            print("[AppState] Could not save updated routine: \(error)")
         }
     }
 
