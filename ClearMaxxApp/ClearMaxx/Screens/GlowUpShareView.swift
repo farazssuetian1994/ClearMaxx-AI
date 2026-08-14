@@ -21,6 +21,7 @@ struct GlowUpShareView: View {
 
     var body: some View {
         DewyBackground {
+            ScrollView {
             VStack(spacing: 20) {
                 HStack {
                     Button { dismiss() } label: {
@@ -85,8 +86,8 @@ struct GlowUpShareView: View {
                     Button("Continue", action: onContinue)
                         .font(CMFont.labelMd).foregroundStyle(CMColor.violetDeep)
                 }
-
-                Spacer()
+            }
+            .padding(.bottom, 32)
             }
         }
         .presentationDragIndicator(.visible)

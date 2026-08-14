@@ -54,13 +54,19 @@ struct AnalyzingView: View {
 
                 Spacer()
 
-                // Real loading state — an indeterminate spinner while the network
-                // call is in flight (we have no true byte-progress signal from the
-                // backend), then a checkmark once the result actually arrives.
+                // Real loading state: a genuine percentage while the photo is
+                // actually uploading (driven by real bytes-sent, not a fake
+                // timer), then an indeterminate spinner for Gemini's server-side
+                // processing — there's no progress signal for that phase, so we
+                // don't pretend to have one — then a checkmark on completion.
                 Group {
                     if revealed {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 56)).foregroundStyle(.white)
+                    } else if state.uploadProgress < 1.0 {
+                        Text("\(Int(state.uploadProgress * 100))%")
+                            .font(CMFont.inter(48, .heavy)).foregroundStyle(.white)
+                            .contentTransition(.numericText())
                     } else {
                         ProgressView()
                             .progressViewStyle(.circular)
@@ -70,7 +76,8 @@ struct AnalyzingView: View {
                 }
                 .frame(height: 56)
                 .shadow(color: CMColor.violet.opacity(0.7), radius: 18)
-                Text(revealed ? "Almost there" : "Please hold still")
+                .animation(.easeOut(duration: 0.2), value: state.uploadProgress)
+                Text(statusText)
                     .font(CMFont.bodyMd).foregroundStyle(.white.opacity(0.85))
                     .padding(.top, 14)
                     .padding(.bottom, 90)
@@ -102,6 +109,12 @@ struct AnalyzingView: View {
             }
         }
         .overlay { if let err = state.analysisError { errorCard(err) } }
+    }
+
+    private var statusText: String {
+        if revealed { return "Almost there" }
+        if state.uploadProgress < 1.0 { return "Uploading your photo" }
+        return "Analyzing your skin"
     }
 
     private func errorCard(_ message: String) -> some View {

@@ -15,7 +15,6 @@ struct SkinProgressView: View {
     @Query private var todayChecklist: [DailyRoutineChecklist]
     @State private var slider: CGFloat = 0.5
     @State private var showShare = false
-    @State private var showPaywall = false
     @State private var isAnalyzingProgress = false
     @State private var progressReport: ProgressReport?
     @State private var showProgressReport = false
@@ -243,7 +242,6 @@ struct SkinProgressView: View {
                 }
             }
         }
-        .sheet(isPresented: $showPaywall) { GoPremiumView() }
         .sheet(isPresented: $showProgressReport) {
             if let progressReport { ProgressReportView(report: progressReport) }
         }
@@ -252,10 +250,6 @@ struct SkinProgressView: View {
     @MainActor
     private func requestProgressAnalysis() async {
         guard case .eligible(let trend) = eligibility else { return }
-        guard state.isPremium else {
-            showPaywall = true
-            return
-        }
         guard let latest else { return }
 
         if let cached = progressCaches.first(where: { $0.latestScanDate == latest.date }) {

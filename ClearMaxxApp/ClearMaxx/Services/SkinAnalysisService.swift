@@ -76,10 +76,27 @@ enum SkinAnalysisError: LocalizedError {
     }
 }
 
+// MARK: - Upload progress
+
+/// Reports real bytes-sent progress for the request body upload — this is the
+/// only phase of a scan we can measure; there's no signal for Gemini's server-
+/// side processing time, so callers should treat 1.0 as "uploaded, now waiting"
+/// rather than "done."
+private final class UploadProgressObserver: NSObject, URLSessionTaskDelegate {
+    private let onProgress: (Double) -> Void
+    init(onProgress: @escaping (Double) -> Void) { self.onProgress = onProgress }
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, didSendBodyData bytesSent: Int64,
+                     totalBytesSent: Int64, totalBytesExpectedToSend: Int64) {
+        guard totalBytesExpectedToSend > 0 else { return }
+        onProgress(Double(totalBytesSent) / Double(totalBytesExpectedToSend))
+    }
+}
+
 // MARK: - Service
 
 enum SkinAnalysisService {
-    static func analyze(image: UIImage) async throws -> SkinAnalysis {
+    static func analyze(image: UIImage, onUploadProgress: @escaping (Double) -> Void = { _ in }) async throws -> SkinAnalysis {
         guard let jpeg = image.cm_resized(maxDimension: 1024).jpegData(compressionQuality: 0.7) else {
             throw SkinAnalysisError.encodingFailed
         }
@@ -91,10 +108,13 @@ enum SkinAnalysisService {
         req.setValue(CMConfig.appToken, forHTTPHeaderField: "X-App-Token")
         req.httpBody = try JSONSerialization.data(withJSONObject: ["image_base64": jpeg.base64EncodedString()])
 
+        let observer = UploadProgressObserver(onProgress: onUploadProgress)
+        let session = URLSession(configuration: .default, delegate: observer, delegateQueue: nil)
+
         let data: Data
         let resp: URLResponse
         do {
-            (data, resp) = try await URLSession.shared.data(for: req)
+            (data, resp) = try await session.data(for: req)
         } catch let e as URLError {
             switch e.code {
             case .notConnectedToInternet, .networkConnectionLost, .dataNotAllowed:

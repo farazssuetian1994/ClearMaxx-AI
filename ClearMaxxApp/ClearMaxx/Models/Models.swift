@@ -48,6 +48,9 @@ final class AppState: ObservableObject {
     @Published var isAnalyzing = false
     @Published var analysisError: String?
     @Published var hideTabBar = false
+    /// Real bytes-sent fraction for the in-flight scan upload (0...1). 1.0 means
+    /// "uploaded, now waiting on the AI" — there's no signal for that server-side phase.
+    @Published var uploadProgress: Double = 0
     var pendingImage: UIImage?
 
     // MARK: Set right after a successful scan, read by the celebration screen
@@ -88,8 +91,11 @@ final class AppState: ObservableObject {
         isAnalyzing = true
         analysisError = nil
         newlyResolved = []
+        uploadProgress = 0
         do {
-            let result = try await SkinAnalysisService.analyze(image: image)
+            let result = try await SkinAnalysisService.analyze(image: image) { [weak self] progress in
+                Task { @MainActor in self?.uploadProgress = progress }
+            }
             analysis = result
             clearScore = result.clearScore   // keep Progress/Profile tabs in sync
             persistScan(image: image, result: result, modelContext: modelContext)
