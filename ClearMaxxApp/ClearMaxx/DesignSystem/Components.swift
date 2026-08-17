@@ -81,7 +81,7 @@ struct TagChip: View {
     var body: some View {
         HStack(spacing: 4) {
             if let icon { Image(systemName: icon).font(.system(size: 10, weight: .semibold)) }
-            Text(text).font(CMFont.labelSm)
+            Text(text).font(CMFont.labelSm).lineLimit(1)
         }
         .foregroundStyle(filled ? .white : tint)
         .padding(.horizontal, 12).padding(.vertical, 6)

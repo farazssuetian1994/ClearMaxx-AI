@@ -89,27 +89,32 @@ private struct ScanHistoryRow: View {
                         CMGradient.auraDiagonal
                     }
                 }
-                .frame(width: 72, height: 72)
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .frame(width: 60, height: 60)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
 
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack(spacing: 5) {
-                        Image(systemName: "calendar").font(.system(size: 11)).foregroundStyle(CMColor.coralDeep)
+                VStack(alignment: .leading, spacing: 5) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "calendar").font(.system(size: 10)).foregroundStyle(CMColor.coralDeep)
                         Text(record.date.formatted(date: .abbreviated, time: .omitted))
                             .font(CMFont.labelMd).foregroundStyle(CMColor.ink)
+                            .lineLimit(1).minimumScaleFactor(0.8)
                     }
                     Text(record.date.formatted(date: .omitted, time: .shortened))
                         .font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
+                        .lineLimit(1)
                     TagChip(text: record.skinType, tint: CMColor.violetDeep, icon: "drop.fill")
+                        .fixedSize()
                 }
+                .layoutPriority(1)
 
-                Spacer(minLength: 8)
+                Spacer(minLength: 4)
 
                 VStack(spacing: 0) {
-                    Text("\(record.clearScore)").font(CMFont.inter(22, .heavy)).foregroundStyle(CMColor.coralDeep)
+                    Text("\(record.clearScore)").font(CMFont.inter(20, .heavy)).foregroundStyle(CMColor.coralDeep)
                     Text("SCORE").font(CMFont.inter(8, .bold)).tracking(0.5).foregroundStyle(CMColor.inkSoft)
                 }
-                .padding(.horizontal, 12).padding(.vertical, 8)
+                .fixedSize()
+                .padding(.horizontal, 10).padding(.vertical, 8)
                 .background(CMColor.primary.opacity(0.1), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
 
                 Image(systemName: "chevron.right").foregroundStyle(CMColor.outline)
