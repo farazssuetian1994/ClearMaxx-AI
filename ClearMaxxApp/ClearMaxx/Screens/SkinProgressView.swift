@@ -253,26 +253,40 @@ struct SkinProgressView: View {
             Spacer(minLength: 8)
             let points = series(for: metric.name)
             if points.count >= 2 {
-                Chart(Array(points.enumerated()), id: \.offset) { _, point in
-                    LineMark(x: .value("Scan", point.date), y: .value("Value", point.value))
-                        .foregroundStyle(metricTint)
-                        .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
-                        .interpolationMethod(.catmullRom)
-                }
-                // Explicit domain is load-bearing: without it Swift Charts
-                // auto-scales per-chart from just 2-3 points (sometimes
-                // identical), which degenerates into a jagged/spiked line at
-                // this tiny size. 0...100 matches the real metric value range.
-                .chartYScale(domain: 0...100)
-                .chartXAxis(.hidden)
-                .chartYAxis(.hidden)
-                .chartLegend(.hidden)
-                .frame(width: 64, height: 32)
+                sparkline(points, tint: metricTint)
             }
             Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold)).foregroundStyle(CMColor.outline)
         }
         .padding(.vertical, 6)
         .contentShape(Rectangle())
+    }
+
+    /// - Catmull-Rom needs neighboring points to compute its curve tangents;
+    ///   with exactly 2 points it has none, and Charts' boundary handling
+    ///   produces a sharp curl right at the last point (reproducibly, even
+    ///   for a perfectly flat 2-point series). Below 4 points, linear
+    ///   interpolation is the only one that can't misrender — it degrades to
+    ///   a plain straight segment, which is also the mathematically honest
+    ///   representation of "we only have 2 data points."
+    /// - `chartYScale(domain: 0...100)` is likewise load-bearing: without it
+    ///   Charts auto-scales per-chart from just the 2-3 local points, which
+    ///   can degenerate visually when values are close or identical.
+    private func sparkline(_ points: [(date: Date, value: Int)], tint: Color) -> some View {
+        Chart(Array(points.enumerated()), id: \.offset) { _, point in
+            AreaMark(x: .value("Scan", point.date), y: .value("Value", point.value))
+                .foregroundStyle(LinearGradient(colors: [tint.opacity(0.25), tint.opacity(0)],
+                                                 startPoint: .top, endPoint: .bottom))
+                .interpolationMethod(points.count >= 4 ? .catmullRom : .linear)
+            LineMark(x: .value("Scan", point.date), y: .value("Value", point.value))
+                .foregroundStyle(tint)
+                .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
+                .interpolationMethod(points.count >= 4 ? .catmullRom : .linear)
+        }
+        .chartYScale(domain: 0...100)
+        .chartXAxis(.hidden)
+        .chartYAxis(.hidden)
+        .chartLegend(.hidden)
+        .frame(width: 64, height: 32)
     }
 
     private func actionRow(icon: String, title: String, subtitle: String, action: @escaping () -> Void) -> some View {
