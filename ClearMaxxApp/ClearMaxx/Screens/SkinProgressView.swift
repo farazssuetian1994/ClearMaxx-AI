@@ -221,25 +221,24 @@ struct SkinProgressView: View {
         let justResolved = metric.severity == "Good" && prevMetric?.severity != "Good"
         let curRank = SeverityRank.rank(metric.severity)
         let prevRank = prevMetric.map { SeverityRank.rank($0.severity) }
-        let icon: String
-        let tint: Color
+        // Icon badge always shows this metric's own identity color/glyph (matching
+        // the Results Dashboard and Scan History), independent of trend direction.
+        let metricTint = AppState.tint(for: metric.name)
+        let metricIcon = ResultsDashboardView.icon(for: metric.name)
+        // The delta pill is colored separately, by whether this scan is better/worse.
+        let trendTint: Color
         switch (justResolved, prevRank) {
-        case (true, _):
-            icon = "checkmark.seal.fill"; tint = CMColor.success
-        case (false, .some(let p)) where curRank < p:
-            icon = "arrow.down.circle.fill"; tint = CMColor.success
-        case (false, .some(let p)) where curRank > p:
-            icon = "arrow.up.circle.fill"; tint = CMColor.error
-        case (false, .some):
-            icon = "minus.circle.fill"; tint = CMColor.inkSoft
-        case (false, .none):
-            icon = "chart.line.uptrend.xyaxis"; tint = CMColor.violet
+        case (true, _):                                     trendTint = CMColor.success
+        case (false, .some(let p)) where curRank < p:        trendTint = CMColor.success
+        case (false, .some(let p)) where curRank > p:        trendTint = CMColor.error
+        case (false, .some):                                 trendTint = CMColor.inkSoft
+        case (false, .none):                                 trendTint = CMColor.inkSoft
         }
 
         return HStack(alignment: .center, spacing: 12) {
             ZStack {
-                Circle().fill(tint.opacity(0.15)).frame(width: 34, height: 34)
-                Image(systemName: icon).foregroundStyle(tint).font(.system(size: 15, weight: .semibold))
+                Circle().fill(metricTint.opacity(0.15)).frame(width: 34, height: 34)
+                Image(systemName: metricIcon).foregroundStyle(metricTint).font(.system(size: 15, weight: .semibold))
             }
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {
@@ -255,9 +254,9 @@ struct SkinProgressView: View {
                     HStack(spacing: 4) {
                         Text("\(prevValue) → \(metric.value)").font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
                         Text("\(delta > 0 ? "↑" : (delta < 0 ? "↓" : "—")) \(abs(delta))")
-                            .font(CMFont.inter(11, .bold)).foregroundStyle(tint)
+                            .font(CMFont.inter(11, .bold)).foregroundStyle(trendTint)
                             .padding(.horizontal, 7).padding(.vertical, 2)
-                            .background(tint.opacity(0.15), in: Capsule())
+                            .background(trendTint.opacity(0.15), in: Capsule())
                     }
                 } else {
                     Text("Value: \(metric.value)").font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
@@ -268,9 +267,15 @@ struct SkinProgressView: View {
             if points.count >= 2 {
                 Chart(Array(points.enumerated()), id: \.offset) { _, point in
                     LineMark(x: .value("Scan", point.date), y: .value("Value", point.value))
-                        .foregroundStyle(tint)
-                        .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round))
+                        .foregroundStyle(metricTint)
+                        .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
+                        .interpolationMethod(.catmullRom)
                 }
+                // Explicit domain is load-bearing: without it Swift Charts
+                // auto-scales per-chart from just 2-3 points (sometimes
+                // identical), which degenerates into a jagged/spiked line at
+                // this tiny size. 0...100 matches the real metric value range.
+                .chartYScale(domain: 0...100)
                 .chartXAxis(.hidden)
                 .chartYAxis(.hidden)
                 .chartLegend(.hidden)
