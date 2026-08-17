@@ -52,11 +52,6 @@ final class AppState: ObservableObject {
     @Published var uploadProgress: Double = 0
     var pendingImage: UIImage?
 
-    // MARK: Set right after a successful scan, read by the celebration screen
-    @Published var newlyResolved: [PersistedMetric] = []
-    @Published var celebrationBeforeImage: UIImage?
-    @Published var celebrationScoreDelta: Int = 0
-
     /// Score shown on the results ring — real if available, else the mock baseline.
     var displayScore: Int { analysis?.clearScore ?? clearScore }
     var scanConfidence: Int { analysis?.confidence ?? 98 }
@@ -89,7 +84,6 @@ final class AppState: ObservableObject {
     func runAnalysis(_ image: UIImage, modelContext: ModelContext) async {
         isAnalyzing = true
         analysisError = nil
-        newlyResolved = []
         uploadProgress = 0
         do {
             let result = try await SkinAnalysisService.analyze(image: image, profile: SkinProfileStore.load()) { [weak self] progress in
@@ -112,14 +106,6 @@ final class AppState: ObservableObject {
         let persistedMetrics = result.metrics.map {
             PersistedMetric(name: $0.name, value: $0.value, severity: $0.severity)
         }
-
-        var previousDescriptor = FetchDescriptor<ScanRecord>(sortBy: [SortDescriptor(\.date, order: .reverse)])
-        previousDescriptor.fetchLimit = 1
-        let previous = try? modelContext.fetch(previousDescriptor).first
-
-        newlyResolved = ResolutionDiff.newlyResolved(current: persistedMetrics, previous: previous?.metrics)
-        celebrationBeforeImage = previous.flatMap { ScanPhotoStore.load($0.photoFileName) }
-        celebrationScoreDelta = result.clearScore - (previous?.clearScore ?? result.clearScore)
 
         let record = ScanRecord(date: Date(), clearScore: result.clearScore, confidence: result.confidence,
                                  skinType: result.skinType, summary: result.summary,
@@ -178,9 +164,6 @@ final class AppState: ObservableObject {
         analysis = nil
         analysisError = nil
         pendingImage = nil
-        newlyResolved = []
-        celebrationBeforeImage = nil
-        celebrationScoreDelta = 0
     }
 
     /// Syncs `isPremium` with RevenueCat on launch (e.g. restored subscription from a prior install).

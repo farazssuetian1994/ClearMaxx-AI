@@ -10,7 +10,7 @@ import PhotosUI
 
 // MARK: - Scan flow routing
 
-enum ScanRoute: Hashable { case analyzing, results, issue(SkinMetric), celebration }
+enum ScanRoute: Hashable { case analyzing, results, issue(SkinMetric) }
 
 struct CameraScanView: View {
     @ObserveInjection var inject
@@ -27,21 +27,8 @@ struct CameraScanView: View {
                 switch route {
                 case .analyzing:
                     AnalyzingView {
-                        if state.newlyResolved.isEmpty {
-                            path.append(ScanRoute.results)
-                        } else {
-                            path.append(ScanRoute.celebration)
-                        }
+                        path.append(ScanRoute.results)
                     }
-                case .celebration:
-                    GlowUpShareView(
-                        beforeImage: state.celebrationBeforeImage,
-                        afterImage: state.pendingImage,
-                        scoreDelta: state.celebrationScoreDelta,
-                        beforeScore: state.clearScore - state.celebrationScoreDelta,
-                        afterScore: state.clearScore,
-                        resolvedMetricNames: state.newlyResolved.map(\.name),
-                        onContinue: { path.append(ScanRoute.results) })
                 case .results:
                     ResultsDashboardView(
                         onIssue: { path.append(ScanRoute.issue($0)) },
