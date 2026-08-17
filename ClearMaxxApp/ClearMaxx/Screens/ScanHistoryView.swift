@@ -8,13 +8,22 @@ import SwiftData
 
 struct ScanHistoryView: View {
     @ObserveInjection var inject
-    @Environment(\.dismiss) private var dismiss
     @Query(sort: \ScanRecord.date, order: .reverse) private var scanRecords: [ScanRecord]
 
     var body: some View {
         DewyBackground {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Scan History").font(CMFont.headlineLg).foregroundStyle(CMColor.ink)
+                            Text("\(scanRecords.count) saved scan\(scanRecords.count == 1 ? "" : "s")")
+                                .font(CMFont.labelMd).foregroundStyle(CMColor.inkSoft)
+                        }
+                        Spacer()
+                    }
+                    .padding(.top, 8).padding(.bottom, 4)
+
                     if scanRecords.isEmpty {
                         GlassCard {
                             VStack(alignment: .leading, spacing: 8) {
@@ -32,13 +41,9 @@ struct ScanHistoryView: View {
                         }
                     }
                 }
-                .padding(.horizontal, 24).padding(.top, 8).padding(.bottom, 40)
-            }
-            .safeAreaInset(edge: .top) {
-                CMTopBar(showBack: true, onBack: { dismiss() }).background(.ultraThinMaterial)
+                .padding(.horizontal, 24).padding(.bottom, 100)
             }
         }
-        .navigationBarBackButtonHidden(true)
         .navigationDestination(for: ScanRecord.self) { record in
             ScanHistoryDetailView(record: record)
         }

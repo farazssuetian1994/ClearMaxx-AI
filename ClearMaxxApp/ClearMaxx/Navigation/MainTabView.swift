@@ -6,12 +6,13 @@
 import SwiftUI
 
 enum CMTab: Int, CaseIterable {
-    case scan, progress, routine, profile
+    case scan, progress, routine, history, profile
     var title: String {
         switch self {
         case .scan: return "Scan"
         case .progress: return "Progress"
         case .routine: return "Routine"
+        case .history: return "History"
         case .profile: return "Profile"
         }
     }
@@ -20,6 +21,7 @@ enum CMTab: Int, CaseIterable {
         case .scan: return "camera.viewfinder"
         case .progress: return "chart.line.uptrend.xyaxis"
         case .routine: return "leaf.fill"
+        case .history: return "clock.arrow.circlepath"
         case .profile: return "person.crop.circle"
         }
     }
@@ -36,6 +38,7 @@ struct MainTabView: View {
             case .scan:     CameraScanView()
             case .progress: SkinProgressView()
             case .routine:  DailyRoutineView()
+            case .history:  NavigationStack { ScanHistoryView() }
             case .profile:  ProfileView()
             }
         }
