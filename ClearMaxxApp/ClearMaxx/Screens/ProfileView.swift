@@ -33,18 +33,37 @@ struct ProfileView: View {
     private let settings: [SettingsItem] = [
         SettingsItem(icon: "info.circle", title: "About", action: .about),
         SettingsItem(icon: "arrow.clockwise", title: "Restore Purchases", action: .restorePurchases),
-        SettingsItem(icon: "hand.raised", title: "Privacy Policy",
+        SettingsItem(icon: "lock.shield", title: "Privacy Policy",
                      action: .url(URL(string: "https://clearmaxxai.blogspot.com/p/privacy-policy.html")!)),
         SettingsItem(icon: "doc.text", title: "Terms of Use",
                      action: .url(URL(string: "https://clearmaxxai.blogspot.com/p/terms-of-service.html")!)),
-        SettingsItem(icon: "questionmark.circle", title: "Support", action: .mail("support@clearmaxxai.com"))
+        SettingsItem(icon: "questionmark.circle", title: "Help & Support", action: .mail("support@clearmaxxai.com"))
     ]
+
+    /// Honest tiering of the real ClearScore — not decorative, just a label for the number.
+    private var skinScoreTag: (text: String, tint: Color) {
+        switch state.clearScore {
+        case ..<40: return ("Needs attention", CMColor.error)
+        case 40..<70: return ("Needs improvement", CMColor.coralDeep)
+        case 70..<85: return ("Good", CMColor.success)
+        default: return ("Excellent", CMColor.success)
+        }
+    }
+
+    private var streakTag: (text: String, tint: Color) {
+        state.scanStreak == 0 ? ("Start your streak", CMColor.inkSoft) : ("Keep it going!", CMColor.coralDeep)
+    }
 
     var body: some View {
         DewyBackground {
             ScrollView {
                 VStack(spacing: 18) {
-                    CMTopBar(showBack: true)
+                    CMTopBar(showBack: true, trailing: AnyView(
+                        Image(systemName: "ellipsis")
+                            .font(.system(size: 15, weight: .semibold)).foregroundStyle(CMColor.ink)
+                            .frame(width: 36, height: 36)
+                            .background(CMColor.cardSoft, in: Circle())
+                    ))
 
                     // Avatar — tap to pick a photo; PREMIUM badge only shows when actually premium.
                     PhotosPicker(selection: $avatarPickerItem, matching: .images) {
@@ -80,16 +99,32 @@ struct ProfileView: View {
                     .accessibilityLabel("Profile photo. Tap to change.")
                     .padding(.top, 8)
 
+                    VStack(spacing: 4) {
+                        Text("Hi there!").font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
+                        Text("Track your skin. See real progress.").font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
+                    }
+
                     HStack(spacing: 14) {
-                        statCard(title: "Skin Score", value: "\(state.clearScore)", suffix: "/100", tint: CMColor.violetDeep)
-                        statCard(title: "Scan Streak", value: "\(state.scanStreak)", suffix: "days", tint: CMColor.coralDeep)
+                        statCard(icon: "chart.line.uptrend.xyaxis", title: "Skin Score",
+                                 value: "\(state.clearScore)", suffix: "/100",
+                                 tint: CMColor.violetDeep, tag: skinScoreTag)
+                        statCard(icon: "flame.fill", title: "Scan Streak",
+                                 value: "\(state.scanStreak)", suffix: state.scanStreak == 1 ? "day" : "days",
+                                 tint: CMColor.coralDeep, tag: streakTag)
                     }
 
                     if !state.isPremium {
                         Button { showPaywall = true } label: {
-                            HStack {
-                                Image(systemName: "crown.fill")
-                                Text("Upgrade to ClearMaxx Plus").font(CMFont.labelMd)
+                            HStack(spacing: 14) {
+                                ZStack {
+                                    Circle().fill(.white.opacity(0.22)).frame(width: 40, height: 40)
+                                    Image(systemName: "crown.fill").foregroundStyle(.white)
+                                }
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Upgrade to ClearMaxx Plus").font(CMFont.labelMd).fontWeight(.semibold)
+                                    Text("Unlock advanced insights and features.")
+                                        .font(CMFont.labelSm).opacity(0.9)
+                                }
                                 Spacer()
                                 Image(systemName: "chevron.right")
                             }
@@ -184,14 +219,24 @@ struct ProfileView: View {
         }
     }
 
-    private func statCard(title: String, value: String, suffix: String, tint: Color) -> some View {
+    private func statCard(icon: String, title: String, value: String, suffix: String,
+                           tint: Color, tag: (text: String, tint: Color)) -> some View {
         GlassCard {
-            VStack(alignment: .leading, spacing: 6) {
-                Text(title).font(CMFont.labelMd).foregroundStyle(tint)
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 6) {
+                    ZStack {
+                        Circle().fill(tint.opacity(0.12)).frame(width: 24, height: 24)
+                        Image(systemName: icon).font(.system(size: 10, weight: .semibold)).foregroundStyle(tint)
+                    }
+                    Text(title).font(CMFont.labelMd).foregroundStyle(CMColor.inkSoft)
+                }
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text(value).font(CMFont.inter(28, .heavy)).foregroundStyle(CMColor.ink)
                     Text(suffix).font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
                 }
+                Text(tag.text).font(CMFont.inter(11, .semibold)).foregroundStyle(tag.tint)
+                    .padding(.horizontal, 10).padding(.vertical, 4)
+                    .background(tag.tint.opacity(0.12), in: Capsule())
             }
         }
     }
