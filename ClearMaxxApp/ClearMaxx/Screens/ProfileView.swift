@@ -213,7 +213,7 @@ struct ProfileView: View {
     private func statCard(icon: String, title: String, value: String, suffix: String,
                            tint: Color, tag: (text: String, tint: Color)) -> some View {
         GlassCard {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .center, spacing: 8) {
                 HStack(spacing: 6) {
                     ZStack {
                         Circle().fill(tint.opacity(0.12)).frame(width: 24, height: 24)
@@ -229,6 +229,7 @@ struct ProfileView: View {
                     .padding(.horizontal, 10).padding(.vertical, 4)
                     .background(tag.tint.opacity(0.12), in: Capsule())
             }
+            .frame(maxWidth: .infinity)
         }
     }
 }
