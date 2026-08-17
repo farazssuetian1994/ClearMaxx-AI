@@ -133,6 +133,96 @@ struct ScoreRing: View {
     }
 }
 
+// MARK: - Scan hero card (score ring + trend badge + headline + confidence footer)
+
+struct ScanHeroCard: View {
+    let score: Int
+    var badge: (text: String, tint: Color)? = nil
+    let headline: String
+    var summary: String? = nil
+    var confidence: Int? = nil
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .fill(LinearGradient(colors: [CMColor.primary.opacity(0.16), CMColor.primary.opacity(0.05)],
+                                      startPoint: .topLeading, endPoint: .bottomTrailing))
+            sparkles
+
+            VStack(alignment: .leading, spacing: 16) {
+                HStack(alignment: .top) {
+                    ScoreRing(score: score, size: 128, lineWidth: 13, caption: "AI SCORE")
+                    Spacer()
+                    if let badge {
+                        Text(badge.text).font(CMFont.labelSm).foregroundStyle(badge.tint)
+                            .padding(.horizontal, 12).padding(.vertical, 6)
+                            .background(badge.tint.opacity(0.15), in: Capsule())
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(headline).font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
+                    if let summary, !summary.isEmpty {
+                        Text(summary).font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+
+                if let confidence {
+                    Divider()
+                    HStack {
+                        Image(systemName: "checkmark.shield.fill").foregroundStyle(CMColor.success)
+                        Text("AI scan complete").font(CMFont.labelMd).foregroundStyle(CMColor.ink)
+                        Spacer()
+                        Text("\(confidence)% confidence").font(CMFont.labelMd).foregroundStyle(CMColor.coralDeep)
+                    }
+                }
+            }
+            .padding(22)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+    }
+
+    private var sparkles: some View {
+        ZStack {
+            Image(systemName: "sparkle").font(.system(size: 14)).foregroundStyle(CMColor.primary.opacity(0.35))
+                .position(x: 34, y: 40)
+            Image(systemName: "sparkle").font(.system(size: 20)).foregroundStyle(CMColor.primary.opacity(0.25))
+                .position(x: 320, y: 90)
+        }
+        .allowsHitTesting(false)
+    }
+}
+
+// MARK: - Encouragement tip card
+
+struct TipCard: View {
+    let title: String
+    let message: String
+    var icon: String = "sparkle"
+    var tint: Color = CMColor.success
+    var action: (() -> Void)? = nil
+
+    var body: some View {
+        HStack(spacing: 14) {
+            ZStack {
+                Circle().fill(tint.opacity(0.15)).frame(width: 44, height: 44)
+                Image(systemName: icon).foregroundStyle(tint).font(.system(size: 18, weight: .semibold))
+            }
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).font(CMFont.labelMd).foregroundStyle(tint)
+                Text(message).font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
+            }
+            Spacer(minLength: 8)
+            if action != nil { Image(systemName: "chevron.right").foregroundStyle(CMColor.outline) }
+        }
+        .padding(16)
+        .background(tint.opacity(0.08), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .contentShape(Rectangle())
+        .onTapGesture { action?() }
+    }
+}
+
 // MARK: - Metric bar (per-issue severity)
 
 struct MetricBar: View {

@@ -32,7 +32,7 @@ struct ResultsDashboardView: View {
         let pctText = String(format: "%.1f", pct)
         if delta > 0 { return ("▲ Improving (+\(pctText)%)", CMColor.success) }
         if delta < 0 { return ("▼ Down (\(pctText)%)", CMColor.error) }
-        return ("● Steady", .white)
+        return ("● Steady", CMColor.inkSoft)
     }
 
     private var headline: String {
@@ -46,7 +46,9 @@ struct ResultsDashboardView: View {
         DewyBackground {
             ScrollView {
                 VStack(spacing: 20) {
-                    heroCard.padding(.top, 8)
+                    ScanHeroCard(score: score, badge: deltaBadge, headline: headline,
+                                 summary: state.analysis?.summary, confidence: state.scanConfidence)
+                        .padding(.top, 8)
 
                     HStack {
                         Text("Metric Breakdown").font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
@@ -62,6 +64,9 @@ struct ResultsDashboardView: View {
                             .buttonStyle(.plain)
                         }
                     }
+
+                    TipCard(title: "Keep it up!",
+                            message: "Consistency is the key to healthy, glowing skin.")
 
                     AuraButton(title: "See Detailed Analysis", systemImage: "sparkles") {
                         if let first = state.displayMetrics.first { onIssue(first) }
@@ -81,66 +86,6 @@ struct ResultsDashboardView: View {
         .navigationBarBackButtonHidden(true)
     }
 
-    // MARK: - Hero card: coral gradient, white ring, real trend badge
-
-    private var heroCard: some View {
-        ZStack(alignment: .topLeading) {
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .fill(CMGradient.auraDiagonal)
-
-            VStack(alignment: .leading, spacing: 16) {
-                HStack(alignment: .top, spacing: 18) {
-                    whiteScoreRing
-
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "checkmark.seal.fill")
-                            Text("AI scan complete").font(CMFont.labelSm).fontWeight(.semibold)
-                        }
-                        .foregroundStyle(CMColor.primaryDark)
-                        .padding(.horizontal, 12).padding(.vertical, 6)
-                        .background(.white, in: Capsule())
-
-                        if let badge = deltaBadge {
-                            Text(badge.text).font(CMFont.inter(11, .bold)).foregroundStyle(badge.tint)
-                                .padding(.horizontal, 10).padding(.vertical, 4)
-                                .background(.white.opacity(0.25), in: Capsule())
-                        }
-                    }
-                }
-
-                Text(headline).font(CMFont.headlineMd).foregroundStyle(.white)
-
-                if let summary = state.analysis?.summary, !summary.isEmpty {
-                    Text(summary)
-                        .font(CMFont.bodyMd).foregroundStyle(.white.opacity(0.9))
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }
-            .padding(22)
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
-        .shadow(color: CMColor.primary.opacity(0.35), radius: 20, y: 10)
-    }
-
-    private var whiteScoreRing: some View {
-        let progress = Double(max(0, min(100, score))) / 100
-        return ZStack {
-            Circle().stroke(.white.opacity(0.3), lineWidth: 12)
-            Circle()
-                .trim(from: 0, to: progress)
-                .stroke(.white, style: StrokeStyle(lineWidth: 12, lineCap: .round))
-                .rotationEffect(.degrees(-90))
-            VStack(spacing: 0) {
-                Text("\(score)").font(CMFont.inter(34, .heavy)).foregroundStyle(.white)
-                Text("CLEARSCORE").font(CMFont.inter(9, .bold)).tracking(1).foregroundStyle(.white.opacity(0.85))
-            }
-        }
-        .frame(width: 108, height: 108)
-    }
-
-    // MARK: - Metric card with icon badge
-
     private func metricCard(_ m: SkinMetric) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             ZStack {
@@ -151,7 +96,7 @@ struct ResultsDashboardView: View {
         }
     }
 
-    private static func icon(for name: String) -> String {
+    static func icon(for name: String) -> String {
         switch name {
         case "Acne":         return "circle.grid.3x3.fill"
         case "Pores":        return "circle.hexagongrid.fill"

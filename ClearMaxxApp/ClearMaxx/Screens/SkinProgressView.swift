@@ -15,6 +15,7 @@ struct SkinProgressView: View {
     @Query private var todayChecklist: [DailyRoutineChecklist]
     @State private var slider: CGFloat = 0.5
     @State private var showShare = false
+    @State private var showHistory = false
     @State private var isAnalyzingProgress = false
     @State private var progressReport: ProgressReport?
     @State private var showProgressReport = false
@@ -56,6 +57,14 @@ struct SkinProgressView: View {
                             Text("Skin Evolution").font(CMFont.headlineLg).foregroundStyle(CMColor.ink)
                         }
                         Spacer()
+                        Button { showHistory = true } label: {
+                            Image(systemName: "clock.arrow.circlepath")
+                                .font(.system(size: 16, weight: .semibold)).foregroundStyle(CMColor.violetDeep)
+                                .frame(width: 40, height: 40)
+                                .background(CMColor.violet.opacity(0.1), in: Circle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Scan History")
                         HStack(spacing: 6) {
                             Image(systemName: "flame.fill")
                             Text("\(state.scanStreak) Day Streak!").font(CMFont.labelMd)
@@ -94,6 +103,9 @@ struct SkinProgressView: View {
                 beforeImage: first.flatMap { ScanPhotoStore.load($0.photoFileName) },
                 afterImage: latest.flatMap { ScanPhotoStore.load($0.photoFileName) },
                 scoreDelta: (latest?.clearScore ?? 0) - (first?.clearScore ?? 0))
+        }
+        .sheet(isPresented: $showHistory) {
+            NavigationStack { ScanHistoryView() }
         }
     }
 
