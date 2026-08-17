@@ -18,9 +18,7 @@ struct AnalyzingView: View {
     private let checklist = ["Texture", "Pores", "Spots", "Overall"]
 
     var body: some View {
-        ZStack {
-            background
-
+        ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
                 topBar
 
@@ -34,13 +32,11 @@ struct AnalyzingView: View {
                 .multilineTextAlignment(.center)
                 .padding(.top, 4)
 
-                Spacer(minLength: 16)
-
                 viewfinder
-
-                Spacer(minLength: 16)
+                    .padding(.top, 28)
 
                 statusPill
+                    .padding(.top, 28)
 
                 checklistRow
                     .padding(.top, 22)
@@ -49,9 +45,12 @@ struct AnalyzingView: View {
                     .padding(.top, 20)
                     .padding(.bottom, 24)
             }
+            .frame(maxWidth: .infinity)
             .padding(.horizontal, 24)
             .padding(.top, 4)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(background)
         .navigationBarBackButtonHidden(true)
         .onAppear { state.hideTabBar = true }
         .onDisappear { state.hideTabBar = false }
@@ -177,6 +176,7 @@ struct AnalyzingView: View {
                 Image(systemName: "sparkle").font(.system(size: 13, weight: .semibold)).foregroundStyle(CMColor.primary)
             }
             Text(statusText).font(CMFont.labelMd).foregroundStyle(CMColor.ink)
+                .lineLimit(1).minimumScaleFactor(0.8)
             Spacer(minLength: 8)
             Group {
                 if revealed {
@@ -185,6 +185,7 @@ struct AnalyzingView: View {
                     Text("\(Int(state.uploadProgress * 100))%")
                         .font(CMFont.inter(16, .bold)).foregroundStyle(CMColor.primary)
                         .contentTransition(.numericText())
+                        .fixedSize()
                 } else {
                     ProgressView().tint(CMColor.primary)
                 }
@@ -194,6 +195,7 @@ struct AnalyzingView: View {
         .padding(.horizontal, 16).padding(.vertical, 12)
         .background(.white.opacity(0.85), in: Capsule())
         .overlay(Capsule().stroke(.white.opacity(0.7), lineWidth: 1))
+        .fixedSize(horizontal: false, vertical: true)
     }
 
     // MARK: Per-check checklist — fills in as the real upload progresses
@@ -219,11 +221,13 @@ struct AnalyzingView: View {
                             .foregroundStyle(checked ? CMColor.primary : CMColor.outline.opacity(0.7))
                     }
                     Text(name).font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
+                        .lineLimit(1).minimumScaleFactor(0.75)
                 }
                 .frame(maxWidth: .infinity)
                 .animation(.spring(response: 0.4, dampingFraction: 0.7), value: checked)
             }
         }
+        .frame(maxWidth: .infinity)
     }
 
     // MARK: Privacy reassurance
