@@ -5,6 +5,7 @@
 
 import SwiftUI
 import SwiftData
+import Charts
 
 struct SkinProgressView: View {
     @ObserveInjection var inject
@@ -20,6 +21,8 @@ struct SkinProgressView: View {
     @State private var progressReport: ProgressReport?
     @State private var showProgressReport = false
     @State private var progressAnalysisError: String?
+    @State private var showClearScoreInfo = false
+    @State private var selectedMetricName: String?
 
     // `todayChecklist` needs a predicate, so every other @Query on this view
     // must also be assigned explicitly here (SwiftData requires all @Query
@@ -69,9 +72,9 @@ struct SkinProgressView: View {
                             Image(systemName: "flame.fill")
                             Text("\(state.scanStreak) Day Streak!").font(CMFont.labelMd)
                         }
-                        .foregroundStyle(.white)
+                        .foregroundStyle(CMColor.coralDeep)
                         .padding(.horizontal, 14).padding(.vertical, 10)
-                        .background(CMGradient.aura, in: Capsule())
+                        .background(CMColor.primary.opacity(0.12), in: Capsule())
                     }
 
                     if scanRecords.isEmpty {
@@ -82,6 +85,8 @@ struct SkinProgressView: View {
 
                         clearScoreTrendCard
 
+                        TipCard(title: "Keep going!", message: "Consistency is the key to glowing skin.")
+
                         if scanRecords.count < 2 {
                             emptyState(title: "Scan again to see your trend",
                                        body: "One more scan will start showing how each metric is changing.")
@@ -91,7 +96,8 @@ struct SkinProgressView: View {
 
                         progressAnalysisSection
 
-                        AuraButton(title: "Share My Glow-Up", systemImage: "square.and.arrow.up") { showShare = true }
+                        actionRow(icon: "square.and.arrow.up", title: "Share My Glow-Up",
+                                  subtitle: "Share your progress with friends") { showShare = true }
                             .padding(.bottom, 24)
                     }
                 }
@@ -110,24 +116,25 @@ struct SkinProgressView: View {
     }
 
     private var beforeAfterCard: some View {
-        BeforeAfterSlider(value: $slider,
-                          beforeImage: first.flatMap { ScanPhotoStore.load($0.photoFileName) },
-                          afterImage: latest.flatMap { ScanPhotoStore.load($0.photoFileName) })
-            .overlay(alignment: .bottom) {
-                if let first, let latest {
-                    let delta = latest.clearScore - first.clearScore
-                    VStack(spacing: 2) {
-                        Text(delta >= 0 ? "+\(delta) ClearScore" : "\(delta) ClearScore")
-                            .font(CMFont.inter(24, .heavy)).foregroundStyle(.white)
-                        Text("since your first scan")
-                            .font(CMFont.labelSm).foregroundStyle(.white.opacity(0.9))
-                    }
-                    .frame(maxWidth: .infinity).padding(.vertical, 14)
-                    .background(CMGradient.aura.opacity(0.92))
+        VStack(spacing: 0) {
+            BeforeAfterSlider(value: $slider,
+                              beforeImage: first.flatMap { ScanPhotoStore.load($0.photoFileName) },
+                              afterImage: latest.flatMap { ScanPhotoStore.load($0.photoFileName) })
+
+            if let first, let latest {
+                let delta = latest.clearScore - first.clearScore
+                VStack(spacing: 2) {
+                    Text(delta >= 0 ? "+\(delta) ClearScore" : "\(delta) ClearScore")
+                        .font(CMFont.inter(22, .heavy)).foregroundStyle(CMColor.coralDeep)
+                    Text("since your first scan")
+                        .font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
                 }
+                .frame(maxWidth: .infinity).padding(.vertical, 16)
+                .background(CMColor.primary.opacity(0.1))
             }
-            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-            .bloomShadow()
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .bloomShadow()
     }
 
     private var clearScoreTrendCard: some View {
@@ -135,7 +142,13 @@ struct SkinProgressView: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(alignment: .firstTextBaseline) {
                     VStack(alignment: .leading) {
-                        Text("ClearScore").font(CMFont.title).foregroundStyle(CMColor.ink)
+                        HStack(spacing: 4) {
+                            Text("ClearScore").font(CMFont.title).foregroundStyle(CMColor.ink)
+                            Button { showClearScoreInfo = true } label: {
+                                Image(systemName: "info.circle").font(.system(size: 13)).foregroundStyle(CMColor.inkSoft)
+                            }
+                            .buttonStyle(.plain)
+                        }
                         if let first, let latest {
                             let delta = latest.clearScore - first.clearScore
                             Text(delta >= 0 ? "+\(delta) since your first scan" : "\(delta) since your first scan")
@@ -151,7 +164,7 @@ struct SkinProgressView: View {
                     ForEach(Array(recent.enumerated()), id: \.offset) { i, record in
                         RoundedRectangle(cornerRadius: 5)
                             .fill(i == recent.count - 1
-                                  ? AnyShapeStyle(CMGradient.aura) : AnyShapeStyle(CMColor.outline.opacity(0.35)))
+                                  ? AnyShapeStyle(CMGradient.aura) : AnyShapeStyle(CMColor.primary.opacity(0.15)))
                             .frame(height: max(8, CGFloat(record.clearScore) * 0.9))
                             .frame(maxWidth: .infinity)
                     }
@@ -165,20 +178,41 @@ struct SkinProgressView: View {
                 }
             }
         }
+        .alert("What's ClearScore?", isPresented: $showClearScoreInfo) {
+            Button("Got it", role: .cancel) {}
+        } message: {
+            Text("A 0–100 summary of your overall skin health, calculated by the AI from all 8 metrics on your most recent scan.")
+        }
     }
 
     private var metricDeltaCard: some View {
         GlassCard {
-            VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text("Metric Progress").font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
+                Text("Track how your skin is evolving").font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
+                    .padding(.bottom, 10)
                 let rows = latest?.metrics ?? []
                 ForEach(Array(rows.enumerated()), id: \.element.name) { index, metric in
-                    metricRow(metric)
+                    Button { selectedMetricName = metric.name } label: { metricRow(metric) }
+                        .buttonStyle(.plain)
                     if index < rows.count - 1 {
                         Divider().overlay(CMColor.outline.opacity(0.25))
                     }
                 }
             }
+        }
+        .sheet(isPresented: Binding(get: { selectedMetricName != nil }, set: { if !$0 { selectedMetricName = nil } })) {
+            if let name = selectedMetricName {
+                NavigationStack { MetricHistoryDetailView(metricName: name, scanRecords: scanRecords) }
+            }
+        }
+    }
+
+    /// Real per-metric value history across every scan — feeds the sparkline.
+    private func series(for metricName: String) -> [(date: Date, value: Int)] {
+        scanRecords.compactMap { record in
+            guard let m = record.metrics.first(where: { $0.name == metricName }) else { return nil }
+            return (record.date, m.value)
         }
     }
 
@@ -202,7 +236,7 @@ struct SkinProgressView: View {
             icon = "chart.line.uptrend.xyaxis"; tint = CMColor.violet
         }
 
-        return HStack(alignment: .top, spacing: 12) {
+        return HStack(alignment: .center, spacing: 12) {
             ZStack {
                 Circle().fill(tint.opacity(0.15)).frame(width: 34, height: 34)
                 Image(systemName: icon).foregroundStyle(tint).font(.system(size: 15, weight: .semibold))
@@ -218,44 +252,93 @@ struct SkinProgressView: View {
                 }
                 if let prevValue = prevMetric?.value {
                     let delta = metric.value - prevValue
-                    Text("\(prevValue) → \(metric.value) (\(delta >= 0 ? "+" : "")\(delta)) since last scan")
-                        .font(CMFont.bodyMd).foregroundStyle(tint)
+                    HStack(spacing: 4) {
+                        Text("\(prevValue) → \(metric.value)").font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
+                        Text("\(delta > 0 ? "↑" : (delta < 0 ? "↓" : "—")) \(abs(delta))")
+                            .font(CMFont.inter(11, .bold)).foregroundStyle(tint)
+                            .padding(.horizontal, 7).padding(.vertical, 2)
+                            .background(tint.opacity(0.15), in: Capsule())
+                    }
                 } else {
                     Text("Value: \(metric.value)").font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
                 }
             }
-            Spacer(minLength: 0)
+            Spacer(minLength: 8)
+            let points = series(for: metric.name)
+            if points.count >= 2 {
+                Chart(Array(points.enumerated()), id: \.offset) { _, point in
+                    LineMark(x: .value("Scan", point.date), y: .value("Value", point.value))
+                        .foregroundStyle(tint)
+                        .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round))
+                }
+                .chartXAxis(.hidden)
+                .chartYAxis(.hidden)
+                .chartLegend(.hidden)
+                .frame(width: 64, height: 32)
+            }
+            Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold)).foregroundStyle(CMColor.outline)
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, 6)
+        .contentShape(Rectangle())
+    }
+
+    private func actionRow(icon: String, title: String, subtitle: String, action: @escaping () -> Void) -> some View {
+        GlassCard {
+            HStack(spacing: 14) {
+                ZStack {
+                    Circle().fill(CMColor.primary.opacity(0.12)).frame(width: 44, height: 44)
+                    Image(systemName: icon).foregroundStyle(CMColor.coralDeep).font(.system(size: 18, weight: .semibold))
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title).font(CMFont.labelMd).foregroundStyle(CMColor.ink)
+                    Text(subtitle).font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
+                }
+                Spacer(minLength: 8)
+                Button(action: action) {
+                    Image(systemName: icon)
+                        .font(.system(size: 14, weight: .semibold)).foregroundStyle(.white)
+                        .frame(width: 40, height: 34)
+                        .background(CMGradient.aura, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                }
+                .buttonStyle(.plain)
+            }
+        }
     }
 
     @ViewBuilder
     private var progressAnalysisSection: some View {
-        GlassCard {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Analyze My Progress").font(CMFont.title).foregroundStyle(CMColor.ink)
-
-                switch eligibility {
-                case .notEnoughScans:
+        switch eligibility {
+        case .notEnoughScans:
+            GlassCard {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Analyze My Progress").font(CMFont.title).foregroundStyle(CMColor.ink)
                     Text("Scan at least twice to see whether it's working.")
                         .font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
-                case .tooRecentSpan(let daysRemaining):
-                    Text("Your scans span less than a week — give your skin \(daysRemaining) more day\(daysRemaining == 1 ? "" : "s") before checking progress.")
-                        .font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
-                case .eligible:
-                    if let progressAnalysisError {
-                        Text(progressAnalysisError).font(CMFont.bodyMd).foregroundStyle(CMColor.error)
-                    }
-                    AuraButton(title: isAnalyzingProgress ? "Analyzing…" : "Analyze My Progress",
-                              systemImage: "sparkles") {
-                        Task { await requestProgressAnalysis() }
-                    }
-                    .disabled(isAnalyzingProgress)
                 }
             }
-        }
-        .sheet(isPresented: $showProgressReport) {
-            if let progressReport { ProgressReportView(report: progressReport) }
+        case .tooRecentSpan(let daysRemaining):
+            GlassCard {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Analyze My Progress").font(CMFont.title).foregroundStyle(CMColor.ink)
+                    Text("Your scans span less than a week — give your skin \(daysRemaining) more day\(daysRemaining == 1 ? "" : "s") before checking progress.")
+                        .font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
+                }
+            }
+        case .eligible:
+            VStack(alignment: .leading, spacing: 8) {
+                actionRow(icon: "sparkles",
+                          title: isAnalyzingProgress ? "Analyzing…" : "Analyze My Progress",
+                          subtitle: "Get AI insights and personalized tips") {
+                    Task { await requestProgressAnalysis() }
+                }
+                .disabled(isAnalyzingProgress)
+                if let progressAnalysisError {
+                    Text(progressAnalysisError).font(CMFont.bodyMd).foregroundStyle(CMColor.error)
+                }
+            }
+            .sheet(isPresented: $showProgressReport) {
+                if let progressReport { ProgressReportView(report: progressReport) }
+            }
         }
     }
 
