@@ -38,6 +38,8 @@ struct CameraScanView: View {
                         beforeImage: state.celebrationBeforeImage,
                         afterImage: state.pendingImage,
                         scoreDelta: state.celebrationScoreDelta,
+                        beforeScore: state.clearScore - state.celebrationScoreDelta,
+                        afterScore: state.clearScore,
                         resolvedMetricNames: state.newlyResolved.map(\.name),
                         onContinue: { path.append(ScanRoute.results) })
                 case .results:

@@ -58,7 +58,9 @@ struct SkinProgressView: View {
             GlowUpShareView(
                 beforeImage: first.flatMap { ScanPhotoStore.load($0.photoFileName) },
                 afterImage: latest.flatMap { ScanPhotoStore.load($0.photoFileName) },
-                scoreDelta: (latest?.clearScore ?? 0) - (first?.clearScore ?? 0))
+                scoreDelta: (latest?.clearScore ?? 0) - (first?.clearScore ?? 0),
+                beforeScore: first?.clearScore ?? 0,
+                afterScore: latest?.clearScore ?? 0)
         }
     }
 
@@ -297,7 +299,7 @@ struct BeforeAfterSlider: View {
                              alignment: .topLeading)
                 afterLayer
                     .overlay(Text("AFTER").font(CMFont.inter(10, .bold)).foregroundStyle(.white)
-                        .padding(6).background(.black.opacity(0.3), in: Capsule()).padding(10),
+                        .padding(.horizontal, 10).padding(.vertical, 6).background(CMColor.primary, in: Capsule()).padding(10),
                              alignment: .topTrailing)
                     .mask(HStack { Spacer().frame(width: w * value); Rectangle() })
                 // handle — only this narrow strip is draggable, so vertical
@@ -308,7 +310,13 @@ struct BeforeAfterSlider: View {
                         .frame(maxHeight: .infinity)
                         .contentShape(Rectangle())
                     Circle().fill(.white).frame(width: 36, height: 36)
-                        .overlay(Image(systemName: "arrow.left.and.right").foregroundStyle(CMColor.ink))
+                        .overlay(
+                            HStack(spacing: 3) {
+                                Image(systemName: "chevron.left")
+                                Image(systemName: "chevron.right")
+                            }
+                            .font(.system(size: 10, weight: .bold)).foregroundStyle(CMColor.ink)
+                        )
                         .bloomShadow()
                 }
                 .offset(x: w * value - 30)
