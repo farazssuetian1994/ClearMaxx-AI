@@ -65,8 +65,9 @@ struct DailyRoutineView: View {
                             }
                         }
                     } else {
-                        ForEach(filteredSteps, id: \.step.title) { entry in
-                            RoutineStepCard(index: entry.offset + 1, step: entry.step) {
+                        ForEach(Array(filteredSteps.enumerated()), id: \.element.step.title) { i, entry in
+                            RoutineStepCard(index: entry.offset + 1, step: entry.step,
+                                            isLast: i == filteredSteps.count - 1) {
                                 toggleDone(at: entry.offset)
                             }
                         }
@@ -111,19 +112,30 @@ struct DailyRoutineView: View {
 private struct RoutineStepCard: View {
     let index: Int
     let step: PersistedRoutineStep
+    let isLast: Bool
     let onToggle: () -> Void
+
+    private var category: (icon: String, tint: Color) { Self.categoryStyle(step.category) }
 
     var body: some View {
         HStack(alignment: .top, spacing: 14) {
-            ZStack {
-                Circle().stroke(CMColor.violet.opacity(0.3), lineWidth: 1.5).frame(width: 40, height: 40)
-                Text(String(format: "%02d", index))
-                    .font(CMFont.labelMd).foregroundStyle(CMColor.violetDeep)
+            VStack(spacing: 0) {
+                ZStack {
+                    Circle().fill(.white).frame(width: 40, height: 40)
+                        .overlay(Circle().stroke(CMColor.primary.opacity(0.3), lineWidth: 1.5))
+                    Text(String(format: "%02d", index))
+                        .font(CMFont.labelMd).foregroundStyle(CMColor.coralDeep)
+                }
+                if !isLast {
+                    Rectangle().fill(CMColor.primary.opacity(0.18)).frame(width: 1.5)
+                        .frame(maxHeight: .infinity)
+                }
             }
+
             GlassCard {
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 12) {
                     HStack {
-                        CategoryLabel(text: step.category, color: CMColor.coralDeep)
+                        CategoryLabel(text: step.category, color: category.tint)
                         Spacer()
                         Button(action: onToggle) {
                             Image(systemName: step.done ? "checkmark.circle.fill" : "circle")
@@ -131,14 +143,48 @@ private struct RoutineStepCard: View {
                                 .foregroundStyle(step.done ? CMColor.success : CMColor.outline.opacity(0.6))
                         }.buttonStyle(.plain)
                     }
-                    Text(step.title).font(CMFont.title).foregroundStyle(CMColor.ink)
-                    Text(step.detail).font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
-                    HStack {
-                        ForEach(step.tags, id: \.self) { TagChip(text: $0) }
+
+                    HStack(alignment: .top, spacing: 14) {
+                        ZStack {
+                            Circle().fill(category.tint.opacity(0.12)).frame(width: 64, height: 64)
+                            Image(systemName: category.icon).font(.system(size: 24)).foregroundStyle(category.tint)
+                        }
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(step.title).font(CMFont.title).foregroundStyle(CMColor.ink)
+                            Text(step.detail).font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
+                        }
+                    }
+
+                    if !step.tags.isEmpty {
+                        HStack {
+                            ForEach(step.tags, id: \.self) { tag in
+                                TagChip(text: tag, tint: category.tint, icon: Self.tagIcon(tag))
+                            }
+                        }
                     }
                 }
             }
         }
+    }
+
+    /// Best-effort icon+tint from the AI-generated category string — a display
+    /// heuristic only, not a fixed enum, since routine categories are free text.
+    private static func categoryStyle(_ category: String) -> (icon: String, tint: Color) {
+        let c = category.lowercased()
+        if c.contains("cleans")                    { return ("bubbles.and.sparkles.fill", CMColor.coralDeep) }
+        if c.contains("treat") || c.contains("serum") { return ("eyedropper.full", CMColor.violetDeep) }
+        if c.contains("moistur")                    { return ("cylinder.fill", CMColor.success) }
+        if c.contains("sun") || c.contains("spf")    { return ("sun.max.fill", Color(hex: "E08A2B")) }
+        return ("sparkles", CMColor.coralDeep)
+    }
+
+    private static func tagIcon(_ tag: String) -> String {
+        let t = tag.lowercased()
+        if t.contains("oil")                          { return "drop.fill" }
+        if t.contains("fragrance") || t.contains("gentle") || t.contains("strip") { return "leaf.fill" }
+        if t.contains("pore")                          { return "circle.grid.3x3.fill" }
+        if t.contains("spf") || t.contains("sun")       { return "sun.max.fill" }
+        return "sparkle"
     }
 }
 

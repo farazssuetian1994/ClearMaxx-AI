@@ -77,13 +77,16 @@ struct TagChip: View {
     let text: String
     var tint: Color = CMColor.coral
     var filled: Bool = false
+    var icon: String? = nil
     var body: some View {
-        Text(text)
-            .font(CMFont.labelSm)
-            .foregroundStyle(filled ? .white : tint)
-            .padding(.horizontal, 12).padding(.vertical, 6)
-            .background(
-                Capsule().fill(filled ? AnyShapeStyle(tint) : AnyShapeStyle(tint.opacity(0.12))))
+        HStack(spacing: 4) {
+            if let icon { Image(systemName: icon).font(.system(size: 10, weight: .semibold)) }
+            Text(text).font(CMFont.labelSm)
+        }
+        .foregroundStyle(filled ? .white : tint)
+        .padding(.horizontal, 12).padding(.vertical, 6)
+        .background(
+            Capsule().fill(filled ? AnyShapeStyle(tint) : AnyShapeStyle(tint.opacity(0.12))))
     }
 }
 
