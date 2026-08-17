@@ -1,6 +1,7 @@
 //
 //  AnalyzingView.swift
-//  ClearMaxx — animated "Analyzing your skin…" step with progress + checklist.
+//  ClearMaxx — "Analyzing your skin" step: circular photo viewfinder, real
+//  upload progress, per-check checklist, and a privacy reassurance card.
 //
 
 import SwiftUI
@@ -12,91 +13,54 @@ struct AnalyzingView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
 
-    @State private var sweep = false
     @State private var revealed = false
+
+    private let checklist = ["Texture", "Pores", "Spots", "Overall"]
 
     var body: some View {
         ZStack {
-            // Captured face (or a dark gradient if none)
-            Group {
-                if let img = state.pendingImage {
-                    Image(uiImage: img).resizable().scaledToFill()
-                } else {
-                    LinearGradient(colors: [Color(hex: "2A2330"), Color(hex: "14101A")],
-                                   startPoint: .top, endPoint: .bottom)
-                }
-            }
-            .ignoresSafeArea()
-            .overlay(Color.black.opacity(0.45).ignoresSafeArea())
-
-            // Face-mesh dots
-            meshOverlay.frame(width: 260, height: 340)
-
-            // Sweeping scan laser
-            Rectangle()
-                .fill(LinearGradient(colors: [.clear, CMColor.violet, CMColor.coral, .clear],
-                                     startPoint: .leading, endPoint: .trailing))
-                .frame(width: 300, height: 4)
-                .shadow(color: CMColor.violet, radius: 16)
-                .offset(y: sweep ? 175 : -175)
+            background
 
             VStack(spacing: 0) {
-                HStack {
-                    Button { dismiss() } label: {
-                        Image(systemName: "xmark").font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(.white).frame(width: 40, height: 40)
-                            .background(.white.opacity(0.18), in: Circle())
-                    }.buttonStyle(.plain)
-                    Spacer()
-                }
-                Text("Analyzing your skin…")
-                    .font(CMFont.headlineMd).foregroundStyle(.white).padding(.top, 6)
+                topBar
 
-                Spacer()
-
-                // Real loading state: a genuine percentage while the photo is
-                // actually uploading (driven by real bytes-sent, not a fake
-                // timer), then an indeterminate spinner for Gemini's server-side
-                // processing — there's no progress signal for that phase, so we
-                // don't pretend to have one — then a checkmark on completion.
-                Group {
-                    if revealed {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 56)).foregroundStyle(.white)
-                    } else if state.uploadProgress < 1.0 {
-                        Text("\(Int(state.uploadProgress * 100))%")
-                            .font(CMFont.inter(48, .heavy)).foregroundStyle(.white)
-                            .contentTransition(.numericText())
-                    } else {
-                        ProgressView()
-                            .progressViewStyle(.circular)
-                            .tint(.white)
-                            .scaleEffect(1.8)
-                    }
+                VStack(spacing: 6) {
+                    (Text("Analyzing ").foregroundStyle(CMColor.primary)
+                     + Text("your skin").foregroundStyle(CMColor.ink))
+                        .font(CMFont.headlineLg)
+                    Text("This may take a few seconds…")
+                        .font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
                 }
-                .frame(height: 56)
-                .shadow(color: CMColor.violet.opacity(0.7), radius: 18)
-                .animation(.easeOut(duration: 0.2), value: state.uploadProgress)
-                Text(statusText)
-                    .font(CMFont.bodyMd).foregroundStyle(.white.opacity(0.85))
-                    .padding(.top, 14)
-                    .padding(.bottom, 90)
+                .multilineTextAlignment(.center)
+                .padding(.top, 4)
+
+                Spacer(minLength: 16)
+
+                viewfinder
+
+                Spacer(minLength: 16)
+
+                statusPill
+
+                checklistRow
+                    .padding(.top, 22)
+
+                privacyCard
+                    .padding(.top, 20)
+                    .padding(.bottom, 24)
             }
             .padding(.horizontal, 24)
-            .padding(.top, 8)
+            .padding(.top, 4)
         }
         .navigationBarBackButtonHidden(true)
-        .onAppear {
-            state.hideTabBar = true
-            withAnimation(.linear(duration: 1.4).repeatForever(autoreverses: true)) { sweep = true }
-        }
+        .onAppear { state.hideTabBar = true }
         .onDisappear { state.hideTabBar = false }
         .task {
             if let img = state.pendingImage {
                 await state.runAnalysis(img, modelContext: modelContext)
                 if state.analysisError == nil {
                     revealed = true
-                    try? await Task.sleep(for: .milliseconds(450))   // let the checkmark register
+                    try? await Task.sleep(for: .milliseconds(450))   // let the checkmarks register
                     onDone()
                 }
                 // on error: the overlay below offers Retry / demo
@@ -111,11 +75,176 @@ struct AnalyzingView: View {
         .overlay { if let err = state.analysisError { errorCard(err) } }
     }
 
-    private var statusText: String {
-        if revealed { return "Almost there" }
-        if state.uploadProgress < 1.0 { return "Uploading your photo" }
-        return "Analyzing your skin"
+    // MARK: Background — the captured photo, softly blurred and lightened
+
+    private var background: some View {
+        Group {
+            if let img = state.pendingImage {
+                Image(uiImage: img).resizable().scaledToFill()
+                    .blur(radius: 34)
+                    .overlay(Color.white.opacity(0.62))
+            } else {
+                CMGradient.dewy
+            }
+        }
+        .ignoresSafeArea()
     }
+
+    private var topBar: some View {
+        HStack {
+            Button { dismiss() } label: {
+                Image(systemName: "xmark").font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(CMColor.ink).frame(width: 36, height: 36)
+                    .background(.white.opacity(0.85), in: Circle())
+            }.buttonStyle(.plain)
+            Spacer()
+        }
+        .padding(.top, 4)
+    }
+
+    // MARK: Circular photo viewfinder with corner brackets + progress ring
+
+    /// Real progress while uploading; capped just short of full while we wait on
+    /// the server (no signal for that phase), then snapped to 1.0 on completion.
+    private var ringProgress: Double { revealed ? 1.0 : min(state.uploadProgress, 0.92) }
+
+    private var viewfinder: some View {
+        ZStack {
+            cornerBrackets(size: 290)
+
+            Circle()
+                .strokeBorder(style: StrokeStyle(lineWidth: 1.4, dash: [1.5, 7]))
+                .foregroundStyle(CMColor.primary.opacity(0.4))
+                .frame(width: 266, height: 266)
+
+            Group {
+                if let img = state.pendingImage {
+                    Image(uiImage: img).resizable().scaledToFill()
+                } else {
+                    CMGradient.auraDiagonal
+                }
+            }
+            .frame(width: 238, height: 238)
+            .clipShape(Circle())
+            .overlay(Circle().stroke(.white, lineWidth: 3))
+            .shadow(color: .black.opacity(0.12), radius: 16, y: 6)
+
+            Circle()
+                .trim(from: 0, to: ringProgress)
+                .stroke(CMGradient.aura, style: StrokeStyle(lineWidth: 5, lineCap: .round))
+                .frame(width: 238, height: 238)
+                .rotationEffect(.degrees(-90))
+                .shadow(color: CMColor.primary.opacity(0.4), radius: 6)
+                .animation(.easeOut(duration: 0.25), value: ringProgress)
+        }
+        .frame(width: 300, height: 300)
+    }
+
+    private func cornerBrackets(size: CGFloat) -> some View {
+        let len: CGFloat = 26
+        let half = size / 2
+        func bracket(rotation: Double, x: CGFloat, y: CGFloat) -> some View {
+            Path { p in
+                p.move(to: CGPoint(x: 0, y: len))
+                p.addLine(to: CGPoint(x: 0, y: 0))
+                p.addLine(to: CGPoint(x: len, y: 0))
+            }
+            .stroke(CMColor.ink.opacity(0.5), style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
+            .frame(width: len, height: len)
+            .rotationEffect(.degrees(rotation))
+            .offset(x: x, y: y)
+        }
+        return ZStack {
+            bracket(rotation: 0,   x: -half + len / 2, y: -half + len / 2)
+            bracket(rotation: 90,  x:  half - len / 2, y: -half + len / 2)
+            bracket(rotation: 180, x:  half - len / 2, y:  half - len / 2)
+            bracket(rotation: 270, x: -half + len / 2, y:  half - len / 2)
+        }
+    }
+
+    // MARK: Status pill — sparkle · label · live percentage/spinner/checkmark
+
+    private var statusText: String {
+        if revealed { return "Scan complete" }
+        if state.uploadProgress < 1.0 { return "Scanning your skin…" }
+        return "Analyzing with AI…"
+    }
+
+    private var statusPill: some View {
+        HStack(spacing: 10) {
+            ZStack {
+                Circle().fill(CMColor.primary.opacity(0.15)).frame(width: 30, height: 30)
+                Image(systemName: "sparkle").font(.system(size: 13, weight: .semibold)).foregroundStyle(CMColor.primary)
+            }
+            Text(statusText).font(CMFont.labelMd).foregroundStyle(CMColor.ink)
+            Spacer(minLength: 8)
+            Group {
+                if revealed {
+                    Image(systemName: "checkmark.circle.fill").font(.system(size: 18)).foregroundStyle(CMColor.success)
+                } else if state.uploadProgress < 1.0 {
+                    Text("\(Int(state.uploadProgress * 100))%")
+                        .font(CMFont.inter(16, .bold)).foregroundStyle(CMColor.primary)
+                        .contentTransition(.numericText())
+                } else {
+                    ProgressView().tint(CMColor.primary)
+                }
+            }
+            .animation(.easeOut(duration: 0.2), value: state.uploadProgress)
+        }
+        .padding(.horizontal, 16).padding(.vertical, 12)
+        .background(.white.opacity(0.85), in: Capsule())
+        .overlay(Capsule().stroke(.white.opacity(0.7), lineWidth: 1))
+    }
+
+    // MARK: Per-check checklist — fills in as the real upload progresses
+
+    private func isChecked(_ index: Int) -> Bool {
+        if revealed { return true }
+        let thresholds: [Double] = [0.25, 0.5, 0.75]
+        guard index < thresholds.count else { return false }
+        return state.uploadProgress >= thresholds[index]
+    }
+
+    private var checklistRow: some View {
+        HStack(spacing: 0) {
+            ForEach(Array(checklist.enumerated()), id: \.offset) { i, name in
+                let checked = isChecked(i)
+                VStack(spacing: 8) {
+                    ZStack {
+                        Circle().fill(checked ? CMColor.primary.opacity(0.12) : .clear).frame(width: 38, height: 38)
+                        Circle().stroke(checked ? CMColor.primary : CMColor.outline.opacity(0.6), lineWidth: 1.5)
+                            .frame(width: 38, height: 38)
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundStyle(checked ? CMColor.primary : CMColor.outline.opacity(0.7))
+                    }
+                    Text(name).font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
+                }
+                .frame(maxWidth: .infinity)
+                .animation(.spring(response: 0.4, dampingFraction: 0.7), value: checked)
+            }
+        }
+    }
+
+    // MARK: Privacy reassurance
+
+    private var privacyCard: some View {
+        HStack(spacing: 14) {
+            ZStack {
+                Circle().fill(CMColor.primary.opacity(0.12)).frame(width: 44, height: 44)
+                Image(systemName: "lock.shield.fill").foregroundStyle(CMColor.primary).font(.system(size: 18, weight: .semibold))
+            }
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Your data is 100% private").font(CMFont.labelMd).foregroundStyle(CMColor.ink)
+                Text("We don't store or share your photos.").font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(16)
+        .background(.white.opacity(0.9), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+    }
+
+    // MARK: Error state
 
     private func errorCard(_ message: String) -> some View {
         ZStack {
@@ -135,26 +264,6 @@ struct AnalyzingView: View {
             .frame(maxWidth: 320)
             .background(.white, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
             .shadow(color: .black.opacity(0.25), radius: 24, y: 12)
-        }
-    }
-
-    /// A grid of dots clipped to a face-shaped ellipse — the "mesh" overlay.
-    private var meshOverlay: some View {
-        Canvas { ctx, size in
-            let cols = 9, rows = 12
-            let cx = size.width / 2, cy = size.height / 2
-            let rx = size.width / 2, ry = size.height / 2
-            for r in 0...rows {
-                for c in 0...cols {
-                    let x = size.width * CGFloat(c) / CGFloat(cols)
-                    let y = size.height * CGFloat(r) / CGFloat(rows)
-                    let nx = (x - cx) / rx, ny = (y - cy) / ry
-                    if nx * nx + ny * ny <= 1 {   // inside the ellipse
-                        let dot = CGRect(x: x - 1.2, y: y - 1.2, width: 2.4, height: 2.4)
-                        ctx.fill(Path(ellipseIn: dot), with: .color(.white.opacity(0.55)))
-                    }
-                }
-            }
         }
     }
 }
