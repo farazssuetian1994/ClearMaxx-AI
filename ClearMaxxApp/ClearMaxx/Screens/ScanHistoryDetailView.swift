@@ -39,7 +39,7 @@ struct ScanHistoryDetailView: View {
                         }
                     }
                 }
-                .padding(.horizontal, 24).padding(.top, 8).padding(.bottom, 40)
+                .padding(.horizontal, 24).padding(.top, 8).padding(.bottom, 100)
             }
             .safeAreaInset(edge: .top) {
                 CMTopBar(showBack: true, onBack: { dismiss() }).background(.ultraThinMaterial)
