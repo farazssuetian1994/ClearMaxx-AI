@@ -10,62 +10,23 @@ import Charts
 struct SkinProgressView: View {
     @ObserveInjection var inject
     @EnvironmentObject var state: AppState
-    @Environment(\.modelContext) private var modelContext
     @Query(sort: \ScanRecord.date) private var scanRecords: [ScanRecord]
-    @Query private var progressCaches: [ProgressReportCache]
-    @Query private var todayChecklist: [DailyRoutineChecklist]
     @State private var slider: CGFloat = 0.5
     @State private var showShare = false
-    @State private var isAnalyzingProgress = false
-    @State private var progressReport: ProgressReport?
-    @State private var showProgressReport = false
-    @State private var progressAnalysisError: String?
     @State private var showClearScoreInfo = false
     @State private var selectedMetricName: String?
-
-    // `todayChecklist` needs a predicate, so every other @Query on this view
-    // must also be assigned explicitly here (SwiftData requires all @Query
-    // properties to be set together once any one of them gets a custom init) —
-    // same pattern DailyRoutineView already uses for its own filtered query.
-    init() {
-        _scanRecords = Query(sort: \ScanRecord.date)
-        _progressCaches = Query()
-        let startOfDay = Calendar.current.startOfDay(for: Date())
-        _todayChecklist = Query(filter: #Predicate<DailyRoutineChecklist> { $0.day == startOfDay })
-    }
 
     private var first: ScanRecord? { scanRecords.first }
     private var latest: ScanRecord? { scanRecords.last }
     private var previous: ScanRecord? { scanRecords.count >= 2 ? scanRecords[scanRecords.count - 2] : nil }
-    private var eligibility: ProgressEligibility { ProgressTrendCalculator.eligibility(for: scanRecords) }
-
-    /// The routine actually on the user's checklist today (persists across
-    /// launches), not `state.analysis` — which is only populated in-memory
-    /// right after a scan and is `nil` again the next time the app opens.
-    private var currentRoutineForAnalysis: [APIRoutineStep] {
-        (todayChecklist.first?.steps ?? []).map {
-            APIRoutineStep(time: $0.time, category: $0.category, title: $0.title,
-                           detail: $0.detail, tags: $0.tags)
-        }
-    }
 
     var body: some View {
         DewyBackground {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Your Journey").font(CMFont.labelMd).foregroundStyle(CMColor.inkSoft)
-                            Text("Skin Evolution").font(CMFont.headlineLg).foregroundStyle(CMColor.ink)
-                        }
-                        Spacer()
-                        HStack(spacing: 6) {
-                            Image(systemName: "flame.fill")
-                            Text("\(state.scanStreak) Day Streak!").font(CMFont.labelMd)
-                        }
-                        .foregroundStyle(CMColor.coralDeep)
-                        .padding(.horizontal, 14).padding(.vertical, 10)
-                        .background(CMColor.primary.opacity(0.12), in: Capsule())
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Your Journey").font(CMFont.labelMd).foregroundStyle(CMColor.inkSoft)
+                        Text("Skin Evolution").font(CMFont.headlineLg).foregroundStyle(CMColor.ink)
                     }
 
                     if scanRecords.isEmpty {
@@ -84,8 +45,6 @@ struct SkinProgressView: View {
                         } else {
                             metricDeltaCard
                         }
-
-                        progressAnalysisSection
 
                         actionRow(icon: "square.and.arrow.up", title: "Share My Glow-Up",
                                   subtitle: "Share your progress with friends") { showShare = true }
@@ -309,86 +268,6 @@ struct SkinProgressView: View {
                 }
                 .buttonStyle(.plain)
             }
-        }
-    }
-
-    @ViewBuilder
-    private var progressAnalysisSection: some View {
-        switch eligibility {
-        case .notEnoughScans:
-            GlassCard {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Analyze My Progress").font(CMFont.title).foregroundStyle(CMColor.ink)
-                    Text("Scan at least twice to see whether it's working.")
-                        .font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
-                }
-            }
-        case .tooRecentSpan(let daysRemaining):
-            GlassCard {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Analyze My Progress").font(CMFont.title).foregroundStyle(CMColor.ink)
-                    Text("Your scans span less than a week — give your skin \(daysRemaining) more day\(daysRemaining == 1 ? "" : "s") before checking progress.")
-                        .font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
-                }
-            }
-        case .eligible:
-            VStack(alignment: .leading, spacing: 8) {
-                actionRow(icon: "sparkles",
-                          title: isAnalyzingProgress ? "Analyzing…" : "Analyze My Progress",
-                          subtitle: "Get AI insights and personalized tips") {
-                    Task { await requestProgressAnalysis() }
-                }
-                .disabled(isAnalyzingProgress)
-                if let progressAnalysisError {
-                    Text(progressAnalysisError).font(CMFont.bodyMd).foregroundStyle(CMColor.error)
-                }
-            }
-            .sheet(isPresented: $showProgressReport) {
-                if let progressReport { ProgressReportView(report: progressReport) }
-            }
-        }
-    }
-
-    @MainActor
-    private func requestProgressAnalysis() async {
-        guard case .eligible(let trend) = eligibility else { return }
-        guard let latest else { return }
-
-        if let cached = progressCaches.first(where: { $0.latestScanDate == latest.date }) {
-            progressReport = cached.report
-            showProgressReport = true
-            return
-        }
-
-        progressAnalysisError = nil
-        isAnalyzingProgress = true
-        defer { isAnalyzingProgress = false }
-
-        do {
-            let firstImage = first.flatMap { ScanPhotoStore.downscaled($0.photoFileName, maxEdge: 768) }
-            let latestImage = ScanPhotoStore.downscaled(latest.photoFileName, maxEdge: 768)
-            let report = try await ProgressAnalysisService.analyze(
-                trend: trend, firstImage: firstImage, latestImage: latestImage,
-                currentRoutine: currentRoutineForAnalysis)
-
-            // A structurally-valid-but-empty report (blank headline/narrative) can
-            // result from a degenerate model response — never cache or show that;
-            // treat it the same as a thrown error so the user gets a retry path.
-            guard !report.headline.isEmpty, !report.narrative.isEmpty else {
-                throw ProgressAnalysisError.unknown
-            }
-
-            for existing in progressCaches {
-                modelContext.delete(existing)
-            }
-            let cache = ProgressReportCache(latestScanDate: latest.date, report: report)
-            modelContext.insert(cache)
-            try? modelContext.save()
-
-            progressReport = report
-            showProgressReport = true
-        } catch {
-            progressAnalysisError = error.localizedDescription
         }
     }
 

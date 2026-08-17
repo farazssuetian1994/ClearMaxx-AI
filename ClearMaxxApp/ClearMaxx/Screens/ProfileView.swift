@@ -50,10 +50,6 @@ struct ProfileView: View {
         }
     }
 
-    private var streakTag: (text: String, tint: Color) {
-        state.scanStreak == 0 ? ("Start your streak", CMColor.inkSoft) : ("Keep it going!", CMColor.coralDeep)
-    }
-
     var body: some View {
         DewyBackground {
             ScrollView {
@@ -104,14 +100,9 @@ struct ProfileView: View {
                         Text("Track your skin. See real progress.").font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
                     }
 
-                    HStack(spacing: 14) {
-                        statCard(icon: "chart.line.uptrend.xyaxis", title: "Skin Score",
-                                 value: "\(state.clearScore)", suffix: "/100",
-                                 tint: CMColor.violetDeep, tag: skinScoreTag)
-                        statCard(icon: "flame.fill", title: "Scan Streak",
-                                 value: "\(state.scanStreak)", suffix: state.scanStreak == 1 ? "day" : "days",
-                                 tint: CMColor.coralDeep, tag: streakTag)
-                    }
+                    statCard(icon: "chart.line.uptrend.xyaxis", title: "Skin Score",
+                             value: "\(state.clearScore)", suffix: "/100",
+                             tint: CMColor.violetDeep, tag: skinScoreTag)
 
                     if !state.isPremium {
                         Button { showPaywall = true } label: {
