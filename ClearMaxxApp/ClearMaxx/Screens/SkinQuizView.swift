@@ -101,7 +101,10 @@ struct SkinQuizView: View {
     }
     private func next() {
         if step < totalSteps { withAnimation { step += 1 } }
-        else { state.stage = .main }   // first scan happens on the Scan tab
+        else {
+            SkinProfileStore.save(SkinProfile(skinType: skinType, goal: goal, concerns: Array(concerns)))
+            state.stage = .main   // first scan happens on the Scan tab
+        }
     }
     private func back() {
         if step > 1 { withAnimation { step -= 1 } }

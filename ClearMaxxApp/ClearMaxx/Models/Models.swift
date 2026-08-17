@@ -92,7 +92,7 @@ final class AppState: ObservableObject {
         newlyResolved = []
         uploadProgress = 0
         do {
-            let result = try await SkinAnalysisService.analyze(image: image) { [weak self] progress in
+            let result = try await SkinAnalysisService.analyze(image: image, profile: SkinProfileStore.load()) { [weak self] progress in
                 Task { @MainActor in self?.uploadProgress = progress }
             }
             analysis = result

@@ -93,7 +93,30 @@ else:
 METRICS = ["Acne", "Pores", "Hydration", "Dark Spots",
            "Redness", "Wrinkles", "Oiliness", "Dark Circles"]
 
-ANALYSIS_PROMPT = f"""
+def _build_analysis_prompt(profile: dict | None = None) -> str:
+    """Builds ANALYSIS_PROMPT, optionally injecting the user's onboarding-quiz
+    answers so routineSteps/tone are personalized to their stated goal and
+    concerns. Always subordinate to what's actually visible in the photo —
+    self-reported skin type never overrides the visual read."""
+    profile_section = ""
+    if profile:
+        lines = []
+        if profile.get("skin_type"):
+            lines.append(f'- Self-reported skin type: {profile["skin_type"]}')
+        if profile.get("goal"):
+            lines.append(f'- Primary goal: {profile["goal"]}')
+        concerns = profile.get("concerns")
+        if isinstance(concerns, list) and concerns:
+            lines.append(f'- Specific concerns they flagged: {", ".join(str(c) for c in concerns[:6])}')
+        if lines:
+            profile_section = (
+                "\nUSER-REPORTED PROFILE (from onboarding quiz — context, not ground truth;\n"
+                "ALWAYS trust what you visually observe in the photo for skinType and metric\n"
+                "values, but use this to prioritize which concerns routineSteps address and to\n"
+                "tailor ingredient choices/tone toward their stated goal):\n"
+                + "\n".join(lines) + "\n"
+            )
+    return f"""
 You are a dermatology-aware skin analysis assistant for a consumer skincare app.
 Analyze the FACE in the image and return ONLY a JSON object (no markdown) with EXACTLY this shape:
 
@@ -126,7 +149,7 @@ Analyze the FACE in the image and return ONLY a JSON object (no markdown) with E
     // 4-8 steps total, a mix of AM and PM
   ]
 }}
-
+{profile_section}
 Rules:
 - If the image is not a clear human face, set confidence below 30 and give neutral mid values.
 - Be encouraging and non-diagnostic; never claim to detect medical conditions.
@@ -137,6 +160,10 @@ Rules:
   Oily skin, don't recommend harsh actives for Sensitive skin). Two different faces with
   different metrics/skinType must get visibly different routines — same metrics/skinType
   should still get independently-generated, not templated, wording.
+- If USER-REPORTED PROFILE is present above, routineSteps must also visibly address their
+  stated concerns and lean toward their stated goal (e.g. goal "Anti-Aging" → favor
+  retinoid/peptide-style treatment steps; goal "Clear Acne" → favor exfoliation/salicylic
+  steps) whenever that's consistent with what the photo actually shows.
 - Output raw JSON only.
 """.strip()
 
@@ -320,6 +347,7 @@ def analyze_skin():
         return jsonify({"error": "Unauthorized"}), 401
 
     # Accept JSON {image_base64: ...} (iOS) or multipart 'image'.
+    profile = None
     try:
         if request.is_json:
             data = request.get_json(silent=True) or {}
@@ -329,6 +357,11 @@ def analyze_skin():
             if "," in b64:  # strip data URL prefix if present
                 b64 = b64.split(",", 1)[1]
             image = Image.open(io.BytesIO(base64.b64decode(b64)))
+            profile = {
+                "skin_type": data.get("skin_type"),
+                "goal": data.get("goal"),
+                "concerns": data.get("concerns"),
+            }
         elif "image" in request.files:
             image = Image.open(io.BytesIO(request.files["image"].read()))
         else:
@@ -342,7 +375,7 @@ def analyze_skin():
 
     try:
         image_part = types.Part.from_bytes(data=img_bytes, mime_type="image/jpeg")
-        raw = _generate([image_part], ANALYSIS_PROMPT)
+        raw = _generate([image_part], _build_analysis_prompt(profile))
         try:
             parsed = json.loads(raw)
         except json.JSONDecodeError:

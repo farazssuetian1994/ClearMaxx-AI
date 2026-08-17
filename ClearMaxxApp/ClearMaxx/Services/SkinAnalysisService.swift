@@ -96,7 +96,8 @@ private final class UploadProgressObserver: NSObject, URLSessionTaskDelegate {
 // MARK: - Service
 
 enum SkinAnalysisService {
-    static func analyze(image: UIImage, onUploadProgress: @escaping (Double) -> Void = { _ in }) async throws -> SkinAnalysis {
+    static func analyze(image: UIImage, profile: SkinProfile? = nil,
+                         onUploadProgress: @escaping (Double) -> Void = { _ in }) async throws -> SkinAnalysis {
         guard let jpeg = image.cm_resized(maxDimension: 1024).jpegData(compressionQuality: 0.7) else {
             throw SkinAnalysisError.encodingFailed
         }
@@ -106,7 +107,12 @@ enum SkinAnalysisService {
         req.timeoutInterval = 60
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.setValue(CMConfig.appToken, forHTTPHeaderField: "X-App-Token")
-        req.httpBody = try JSONSerialization.data(withJSONObject: ["image_base64": jpeg.base64EncodedString()])
+
+        var body: [String: Any] = ["image_base64": jpeg.base64EncodedString()]
+        if let skinType = profile?.skinType { body["skin_type"] = skinType }
+        if let goal = profile?.goal { body["goal"] = goal }
+        if let concerns = profile?.concerns, !concerns.isEmpty { body["concerns"] = concerns }
+        req.httpBody = try JSONSerialization.data(withJSONObject: body)
 
         let observer = UploadProgressObserver(onProgress: onUploadProgress)
         let session = URLSession(configuration: .default, delegate: observer, delegateQueue: nil)
