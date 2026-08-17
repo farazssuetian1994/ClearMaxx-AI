@@ -14,6 +14,12 @@ struct AnalyzingView: View {
     @Environment(\.modelContext) private var modelContext
 
     @State private var revealed = false
+    /// Crawls 0→~0.98 while we wait on Gemini's response, a phase with no real
+    /// progress signal — an asymptotic simulated tick so the pill/ring keep
+    /// moving instead of freezing on a spinner, but it never claims 100%
+    /// until the scan actually completes.
+    @State private var aiPhaseProgress: Double = 0
+    @State private var aiPhaseTask: Task<Void, Never>?
 
     private let checklist = ["Texture", "Pores", "Spots", "Overall"]
 
@@ -53,11 +59,15 @@ struct AnalyzingView: View {
         .background(background)
         .navigationBarBackButtonHidden(true)
         .onAppear { state.hideTabBar = true }
-        .onDisappear { state.hideTabBar = false }
+        .onDisappear { state.hideTabBar = false; aiPhaseTask?.cancel() }
+        .onChange(of: state.uploadProgress) { _, newValue in
+            if newValue >= 1.0 { startAIPhaseTicker() }
+        }
         .task {
             if let img = state.pendingImage {
                 await state.runAnalysis(img, modelContext: modelContext)
                 if state.analysisError == nil {
+                    aiPhaseTask?.cancel()
                     revealed = true
                     try? await Task.sleep(for: .milliseconds(450))   // let the checkmarks register
                     onDone()
@@ -65,13 +75,32 @@ struct AnalyzingView: View {
                 // on error: the overlay below offers Retry / demo
             } else {
                 // No captured image (e.g. demo flow) — show the animation, then mock results.
+                startAIPhaseTicker()
                 try? await Task.sleep(for: .seconds(2.2))
+                aiPhaseTask?.cancel()
                 revealed = true
                 try? await Task.sleep(for: .milliseconds(450))
                 onDone()
             }
         }
         .overlay { if let err = state.analysisError { errorCard(err) } }
+    }
+
+    /// Ticks `aiPhaseProgress` toward 0.98 in decaying steps — fast at first,
+    /// slowing as it approaches the ceiling — for as long as we're genuinely
+    /// still waiting on the server.
+    private func startAIPhaseTicker() {
+        guard aiPhaseTask == nil else { return }
+        aiPhaseTask = Task { @MainActor in
+            while !Task.isCancelled && !revealed && aiPhaseProgress < 0.98 {
+                try? await Task.sleep(for: .milliseconds(180))
+                guard !Task.isCancelled else { return }
+                let remaining = 1.0 - aiPhaseProgress
+                withAnimation(.easeOut(duration: 0.18)) {
+                    aiPhaseProgress = min(0.98, aiPhaseProgress + remaining * 0.06)
+                }
+            }
+        }
     }
 
     // MARK: Background — the captured photo, softly blurred and lightened
@@ -103,9 +132,15 @@ struct AnalyzingView: View {
 
     // MARK: Circular photo viewfinder with corner brackets + progress ring
 
-    /// Real progress while uploading; capped just short of full while we wait on
-    /// the server (no signal for that phase), then snapped to 1.0 on completion.
-    private var ringProgress: Double { revealed ? 1.0 : min(state.uploadProgress, 0.92) }
+    /// Real upload fraction mapped to the first 70% of the ring/pill; the
+    /// remaining 30% is the simulated AI-processing crawl. Snaps to 1.0 on
+    /// completion.
+    private var combinedProgress: Double {
+        if revealed { return 1.0 }
+        if state.uploadProgress < 1.0 { return state.uploadProgress * 0.7 }
+        return 0.7 + aiPhaseProgress * 0.3
+    }
+    private var ringProgress: Double { combinedProgress }
 
     private var viewfinder: some View {
         ZStack {
@@ -181,16 +216,14 @@ struct AnalyzingView: View {
             Group {
                 if revealed {
                     Image(systemName: "checkmark.circle.fill").font(.system(size: 18)).foregroundStyle(CMColor.success)
-                } else if state.uploadProgress < 1.0 {
-                    Text("\(Int(state.uploadProgress * 100))%")
+                } else {
+                    Text("\(Int(combinedProgress * 100))%")
                         .font(CMFont.inter(16, .bold)).foregroundStyle(CMColor.primary)
                         .contentTransition(.numericText())
                         .fixedSize()
-                } else {
-                    ProgressView().tint(CMColor.primary)
                 }
             }
-            .animation(.easeOut(duration: 0.2), value: state.uploadProgress)
+            .animation(.easeOut(duration: 0.2), value: combinedProgress)
         }
         .padding(.horizontal, 16).padding(.vertical, 12)
         .background(.white.opacity(0.85), in: Capsule())
