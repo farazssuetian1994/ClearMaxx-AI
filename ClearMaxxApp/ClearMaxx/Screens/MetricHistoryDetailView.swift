@@ -33,9 +33,9 @@ struct MetricHistoryDetailView: View {
                             Image(systemName: icon).foregroundStyle(tint).font(.system(size: 20, weight: .semibold))
                         }
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(metricName).font(CMFont.headlineLg).foregroundStyle(CMColor.ink)
+                            Text(CMTerms.metric(metricName)).font(CMFont.headlineLg).foregroundStyle(CMColor.ink)
                             if let latest = series.last {
-                                Text("\(latest.value) · \(latest.severity)").font(CMFont.labelMd).foregroundStyle(CMColor.inkSoft)
+                                Text("\(latest.value) · \(CMTerms.severity(latest.severity))").font(CMFont.labelMd).foregroundStyle(CMColor.inkSoft)
                             }
                         }
                     }
@@ -59,10 +59,10 @@ struct MetricHistoryDetailView: View {
                         VStack(spacing: 0) {
                             ForEach(Array(series.reversed().enumerated()), id: \.offset) { index, point in
                                 HStack {
-                                    Text(point.date.formatted(date: .abbreviated, time: .shortened))
+                                    Text(point.date.cmFormatted(date: .abbreviated, time: .shortened))
                                         .font(CMFont.bodyMd).foregroundStyle(CMColor.ink)
                                     Spacer()
-                                    Text(point.severity).font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
+                                    Text(CMTerms.severity(point.severity)).font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
                                     Text("\(point.value)").font(CMFont.labelMd).foregroundStyle(tint)
                                         .frame(width: 36, alignment: .trailing)
                                 }

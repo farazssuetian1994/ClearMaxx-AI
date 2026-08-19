@@ -38,11 +38,11 @@ struct AboutView: View {
 
                     VStack(spacing: 4) {
                         ClearMaxxWordmark(size: 26)
-                        Text("Version \(appVersion) (\(buildNumber))")
+                        Text(L("about.version", appVersion, buildNumber))
                             .font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
                     }
 
-                    Text("ClearMaxx uses AI-powered skin analysis to help you track your skin's health over time and build a daily routine tailored to your own results.")
+                    Text(L("about.body"))
                         .font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 8)
@@ -53,7 +53,7 @@ struct AboutView: View {
                     } label: {
                         GlassCard {
                             VStack(spacing: 4) {
-                                Text("Made by").font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
+                                Text(L("about.madeBy")).font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
 
                                 Image("DeveloperAvatar")
                                     .resizable()
@@ -69,7 +69,7 @@ struct AboutView: View {
 
                                 HStack(spacing: 6) {
                                     Image(systemName: "link").font(.system(size: 11, weight: .semibold))
-                                    Text("View LinkedIn profile").font(CMFont.labelSm)
+                                    Text(L("about.viewLinkedIn")).font(CMFont.labelSm)
                                 }
                                 .foregroundStyle(CMColor.violet)
                                 .padding(.top, 6)
@@ -78,7 +78,7 @@ struct AboutView: View {
                         }
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("Made by Faraz Masroor. Opens LinkedIn profile.")
+                    .accessibilityLabel(L("about.a11y"))
 
                     Spacer(minLength: 40)
                 }

@@ -21,7 +21,11 @@ struct SkinMetric: Identifiable, Hashable {
 
 // MARK: - Routine
 
-enum RoutineTime: String, CaseIterable { case am = "AM Routine", pm = "PM Routine" }
+enum RoutineTime: String, CaseIterable {
+    case am, pm
+    /// "AM"/"PM" stay canonical in persistence; only the label is translated.
+    var label: String { self == .am ? L("routine.am") : L("routine.pm") }
+}
 
 // MARK: - Diary
 
@@ -171,33 +175,38 @@ final class AppState: ObservableObject {
         isPremium = await PurchaseService.shared.refreshEntitlement()
     }
 
-    // Mock analysis results matching the Stitch results dashboard
-    let metrics: [SkinMetric] = [
-        .init(name: "Acne", value: 32, tint: CMColor.primary,
-              blurb: "Localized breakouts detected in the T-zone. Driven by excess sebum and clogged pores.",
-              ingredients: ["Salicylic Acid", "Niacinamide"]),
-        .init(name: "Pores", value: 45, tint: Color(hex: "8A2BE2"),
-              blurb: "Mildly enlarged pores around the nose and cheeks.",
-              ingredients: ["Niacinamide", "Retinol"]),
-        .init(name: "Hydration", value: 78, tint: Color(hex: "2BB3C0"),
-              blurb: "Hydration levels are healthy. Keep sealing in moisture morning and night.",
-              ingredients: ["Hyaluronic Acid", "Ceramides"]),
-        .init(name: "Dark Spots", value: 28, tint: Color(hex: "B8860B"),
-              blurb: "Some post-acne marks (PIH). These fade with consistent SPF and brightening actives.",
-              ingredients: ["Vitamin C", "Azelaic Acid"]),
-        .init(name: "Redness", value: 40, tint: CMColor.error,
-              blurb: "Localized erythema across the cheeks suggesting a compromised skin barrier or mild inflammation.",
-              ingredients: ["Centella", "Niacinamide", "Hyaluronic Acid"]),
-        .init(name: "Wrinkles", value: 18, tint: CMColor.inkSoft,
-              blurb: "Very early fine-line activity. Prevention with SPF and antioxidants is key.",
-              ingredients: ["Retinol", "Vitamin C", "Peptides"])
-    ]
+    // Demo analysis results — shown only when a real scan hasn't landed yet
+    // (e.g. the "Use demo results" fallback on the Analyzing screen).
+    var metrics: [SkinMetric] {
+        [
+            .init(name: "Acne", value: 32, tint: CMColor.primary,
+                  blurb: L("demo.acne.blurb"),
+                  ingredients: [L("ingredient.salicylicAcid"), L("ingredient.niacinamide")]),
+            .init(name: "Pores", value: 45, tint: Color(hex: "8A2BE2"),
+                  blurb: L("demo.pores.blurb"),
+                  ingredients: [L("ingredient.niacinamide"), L("ingredient.retinol")]),
+            .init(name: "Hydration", value: 78, tint: Color(hex: "2BB3C0"),
+                  blurb: L("demo.hydration.blurb"),
+                  ingredients: [L("ingredient.hyaluronicAcid"), L("ingredient.ceramides")]),
+            .init(name: "Dark Spots", value: 28, tint: Color(hex: "B8860B"),
+                  blurb: L("demo.darkSpots.blurb"),
+                  ingredients: [L("ingredient.vitaminC"), L("ingredient.azelaicAcid")]),
+            .init(name: "Redness", value: 40, tint: CMColor.error,
+                  blurb: L("demo.redness.blurb"),
+                  ingredients: [L("ingredient.centella"), L("ingredient.niacinamide"), L("ingredient.hyaluronicAcid")]),
+            .init(name: "Wrinkles", value: 18, tint: CMColor.inkSoft,
+                  blurb: L("demo.wrinkles.blurb"),
+                  ingredients: [L("ingredient.retinol"), L("ingredient.vitaminC"), L("ingredient.peptides")])
+        ]
+    }
 
-    let recentDiary: [DiaryEntry] = [
-        .init(day: "Yesterday", notes: ["8h Sleep", "2.5L Water"], emoji: "✨"),
-        .init(day: "Oct 22", notes: ["6h Sleep", "High Stress"], emoji: "💧"),
-        .init(day: "Oct 21", notes: ["9h Sleep", "Clean Diet"], emoji: "☀️")
-    ]
+    var recentDiary: [DiaryEntry] {
+        [
+            .init(day: L("diary.yesterday"), notes: [L("diary.sleep8h"), L("diary.water25l")], emoji: "✨"),
+            .init(day: L("diary.day2"), notes: [L("diary.sleep6h"), L("diary.highStress")], emoji: "💧"),
+            .init(day: L("diary.day3"), notes: [L("diary.sleep9h"), L("diary.cleanDiet")], emoji: "☀️")
+        ]
+    }
 
     let weeklyConsistency: [Double] = [0.35, 0.85, 0.95, 1.0, 0.9, 0.25, 0.2]  // M..S
 }

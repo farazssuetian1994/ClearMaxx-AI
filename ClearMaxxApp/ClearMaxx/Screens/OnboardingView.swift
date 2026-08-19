@@ -17,14 +17,16 @@ struct OnboardingView: View {
     @EnvironmentObject var state: AppState
     @State private var page = 0
 
-    private let slides: [OnboardSlide] = [
-        .init(icon: "camera.viewfinder", title: "Illustrate Scan",
-              body: "Our AI-powered lens analyzes over 100 skin biomarkers to understand your unique glow."),
-        .init(icon: "list.bullet.clipboard", title: "Get Your Routine",
-              body: "Receive a personalized AM/PM ritual with the exact ingredients your skin needs."),
-        .init(icon: "chart.line.uptrend.xyaxis", title: "Track Progress",
-              body: "Snap a daily photo and watch your ClearScore climb with before/after proof.")
-    ]
+    private var slides: [OnboardSlide] {
+        [
+            .init(icon: "camera.viewfinder", title: L("onboarding.slide1.title"),
+                  body: L("onboarding.slide1.body")),
+            .init(icon: "list.bullet.clipboard", title: L("onboarding.slide2.title"),
+                  body: L("onboarding.slide2.body")),
+            .init(icon: "chart.line.uptrend.xyaxis", title: L("onboarding.slide3.title"),
+                  body: L("onboarding.slide3.body"))
+        ]
+    }
 
     var body: some View {
         DewyBackground {
@@ -32,7 +34,7 @@ struct OnboardingView: View {
                 HStack {
                     ClearMaxxWordmark(size: 22)
                     Spacer()
-                    Button("Skip") { state.stage = .quiz }
+                    Button(L("common.skip")) { state.stage = .quiz }
                         .font(CMFont.labelMd)
                         .foregroundStyle(CMColor.ink)
                 }
@@ -76,7 +78,7 @@ struct OnboardingView: View {
                 }
                 .padding(.bottom, 20)
 
-                AuraButton(title: page < slides.count - 1 ? "Next" : "Get Started") {
+                AuraButton(title: page < slides.count - 1 ? L("common.next") : L("common.getStarted")) {
                     if page < slides.count - 1 {
                         withAnimation { page += 1 }
                     } else {

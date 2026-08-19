@@ -9,11 +9,11 @@ enum CMTab: Int, CaseIterable {
     case scan, progress, routine, history, profile
     var title: String {
         switch self {
-        case .scan: return "Scan"
-        case .progress: return "Progress"
-        case .routine: return "Routine"
-        case .history: return "History"
-        case .profile: return "Profile"
+        case .scan: return L("nav.scan")
+        case .progress: return L("nav.progress")
+        case .routine: return L("nav.routine")
+        case .history: return L("nav.history")
+        case .profile: return L("nav.profile")
         }
     }
     var icon: String {

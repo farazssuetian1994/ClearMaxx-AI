@@ -31,8 +31,8 @@ struct DailyRoutineView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Daily Ritual").font(CMFont.headlineLg).foregroundStyle(CMColor.ink)
-                        Text("Consistency is the key to that healthy glow.")
+                        Text(L("routine.title")).font(CMFont.headlineLg).foregroundStyle(CMColor.ink)
+                        Text(L("routine.subtitle"))
                             .font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
                     }
 
@@ -42,7 +42,7 @@ struct DailyRoutineView: View {
                             Button { withAnimation { time = t } } label: {
                                 HStack(spacing: 6) {
                                     Image(systemName: t == .am ? "sun.max.fill" : "moon.fill")
-                                    Text(t.rawValue)
+                                    Text(t.label)
                                 }
                                 .font(CMFont.labelMd)
                                 .foregroundStyle(time == t ? CMColor.violetDeep : CMColor.inkSoft)
@@ -59,8 +59,8 @@ struct DailyRoutineView: View {
                     if todaySteps.isEmpty {
                         GlassCard {
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("No routine yet").font(CMFont.title).foregroundStyle(CMColor.ink)
-                                Text("Scan your face to get today's AI-recommended routine.")
+                                Text(L("routine.emptyTitle")).font(CMFont.title).foregroundStyle(CMColor.ink)
+                                Text(L("routine.emptyBody"))
                                     .font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
                             }
                         }
@@ -77,7 +77,7 @@ struct DailyRoutineView: View {
                     GlassCard {
                         VStack(alignment: .leading, spacing: 14) {
                             HStack {
-                                Text("Weekly Consistency").font(CMFont.title).foregroundStyle(CMColor.ink)
+                                Text(L("routine.weeklyConsistency")).font(CMFont.title).foregroundStyle(CMColor.ink)
                                 Spacer()
                                 Text("85%").font(CMFont.title).foregroundStyle(CMColor.violetDeep)
                             }
@@ -87,7 +87,7 @@ struct DailyRoutineView: View {
                                         RoundedRectangle(cornerRadius: 6)
                                             .fill(v > 0.5 ? AnyShapeStyle(CMGradient.aura) : AnyShapeStyle(CMColor.cardSoft))
                                             .frame(height: 90 * v)
-                                        Text(["M","T","W","T","F","S","S"][i])
+                                        Text(Self.weekdayInitials[i])
                                             .font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
                                     }
                                     .frame(maxWidth: .infinity)
@@ -101,6 +101,11 @@ struct DailyRoutineView: View {
                 .padding(.horizontal, 24).padding(.top, 8)
             }
         }
+    }
+
+    private static var weekdayInitials: [String] {
+        [L("weekday.mon"), L("weekday.tue"), L("weekday.wed"), L("weekday.thu"),
+         L("weekday.fri"), L("weekday.sat"), L("weekday.sun")]
     }
 
     private func toggleDone(at index: Int) {
@@ -135,7 +140,7 @@ private struct RoutineStepCard: View {
             GlassCard {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
-                        CategoryLabel(text: step.category, color: category.tint)
+                        CategoryLabel(text: CMTerms.routineCategory(step.category), color: category.tint)
                         Spacer()
                         Button(action: onToggle) {
                             Image(systemName: step.done ? "checkmark.circle.fill" : "circle")

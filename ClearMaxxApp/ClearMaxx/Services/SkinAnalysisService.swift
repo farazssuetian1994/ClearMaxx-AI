@@ -64,14 +64,14 @@ enum SkinAnalysisError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .encodingFailed: return "We couldn't prepare that photo. Please try another one."
-        case .offline:        return "You appear to be offline. Check your connection and try again."
-        case .timedOut:       return "Your scan is taking longer than usual. Please try again."
-        case .badImage:       return "We couldn't read your face clearly. Try a well-lit photo facing the camera."
-        case .unauthorized:   return "We couldn't start your scan right now. Please update ClearMaxx or try again later."
-        case .rateLimited:    return "A lot of glow-ups are happening right now. Please try again in a moment."
-        case .serverBusy:     return "Our skin analysis is taking a quick break. Please try again shortly."
-        case .unknown:        return "Something went wrong during your scan. Please try again."
+        case .encodingFailed: return L("error.encodingFailed")
+        case .offline:        return L("error.offline")
+        case .timedOut:       return L("error.timedOut")
+        case .badImage:       return L("error.badImage")
+        case .unauthorized:   return L("error.unauthorized")
+        case .rateLimited:    return L("error.rateLimited")
+        case .serverBusy:     return L("error.serverBusy")
+        case .unknown:        return L("error.unknown")
         }
     }
 }
@@ -108,7 +108,11 @@ enum SkinAnalysisService {
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.setValue(CMConfig.appToken, forHTTPHeaderField: "X-App-Token")
 
-        var body: [String: Any] = ["image_base64": jpeg.base64EncodedString()]
+        // The backend writes every free-text field (summary, tips, routine
+        // wording) in this language; canonical identifiers — metric names,
+        // severities, skinType, AM/PM — always come back in English.
+        var body: [String: Any] = ["image_base64": jpeg.base64EncodedString(),
+                                   "language": CMLocale.shared.language]
         if let skinType = profile?.skinType { body["skin_type"] = skinType }
         if let goal = profile?.goal { body["goal"] = goal }
         if let concerns = profile?.concerns, !concerns.isEmpty { body["concerns"] = concerns }

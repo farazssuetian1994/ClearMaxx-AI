@@ -10,7 +10,7 @@ struct SkinDiaryView: View {
     @EnvironmentObject var state: AppState
     @State private var sleep = "8h"
     @State private var water = "2L"
-    @State private var diet = "Clean"
+    @State private var diet = "clean"
     @State private var stress: Double = 0.8
 
     var body: some View {
@@ -18,23 +18,26 @@ struct SkinDiaryView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     HStack {
-                        Text("Daily Log").font(CMFont.headlineLg).foregroundStyle(CMColor.ink)
+                        Text(L("diary.title")).font(CMFont.headlineLg).foregroundStyle(CMColor.ink)
                         Spacer()
-                        Text("Today, Oct 24").font(CMFont.labelMd).foregroundStyle(CMColor.inkSoft)
+                        Text(Date().cmFormatted(date: .abbreviated, time: .omitted))
+                            .font(CMFont.labelMd).foregroundStyle(CMColor.inkSoft)
                     }
 
                     HStack(spacing: 14) {
-                        pickerCard(icon: "moon.fill", tint: CMColor.violet, title: "Sleep",
+                        pickerCard(icon: "moon.fill", tint: CMColor.violet, title: L("diary.sleep"),
                                    options: ["6h","8h","9h+"], selection: $sleep)
-                        pickerCard(icon: "drop.fill", tint: CMColor.coral, title: "Water",
+                        pickerCard(icon: "drop.fill", tint: CMColor.coral, title: L("diary.water"),
                                    options: ["1.5L","2L","3L"], selection: $water)
                     }
 
                     GlassCard {
                         VStack(alignment: .leading, spacing: 12) {
-                            Label("Diet Quality", systemImage: "fork.knife").font(CMFont.title).foregroundStyle(CMColor.ink)
+                            Label(L("diary.dietQuality"), systemImage: "fork.knife").font(CMFont.title).foregroundStyle(CMColor.ink)
                             HStack(spacing: 10) {
-                                dietOption("Greasy", "🍔"); dietOption("Clean", "🥗"); dietOption("Sugary", "🍩")
+                                dietOption("greasy", L("diary.greasy"), "🍔")
+                                dietOption("clean", L("diary.clean"), "🥗")
+                                dietOption("sugary", L("diary.sugary"), "🍩")
                             }
                         }
                     }
@@ -42,26 +45,26 @@ struct SkinDiaryView: View {
                     HStack(spacing: 14) {
                         GlassCard {
                             VStack(alignment: .leading, spacing: 10) {
-                                Label("Stress", systemImage: "bolt.fill").font(CMFont.labelMd).foregroundStyle(CMColor.ink)
+                                Label(L("diary.stress"), systemImage: "bolt.fill").font(CMFont.labelMd).foregroundStyle(CMColor.ink)
                                 Slider(value: $stress).tint(CMColor.error)
-                                Text(stress > 0.6 ? "High" : stress > 0.3 ? "Medium" : "Low")
+                                Text(stress > 0.6 ? L("common.high") : stress > 0.3 ? L("common.medium") : L("common.low"))
                                     .font(CMFont.labelSm).foregroundStyle(CMColor.error)
                             }
                         }
                         GlassCard {
                             VStack(alignment: .leading, spacing: 8) {
-                                Label("Cycle Day", systemImage: "calendar").font(CMFont.labelMd).foregroundStyle(CMColor.ink)
+                                Label(L("diary.cycleDay"), systemImage: "calendar").font(CMFont.labelMd).foregroundStyle(CMColor.ink)
                                 Text("14").font(CMFont.headlineLg).foregroundStyle(CMColor.violetDeep)
                             }
                         }
                     }
 
-                    AuraButton(title: "Log Daily Ritual", systemImage: "checkmark")
+                    AuraButton(title: L("diary.logRitual"), systemImage: "checkmark")
 
                     HStack {
-                        Text("Recent Glow-ups").font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
+                        Text(L("diary.recentGlowUps")).font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
                         Spacer()
-                        Text("View All").font(CMFont.labelMd).foregroundStyle(CMColor.coralDeep)
+                        Text(L("diary.viewAll")).font(CMFont.labelMd).foregroundStyle(CMColor.coralDeep)
                     }
 
                     ForEach(state.recentDiary) { entry in
@@ -107,9 +110,9 @@ struct SkinDiaryView: View {
         }
     }
 
-    private func dietOption(_ label: String, _ emoji: String) -> some View {
-        let selected = diet == label
-        return Button { diet = label } label: {
+    private func dietOption(_ value: String, _ label: String, _ emoji: String) -> some View {
+        let selected = diet == value
+        return Button { diet = value } label: {
             VStack(spacing: 6) {
                 Text(emoji).font(.system(size: 26))
                 Text(label).font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)

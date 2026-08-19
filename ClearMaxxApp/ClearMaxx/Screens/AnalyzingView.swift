@@ -21,7 +21,10 @@ struct AnalyzingView: View {
     @State private var aiPhaseProgress: Double = 0
     @State private var aiPhaseTask: Task<Void, Never>?
 
-    private let checklist = ["Texture", "Pores", "Spots", "Overall"]
+    private var checklist: [String] {
+        [L("analyzing.check.texture"), L("analyzing.check.pores"),
+         L("analyzing.check.spots"), L("analyzing.check.overall")]
+    }
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -29,10 +32,10 @@ struct AnalyzingView: View {
                 topBar
 
                 VStack(spacing: 6) {
-                    (Text("Analyzing ").foregroundStyle(CMColor.primary)
-                     + Text("your skin").foregroundStyle(CMColor.ink))
+                    (Text(L("analyzing.titleAccent")).foregroundStyle(CMColor.primary)
+                     + Text(L("analyzing.titleRest")).foregroundStyle(CMColor.ink))
                         .font(CMFont.headlineLg)
-                    Text("This may take a few seconds…")
+                    Text(L("analyzing.subtitle"))
                         .font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
                 }
                 .multilineTextAlignment(.center)
@@ -199,9 +202,9 @@ struct AnalyzingView: View {
     // MARK: Status pill — sparkle · label · live percentage/spinner/checkmark
 
     private var statusText: String {
-        if revealed { return "Scan complete" }
-        if state.uploadProgress < 1.0 { return "Scanning your skin…" }
-        return "Analyzing with AI…"
+        if revealed { return L("analyzing.statusComplete") }
+        if state.uploadProgress < 1.0 { return L("analyzing.statusScanning") }
+        return L("analyzing.statusAI")
     }
 
     private var statusPill: some View {
@@ -272,8 +275,8 @@ struct AnalyzingView: View {
                 Image(systemName: "lock.shield.fill").foregroundStyle(CMColor.primary).font(.system(size: 18, weight: .semibold))
             }
             VStack(alignment: .leading, spacing: 2) {
-                Text("Your data is 100% private").font(CMFont.labelMd).foregroundStyle(CMColor.ink)
-                Text("We don't store or share your photos.").font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
+                Text(L("analyzing.privacyTitle")).font(CMFont.labelMd).foregroundStyle(CMColor.ink)
+                Text(L("analyzing.privacyBody")).font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
             }
             Spacer(minLength: 0)
         }
@@ -289,12 +292,12 @@ struct AnalyzingView: View {
             VStack(spacing: 14) {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .font(.system(size: 36)).foregroundStyle(CMColor.coral)
-                Text("Scan failed").font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
+                Text(L("analyzing.errorTitle")).font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
                 Text(message).font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
-                AuraButton(title: "Try Again") { state.analysisError = nil; dismiss() }
-                Button("Use demo results") { state.analysisError = nil; onDone() }
+                AuraButton(title: L("common.tryAgain")) { state.analysisError = nil; dismiss() }
+                Button(L("analyzing.useDemo")) { state.analysisError = nil; onDone() }
                     .font(CMFont.labelMd).foregroundStyle(CMColor.violetDeep)
             }
             .padding(24)

@@ -111,5 +111,9 @@ struct ClearMaxxWordmark: View {
             Text("Maxx").foregroundStyle(CMColor.violetDeep)
         }
         .font(CMFont.inter(size, .heavy))
+        // The wordmark is a brand name, not prose: in a right-to-left language
+        // the surrounding layout mirrors, but these two halves must not swap
+        // (that would read "MaxxClear").
+        .environment(\.layoutDirection, .leftToRight)
     }
 }

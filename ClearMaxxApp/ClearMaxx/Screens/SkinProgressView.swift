@@ -25,29 +25,29 @@ struct SkinProgressView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Your Journey").font(CMFont.labelMd).foregroundStyle(CMColor.inkSoft)
-                        Text("Skin Evolution").font(CMFont.headlineLg).foregroundStyle(CMColor.ink)
+                        Text(L("progress.journey")).font(CMFont.labelMd).foregroundStyle(CMColor.inkSoft)
+                        Text(L("progress.title")).font(CMFont.headlineLg).foregroundStyle(CMColor.ink)
                     }
 
                     if scanRecords.isEmpty {
-                        emptyState(title: "No scans yet",
-                                   body: "Scan your face to start tracking your skin's progress.")
+                        emptyState(title: L("progress.noScansTitle"),
+                                   body: L("progress.noScansBody"))
                     } else {
                         beforeAfterCard
 
                         clearScoreTrendCard
 
-                        TipCard(title: "Keep going!", message: "Consistency is the key to glowing skin.")
+                        TipCard(title: L("progress.tipTitle"), message: L("progress.tipBody"))
 
                         if scanRecords.count < 2 {
-                            emptyState(title: "Scan again to see your trend",
-                                       body: "One more scan will start showing how each metric is changing.")
+                            emptyState(title: L("progress.scanAgainTitle"),
+                                       body: L("progress.scanAgainBody"))
                         } else {
                             metricDeltaCard
                         }
 
-                        actionRow(icon: "square.and.arrow.up", title: "Share My Glow-Up",
-                                  subtitle: "Share your progress with friends") { showShare = true }
+                        actionRow(icon: "square.and.arrow.up", title: L("progress.shareTitle"),
+                                  subtitle: L("progress.shareSubtitle")) { showShare = true }
                             .padding(.bottom, 24)
                     }
                 }
@@ -73,9 +73,9 @@ struct SkinProgressView: View {
             if let first, let latest {
                 let delta = latest.clearScore - first.clearScore
                 VStack(spacing: 2) {
-                    Text(delta >= 0 ? "+\(delta) ClearScore" : "\(delta) ClearScore")
+                    Text(L("progress.clearScoreDelta", delta >= 0 ? "+\(delta)" : "\(delta)"))
                         .font(CMFont.inter(22, .heavy)).foregroundStyle(CMColor.coralDeep)
-                    Text("since your first scan")
+                    Text(L("progress.sinceFirstScan"))
                         .font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
                 }
                 .frame(maxWidth: .infinity).padding(.vertical, 16)
@@ -92,7 +92,7 @@ struct SkinProgressView: View {
                 HStack(alignment: .firstTextBaseline) {
                     VStack(alignment: .leading) {
                         HStack(spacing: 4) {
-                            Text("ClearScore").font(CMFont.title).foregroundStyle(CMColor.ink)
+                            Text(L("progress.clearScore")).font(CMFont.title).foregroundStyle(CMColor.ink)
                             Button { showClearScoreInfo = true } label: {
                                 Image(systemName: "info.circle").font(.system(size: 13)).foregroundStyle(CMColor.inkSoft)
                             }
@@ -100,7 +100,7 @@ struct SkinProgressView: View {
                         }
                         if let first, let latest {
                             let delta = latest.clearScore - first.clearScore
-                            Text(delta >= 0 ? "+\(delta) since your first scan" : "\(delta) since your first scan")
+                            Text(L("progress.deltaSinceFirst", delta >= 0 ? "+\(delta)" : "\(delta)"))
                                 .font(CMFont.labelSm).foregroundStyle(delta >= 0 ? CMColor.success : CMColor.error)
                         }
                     }
@@ -120,25 +120,25 @@ struct SkinProgressView: View {
                 }
                 .frame(height: 100, alignment: .bottom)
                 HStack {
-                    Text(first?.date.formatted(date: .abbreviated, time: .omitted) ?? "")
+                    Text(first?.date.cmFormatted(date: .abbreviated, time: .omitted) ?? "")
                         .font(CMFont.inter(9, .semibold)).foregroundStyle(CMColor.inkSoft)
                     Spacer()
-                    Text("TODAY").font(CMFont.inter(9, .semibold)).foregroundStyle(CMColor.inkSoft)
+                    Text(L("common.today")).font(CMFont.inter(9, .semibold)).foregroundStyle(CMColor.inkSoft)
                 }
             }
         }
-        .alert("What's ClearScore?", isPresented: $showClearScoreInfo) {
-            Button("Got it", role: .cancel) {}
+        .alert(L("progress.clearScoreInfoTitle"), isPresented: $showClearScoreInfo) {
+            Button(L("common.gotIt"), role: .cancel) {}
         } message: {
-            Text("A 0–100 summary of your overall skin health, calculated by the AI from all 8 metrics on your most recent scan.")
+            Text(L("progress.clearScoreInfoBody"))
         }
     }
 
     private var metricDeltaCard: some View {
         GlassCard {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Metric Progress").font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
-                Text("Track how your skin is evolving").font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
+                Text(L("progress.metricProgress")).font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
+                Text(L("progress.metricProgressSubtitle")).font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
                     .padding(.bottom, 10)
                 let rows = latest?.metrics ?? []
                 ForEach(Array(rows.enumerated()), id: \.element.name) { index, metric in
@@ -191,9 +191,9 @@ struct SkinProgressView: View {
             }
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {
-                    Text(metric.name).font(CMFont.labelMd).foregroundStyle(CMColor.ink)
+                    Text(CMTerms.metric(metric.name)).font(CMFont.labelMd).foregroundStyle(CMColor.ink)
                     if justResolved {
-                        Text("Cleared 🎉").font(CMFont.inter(11, .bold)).foregroundStyle(.white)
+                        Text(L("progress.cleared")).font(CMFont.inter(11, .bold)).foregroundStyle(.white)
                             .padding(.horizontal, 8).padding(.vertical, 3)
                             .background(CMColor.success, in: Capsule())
                     }
@@ -208,7 +208,7 @@ struct SkinProgressView: View {
                             .background(trendTint.opacity(0.15), in: Capsule())
                     }
                 } else {
-                    Text("Value: \(metric.value)").font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
+                    Text(L("progress.value", metric.value)).font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
                 }
             }
             Spacer(minLength: 8)
@@ -294,11 +294,11 @@ struct BeforeAfterSlider: View {
             let w = geo.size.width
             ZStack(alignment: .leading) {
                 beforeLayer
-                    .overlay(Text("BEFORE").font(CMFont.inter(10, .bold)).foregroundStyle(.white)
+                    .overlay(Text(L("progress.before")).font(CMFont.inter(10, .bold)).foregroundStyle(.white)
                         .padding(6).background(.black.opacity(0.4), in: Capsule()).padding(10),
                              alignment: .topLeading)
                 afterLayer
-                    .overlay(Text("AFTER").font(CMFont.inter(10, .bold)).foregroundStyle(.white)
+                    .overlay(Text(L("progress.after")).font(CMFont.inter(10, .bold)).foregroundStyle(.white)
                         .padding(.horizontal, 10).padding(.vertical, 6).background(CMColor.primary, in: Capsule()).padding(10),
                              alignment: .topTrailing)
                     .mask(HStack { Spacer().frame(width: w * value); Rectangle() })

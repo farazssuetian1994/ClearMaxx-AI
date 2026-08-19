@@ -66,7 +66,7 @@ private struct ScanCaptureScreen: View {
 
             VStack(spacing: 0) {
                 topBar
-                Text("Hold still and look at the camera")
+                Text(L("camera.holdStill"))
                     .font(CMFont.labelMd).foregroundStyle(.white.opacity(0.95))
                     .padding(.top, 8)
                 Spacer()
@@ -82,7 +82,7 @@ private struct ScanCaptureScreen: View {
                 Color.black.opacity(0.5).ignoresSafeArea()
                 VStack(spacing: 12) {
                     ProgressView().tint(.white)
-                    Text("Checking photo…").font(CMFont.labelMd).foregroundStyle(.white)
+                    Text(L("camera.checkingPhoto")).font(CMFont.labelMd).foregroundStyle(.white)
                 }
             }
         }
@@ -109,10 +109,10 @@ private struct ScanCaptureScreen: View {
                 }
             }
         }
-        .alert("No Face Detected", isPresented: $noFaceInGalleryPhoto) {
-            Button("OK", role: .cancel) { }
+        .alert(L("camera.noFaceTitle"), isPresented: $noFaceInGalleryPhoto) {
+            Button(L("common.ok"), role: .cancel) { }
         } message: {
-            Text("We couldn't find a face in that photo. Please choose a clear photo of your face.")
+            Text(L("camera.noFaceMessage"))
         }
     }
 
@@ -141,8 +141,8 @@ private struct ScanCaptureScreen: View {
         return camera.faceDetected ? "checkmark.circle.fill" : "person.crop.circle.badge.exclamationmark"
     }
     private var faceStatusText: String {
-        guard camera.isReady else { return "Good lighting" }
-        return camera.faceDetected ? "Face detected" : "Position your face"
+        guard camera.isReady else { return L("camera.goodLighting") }
+        return camera.faceDetected ? L("camera.faceDetected") : L("camera.positionFace")
     }
     private var faceStatusColor: Color {
         guard camera.isReady else { return CMColor.success }

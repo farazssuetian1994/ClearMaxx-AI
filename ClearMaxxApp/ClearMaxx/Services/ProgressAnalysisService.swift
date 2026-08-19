@@ -18,13 +18,13 @@ enum ProgressAnalysisError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .encodingFailed: return "We couldn't prepare your scan history. Please try again."
-        case .offline:        return "You appear to be offline. Check your connection and try again."
-        case .timedOut:       return "This is taking longer than usual. Please try again."
-        case .unauthorized:   return "We couldn't start your progress check right now. Please update ClearMaxx or try again later."
-        case .rateLimited:    return "A lot of progress checks are happening right now. Please try again in a moment."
-        case .serverBusy:     return "Our progress analysis is taking a quick break. Please try again shortly."
-        case .unknown:        return "Something went wrong while checking your progress. Please try again."
+        case .encodingFailed: return L("error.progress.encodingFailed")
+        case .offline:        return L("error.offline")
+        case .timedOut:       return L("error.progress.timedOut")
+        case .unauthorized:   return L("error.progress.unauthorized")
+        case .rateLimited:    return L("error.progress.rateLimited")
+        case .serverBusy:     return L("error.progress.serverBusy")
+        case .unknown:        return L("error.progress.unknown")
         }
     }
 }
@@ -44,6 +44,7 @@ enum ProgressAnalysisService {
     static func analyze(trend: ProgressTrend, firstImage: UIImage?, latestImage: UIImage?,
                         currentRoutine: [APIRoutineStep]) async throws -> ProgressReport {
         var body: [String: Any] = [
+            "language": CMLocale.shared.language,
             "span_days": trend.spanDays,
             "scan_count": trend.scanCount,
             "overall": [

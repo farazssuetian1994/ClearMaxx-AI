@@ -8,6 +8,7 @@ import PhotosUI
 
 private enum SettingsAction {
     case about
+    case language
     case restorePurchases
     case url(URL)
     case mail(String)
@@ -25,28 +26,32 @@ struct ProfileView: View {
     @Environment(\.openURL) private var openURL
     @State private var showPaywall = false
     @State private var showAbout = false
+    @State private var showLanguage = false
     @State private var isRestoring = false
     @State private var restoreMessage: String?
     @State private var avatarImage: UIImage?
     @State private var avatarPickerItem: PhotosPickerItem?
 
-    private let settings: [SettingsItem] = [
-        SettingsItem(icon: "info.circle", title: "About", action: .about),
-        SettingsItem(icon: "arrow.clockwise", title: "Restore Purchases", action: .restorePurchases),
-        SettingsItem(icon: "lock.shield", title: "Privacy Policy",
-                     action: .url(URL(string: "https://clearmaxxai.blogspot.com/p/privacy-policy.html")!)),
-        SettingsItem(icon: "doc.text", title: "Terms of Use",
-                     action: .url(URL(string: "https://clearmaxxai.blogspot.com/p/terms-of-service.html")!)),
-        SettingsItem(icon: "questionmark.circle", title: "Help & Support", action: .mail("support@clearmaxxai.com"))
-    ]
+    private var settings: [SettingsItem] {
+        [
+            SettingsItem(icon: "globe", title: L("profile.language"), action: .language),
+            SettingsItem(icon: "info.circle", title: L("profile.about"), action: .about),
+            SettingsItem(icon: "arrow.clockwise", title: L("profile.restorePurchases"), action: .restorePurchases),
+            SettingsItem(icon: "lock.shield", title: L("profile.privacyPolicy"),
+                         action: .url(URL(string: "https://clearmaxxai.blogspot.com/p/privacy-policy.html")!)),
+            SettingsItem(icon: "doc.text", title: L("profile.termsOfUse"),
+                         action: .url(URL(string: "https://clearmaxxai.blogspot.com/p/terms-of-service.html")!)),
+            SettingsItem(icon: "questionmark.circle", title: L("profile.helpSupport"), action: .mail("support@clearmaxxai.com"))
+        ]
+    }
 
     /// Honest tiering of the real ClearScore — not decorative, just a label for the number.
     private var skinScoreTag: (text: String, tint: Color) {
         switch state.clearScore {
-        case ..<40: return ("Needs attention", CMColor.error)
-        case 40..<70: return ("Needs improvement", CMColor.coralDeep)
-        case 70..<85: return ("Good", CMColor.success)
-        default: return ("Excellent", CMColor.success)
+        case ..<40: return (L("profile.tag.needsAttention"), CMColor.error)
+        case 40..<70: return (L("profile.tag.needsImprovement"), CMColor.coralDeep)
+        case 70..<85: return (L("profile.tag.good"), CMColor.success)
+        default: return (L("profile.tag.excellent"), CMColor.success)
         }
     }
 
@@ -84,7 +89,7 @@ struct ProfileView: View {
                                     .offset(x: 2, y: 2)
                             }
                             if state.isPremium {
-                                Text("PREMIUM").font(CMFont.inter(10, .bold)).foregroundStyle(.white)
+                                Text(L("profile.premium")).font(CMFont.inter(10, .bold)).foregroundStyle(.white)
                                     .padding(.horizontal, 14).padding(.vertical, 5)
                                     .background(CMGradient.aura, in: Capsule())
                                     .offset(y: 12)
@@ -92,15 +97,15 @@ struct ProfileView: View {
                         }
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("Profile photo. Tap to change.")
+                    .accessibilityLabel(L("profile.avatarA11y"))
                     .padding(.top, 8)
 
                     VStack(spacing: 4) {
-                        Text("Hi there!").font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
-                        Text("Track your skin. See real progress.").font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
+                        Text(L("profile.greeting")).font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
+                        Text(L("profile.subtitle")).font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
                     }
 
-                    statCard(icon: "chart.line.uptrend.xyaxis", title: "Skin Score",
+                    statCard(icon: "chart.line.uptrend.xyaxis", title: L("profile.skinScore"),
                              value: "\(state.clearScore)", suffix: "/100",
                              tint: CMColor.violetDeep, tag: skinScoreTag)
 
@@ -112,8 +117,8 @@ struct ProfileView: View {
                                     Image(systemName: "crown.fill").foregroundStyle(.white)
                                 }
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("Upgrade to ClearMaxx Plus").font(CMFont.labelMd).fontWeight(.semibold)
-                                    Text("Unlock advanced insights and features.")
+                                    Text(L("profile.upgradeTitle")).font(CMFont.labelMd).fontWeight(.semibold)
+                                    Text(L("profile.upgradeSubtitle"))
                                         .font(CMFont.labelSm).opacity(0.9)
                                 }
                                 Spacer()
@@ -124,7 +129,7 @@ struct ProfileView: View {
                         }.buttonStyle(.plain)
                     }
 
-                    HStack { CategoryLabel(text: "Settings", color: CMColor.inkSoft); Spacer() }.padding(.top, 4)
+                    HStack { CategoryLabel(text: L("profile.settings"), color: CMColor.inkSoft); Spacer() }.padding(.top, 4)
 
                     GlassCard {
                         VStack(spacing: 0) {
@@ -160,8 +165,9 @@ struct ProfileView: View {
         }
         .sheet(isPresented: $showPaywall) { GoPremiumView() }
         .sheet(isPresented: $showAbout) { AboutView() }
-        .alert("Restore Purchases", isPresented: .constant(restoreMessage != nil), presenting: restoreMessage) { _ in
-            Button("OK") { restoreMessage = nil }
+        .sheet(isPresented: $showLanguage) { LanguageSettingsView() }
+        .alert(L("profile.restorePurchases"), isPresented: .constant(restoreMessage != nil), presenting: restoreMessage) { _ in
+            Button(L("common.ok")) { restoreMessage = nil }
         } message: { Text($0) }
         .onAppear {
             if avatarImage == nil { avatarImage = ProfileAvatarStore.load() }
@@ -180,13 +186,15 @@ struct ProfileView: View {
 
     private var appVersionString: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
-        return "ClearMaxx v\(version)"
+        return L("profile.version", version)
     }
 
     private func handle(_ action: SettingsAction) {
         switch action {
         case .about:
             showAbout = true
+        case .language:
+            showLanguage = true
         case .url(let url):
             openURL(url)
         case .mail(let address):
@@ -202,7 +210,7 @@ struct ProfileView: View {
             do {
                 let entitled = try await PurchaseService.shared.restorePurchases()
                 state.isPremium = entitled
-                restoreMessage = entitled ? "Your ClearMaxx Plus subscription was restored." : "No active subscription found for this Apple ID."
+                restoreMessage = entitled ? L("profile.restored") : L("profile.noSubscriptionForAppleID")
             } catch {
                 restoreMessage = error.localizedDescription
             }

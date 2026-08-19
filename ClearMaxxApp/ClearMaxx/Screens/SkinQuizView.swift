@@ -23,9 +23,9 @@ struct SkinQuizView: View {
                 // Progress
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        Text("Quiz Progress").font(CMFont.labelMd).foregroundStyle(CMColor.inkSoft)
+                        Text(L("quiz.progress")).font(CMFont.labelMd).foregroundStyle(CMColor.inkSoft)
                         Spacer()
-                        Text("\(step) of \(totalSteps)").font(CMFont.labelMd).foregroundStyle(CMColor.violetDeep)
+                        Text(L("quiz.stepOf", step, totalSteps)).font(CMFont.labelMd).foregroundStyle(CMColor.violetDeep)
                     }
                     GeometryReader { geo in
                         ZStack(alignment: .leading) {
@@ -44,7 +44,7 @@ struct SkinQuizView: View {
                         Text(subtitle).font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
 
                         ForEach(options, id: \.self) { opt in
-                            QuizOption(text: opt,
+                            QuizOption(text: label(for: opt),
                                        selected: isSelected(opt)) { choose(opt) }
                         }
                     }
@@ -54,7 +54,7 @@ struct SkinQuizView: View {
                 Spacer()
                 HStack(spacing: 14) {
                     GlassPillButton(systemImage: "chevron.left", action: back)
-                    AuraButton(title: step < totalSteps ? "Next" : "See My Results",
+                    AuraButton(title: step < totalSteps ? L("common.next") : L("quiz.seeResults"),
                                systemImage: "arrow.right", action: next)
                 }
                 .padding(.horizontal, 24).padding(.bottom, 30)
@@ -65,16 +65,27 @@ struct SkinQuizView: View {
     // MARK: content per step
     private var question: String {
         switch step {
-        case 1: "What's your skin type?"
-        case 2: "What's the main goal?"
-        default: "Any specific concerns?"
+        case 1: L("quiz.step1.question")
+        case 2: L("quiz.step2.question")
+        default: L("quiz.step3.question")
         }
     }
     private var subtitle: String {
         switch step {
-        case 1: "This calibrates your AI baseline."
-        case 2: "We'll prioritize this in your daily AI ritual."
-        default: "Select all that apply."
+        case 1: L("quiz.step1.subtitle")
+        case 2: L("quiz.step2.subtitle")
+        default: L("quiz.step3.subtitle")
+        }
+    }
+
+    /// Options are stored and sent to the backend as canonical English values
+    /// (they feed the analysis prompt and are persisted in `SkinProfile`);
+    /// only the label the user reads is translated.
+    private func label(for option: String) -> String {
+        switch step {
+        case 1: CMTerms.skinType(option)
+        case 2: CMTerms.goal(option)
+        default: CMTerms.concern(option)
         }
     }
     private var options: [String] {

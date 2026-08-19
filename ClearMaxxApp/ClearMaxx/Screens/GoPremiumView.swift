@@ -25,11 +25,13 @@ struct GoPremiumView: View {
     private var yearlyPackage: Package? { offering?.availablePackages.first { $0.packageType == .annual } }
     private var selectedPackage: Package? { plan == .weekly ? weeklyPackage : yearlyPackage }
 
-    private let features: [(String, String, String)] = [
-        ("flame.fill", "Deep AI Scans", "Analyze 14 distinct skin metrics with sub-dermal precision."),
-        ("leaf.fill", "Unlimited Routines", "Dynamic daily adjustments based on your local climate and stress levels."),
-        ("shield.lefthalf.filled", "Derm-Grade Pro Tips", "Weekly ingredient breakdowns tailored to your skin bio-type.")
-    ]
+    private var features: [(String, String, String)] {
+        [
+            ("flame.fill", L("premium.feature1.title"), L("premium.feature1.body")),
+            ("leaf.fill", L("premium.feature2.title"), L("premium.feature2.body")),
+            ("shield.lefthalf.filled", L("premium.feature3.title"), L("premium.feature3.body"))
+        ]
+    }
 
     var body: some View {
         DewyBackground {
@@ -47,15 +49,15 @@ struct GoPremiumView: View {
 
                     Circle().fill(CMGradient.auraDiagonal).frame(width: 110, height: 110)
                         .overlay(Image(systemName: "sparkles").font(.system(size: 46)).foregroundStyle(.white))
-                        .overlay(Text("PLUS").font(CMFont.inter(10, .bold)).foregroundStyle(.white)
+                        .overlay(Text(L("premium.plus")).font(CMFont.inter(10, .bold)).foregroundStyle(.white)
                             .padding(.horizontal, 12).padding(.vertical, 4)
                             .background(CMColor.violet, in: Capsule()).offset(y: 56))
                         .shadow(color: CMColor.violet.opacity(0.4), radius: 20, y: 10)
 
                     VStack(spacing: 8) {
-                        Text("Elevate Your Glow").font(CMFont.displayLg).foregroundStyle(CMColor.ink)
+                        Text(L("premium.title")).font(CMFont.displayLg).foregroundStyle(CMColor.ink)
                             .multilineTextAlignment(.center).minimumScaleFactor(0.6)
-                        Text("Unlock clinical-grade AI insights and personalized skincare rituals.")
+                        Text(L("premium.subtitle"))
                             .font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft).multilineTextAlignment(.center)
                     }
 
@@ -78,30 +80,30 @@ struct GoPremiumView: View {
 
                     // Plan toggle
                     HStack(spacing: 12) {
-                        planCard(.weekly, title: "Weekly",
+                        planCard(.weekly, title: L("premium.weekly"),
                                  price: weeklyPackage?.storeProduct.localizedPriceString ?? "$5.99", note: nil)
-                        planCard(.yearly, title: "Yearly",
-                                 price: yearlyPackage?.storeProduct.localizedPriceString ?? "$39.99", note: "SAVE 87%")
+                        planCard(.yearly, title: L("premium.yearly"),
+                                 price: yearlyPackage?.storeProduct.localizedPriceString ?? "$39.99", note: L("premium.save87"))
                     }
 
-                    Text("Try 3 days for free, then \(yearlyPackage?.storeProduct.localizedPriceString ?? "$39.99")/year.")
+                    Text(L("premium.trialLine", yearlyPackage?.storeProduct.localizedPriceString ?? "$39.99"))
                         .font(CMFont.labelMd).foregroundStyle(CMColor.ink)
-                    Text("Cancel anytime. No commitment.")
+                    Text(L("premium.cancelAnytime"))
                         .font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
 
                     if let errorMessage {
                         Text(errorMessage).font(CMFont.labelSm).foregroundStyle(CMColor.error)
                     }
 
-                    AuraButton(title: isPurchasing ? "Purchasing…" : "Start Free Trial") {
+                    AuraButton(title: isPurchasing ? L("premium.purchasing") : L("premium.startTrial")) {
                         purchase()
                     }
                     .disabled(isPurchasing || selectedPackage == nil)
 
                     HStack(spacing: 24) {
-                        Text("Terms of Service").onTapGesture { openURL(termsURL) }
-                        Text("Privacy Policy").onTapGesture { openURL(privacyURL) }
-                        Text("Restore Purchases").fontWeight(.bold).onTapGesture { restore() }
+                        Text(L("premium.terms")).onTapGesture { openURL(termsURL) }
+                        Text(L("premium.privacy")).onTapGesture { openURL(privacyURL) }
+                        Text(L("premium.restore")).fontWeight(.bold).onTapGesture { restore() }
                     }
                     .font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft).padding(.bottom, 20)
                 }
@@ -138,7 +140,7 @@ struct GoPremiumView: View {
                 let entitled = try await PurchaseService.shared.restorePurchases()
                 state.isPremium = entitled
                 isPurchasing = false
-                if entitled { dismiss() } else { errorMessage = "No active subscription found." }
+                if entitled { dismiss() } else { errorMessage = L("premium.noSubscription") }
             } catch {
                 isPurchasing = false
                 errorMessage = error.localizedDescription

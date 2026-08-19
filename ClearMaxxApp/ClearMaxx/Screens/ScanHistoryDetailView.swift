@@ -23,13 +23,13 @@ struct ScanHistoryDetailView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
                     }
 
-                    ScanHeroCard(score: record.clearScore, headline: record.skinType,
+                    ScanHeroCard(score: record.clearScore, headline: CMTerms.skinType(record.skinType),
                                  summary: record.summary, confidence: record.confidence)
 
                     HStack {
-                        Text("Metric Breakdown").font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
+                        Text(L("results.metricBreakdown")).font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
                         Spacer()
-                        Text(record.date.formatted(date: .abbreviated, time: .shortened))
+                        Text(record.date.cmFormatted(date: .abbreviated, time: .shortened))
                             .font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
                     }
 
@@ -56,7 +56,7 @@ struct ScanHistoryDetailView: View {
                 Image(systemName: ResultsDashboardView.icon(for: metric.name))
                     .foregroundStyle(tint).font(.system(size: 15, weight: .semibold))
             }
-            MetricBar(label: metric.name, value: metric.value, tint: tint)
+            MetricBar(label: CMTerms.metric(metric.name), value: metric.value, tint: tint)
         }
     }
 }

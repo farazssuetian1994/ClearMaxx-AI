@@ -24,17 +24,17 @@ struct ProgressReportView: View {
                     }
 
                     if !report.working.isEmpty {
-                        trendSection(title: "Working", names: report.working, color: CMColor.success)
+                        trendSection(title: L("report.working"), names: report.working, color: CMColor.success)
                     }
                     if !report.stalled.isEmpty {
-                        trendSection(title: "Stalled", names: report.stalled, color: CMColor.inkSoft)
+                        trendSection(title: L("report.stalled"), names: report.stalled, color: CMColor.inkSoft)
                     }
                     if !report.watch.isEmpty {
-                        trendSection(title: "Watch", names: report.watch, color: CMColor.error)
+                        trendSection(title: L("report.watch"), names: report.watch, color: CMColor.error)
                     }
 
                     if !report.updatedRoutine.isEmpty {
-                        AuraButton(title: didUpdateRoutine ? "Routine Updated" : "Update My Routine",
+                        AuraButton(title: didUpdateRoutine ? L("report.routineUpdated") : L("report.updateRoutine"),
                                   systemImage: didUpdateRoutine ? "checkmark" : "arrow.triangle.2.circlepath") {
                             state.applyUpdatedRoutine(report.updatedRoutine, modelContext: modelContext)
                             didUpdateRoutine = true
@@ -50,9 +50,9 @@ struct ProgressReportView: View {
     private var verdictBadge: some View {
         let (label, color): (String, Color) = {
             switch report.verdict {
-            case "improving": return ("Improving", CMColor.success)
-            case "worsening": return ("Needs Attention", CMColor.error)
-            default:          return ("Steady", CMColor.inkSoft)
+            case "improving": return (L("report.improving"), CMColor.success)
+            case "worsening": return (L("report.needsAttention"), CMColor.error)
+            default:          return (L("report.steady"), CMColor.inkSoft)
             }
         }()
         return TagChip(text: label, tint: color, filled: true)
@@ -63,7 +63,7 @@ struct ProgressReportView: View {
             VStack(alignment: .leading, spacing: 10) {
                 Text(title).font(CMFont.title).foregroundStyle(CMColor.ink)
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack { ForEach(names, id: \.self) { TagChip(text: $0, tint: color) } }
+                    HStack { ForEach(names, id: \.self) { TagChip(text: CMTerms.metric($0), tint: color) } }
                 }
             }
         }

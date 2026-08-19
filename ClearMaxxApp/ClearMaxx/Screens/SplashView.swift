@@ -34,7 +34,7 @@ struct SplashView: View {
                 ClearMaxxWordmark(size: 38)
                     .opacity(appear ? 1 : 0)
 
-                Text("Scan. Track. Glow.")
+                Text(L("splash.tagline"))
                     .font(CMFont.headlineMd)
                     .foregroundStyle(CMColor.text)
                     .opacity(appear ? 1 : 0)
@@ -43,7 +43,7 @@ struct SplashView: View {
 
                 equalizer
 
-                Text("INITIALIZING AI ANALYSIS")
+                Text(L("splash.initializing"))
                     .font(CMFont.inter(11, .semibold))
                     .tracking(2)
                     .foregroundStyle(CMColor.primary.opacity(0.8))

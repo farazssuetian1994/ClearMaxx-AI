@@ -109,7 +109,7 @@ struct ScoreRing: View {
     let score: Int           // 0...100
     var size: CGFloat = 120
     var lineWidth: CGFloat = 12
-    var caption: String = "CLEARSCORE"
+    var caption: String = L("component.clearScore")
 
     private var progress: Double { Double(max(0, min(100, score))) / 100 }
 
@@ -154,7 +154,7 @@ struct ScanHeroCard: View {
 
             VStack(alignment: .leading, spacing: 16) {
                 HStack(alignment: .top) {
-                    ScoreRing(score: score, size: 128, lineWidth: 13, caption: "AI SCORE")
+                    ScoreRing(score: score, size: 128, lineWidth: 13, caption: L("component.aiScore"))
                     Spacer()
                     if let badge {
                         Text(badge.text).font(CMFont.labelSm).foregroundStyle(badge.tint)
@@ -175,9 +175,9 @@ struct ScanHeroCard: View {
                     Divider()
                     HStack {
                         Image(systemName: "checkmark.shield.fill").foregroundStyle(CMColor.success)
-                        Text("AI scan complete").font(CMFont.labelMd).foregroundStyle(CMColor.ink)
+                        Text(L("component.aiScanComplete")).font(CMFont.labelMd).foregroundStyle(CMColor.ink)
                         Spacer()
-                        Text("\(confidence)% confidence").font(CMFont.labelMd).foregroundStyle(CMColor.coralDeep)
+                        Text(L("component.confidence", confidence)).font(CMFont.labelMd).foregroundStyle(CMColor.coralDeep)
                     }
                 }
             }

@@ -29,7 +29,7 @@ struct GlowUpShareView: View {
                     header
 
                     if !resolvedMetricNames.isEmpty {
-                        Text("\(resolvedMetricNames.joined(separator: " & ")) Cleared! 🎉")
+                        Text(L("share.cleared", resolvedMetricNames.map(CMTerms.metric).joined(separator: " & ")))
                             .font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 24)
@@ -45,8 +45,8 @@ struct GlowUpShareView: View {
                     .padding(.horizontal, 24)
 
                     VStack(spacing: 4) {
-                        Text("Flex your glow ✨").font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
-                        Text("Share your progress and inspire others")
+                        Text(L("share.flexTitle")).font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
+                        Text(L("share.flexSubtitle"))
                             .font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
                     }
                     .multilineTextAlignment(.center)
@@ -59,14 +59,14 @@ struct GlowUpShareView: View {
                     }
                     .padding(.horizontal, 24)
 
-                    AuraButton(title: saveConfirmation ? "Saved!" : "Save to Photos",
+                    AuraButton(title: saveConfirmation ? L("share.saved") : L("share.saveToPhotos"),
                                systemImage: saveConfirmation ? "checkmark" : "square.and.arrow.down") {
                         saveToPhotos()
                     }
                     .padding(.horizontal, 24)
 
                     if let onContinue {
-                        Button("Continue", action: onContinue)
+                        Button(L("common.continue"), action: onContinue)
                             .font(CMFont.labelMd).foregroundStyle(CMColor.violetDeep)
                     }
                 }
@@ -93,7 +93,7 @@ struct GlowUpShareView: View {
     // MARK: ClearScore change stat card
 
     private var scoreDeltaText: String {
-        scoreDelta >= 0 ? "+\(scoreDelta) Points" : "\(scoreDelta) Points"
+        L("share.points", scoreDelta >= 0 ? "+\(scoreDelta)" : "\(scoreDelta)")
     }
 
     private var scoreCard: some View {
@@ -105,7 +105,7 @@ struct GlowUpShareView: View {
                         Image(systemName: "chart.line.uptrend.xyaxis")
                             .font(.system(size: 11, weight: .semibold)).foregroundStyle(CMColor.primary)
                     }
-                    Text("ClearScore Change").font(CMFont.labelMd).foregroundStyle(CMColor.inkSoft)
+                    Text(L("share.clearScoreChange")).font(CMFont.labelMd).foregroundStyle(CMColor.inkSoft)
                 }
                 Text(scoreDeltaText).font(CMFont.inter(26, .heavy)).foregroundStyle(CMColor.primary)
             }
@@ -113,7 +113,7 @@ struct GlowUpShareView: View {
             Rectangle().fill(CMColor.outline.opacity(0.6)).frame(width: 1, height: 46)
             Spacer(minLength: 8)
             VStack(alignment: .leading, spacing: 8) {
-                Text("ClearScore").font(CMFont.labelMd).foregroundStyle(CMColor.inkSoft)
+                Text(L("progress.clearScore")).font(CMFont.labelMd).foregroundStyle(CMColor.inkSoft)
                 HStack(spacing: 8) {
                     scorePair(beforeScore, tint: CMColor.ink)
                     Image(systemName: "arrow.right").font(.system(size: 12, weight: .semibold)).foregroundStyle(CMColor.inkSoft)
@@ -138,12 +138,12 @@ struct GlowUpShareView: View {
         HStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 2) {
                 ClearMaxxWordmark(size: 15)
-                Text("AI Dermatology Analysis").font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
+                Text(L("share.aiDermAnalysis")).font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
             }
             Spacer(minLength: 4)
-            credibilityBadge(icon: "checkmark.shield.fill", text: "Clinically\nBacked AI")
+            credibilityBadge(icon: "checkmark.shield.fill", text: L("share.clinicallyBacked"))
             Spacer(minLength: 4)
-            credibilityBadge(icon: "checkmark.seal.fill", text: "Verified\nResult")
+            credibilityBadge(icon: "checkmark.seal.fill", text: L("share.verifiedResult"))
         }
         .padding(16)
         .background(.white, in: RoundedRectangle(cornerRadius: 18, style: .continuous))

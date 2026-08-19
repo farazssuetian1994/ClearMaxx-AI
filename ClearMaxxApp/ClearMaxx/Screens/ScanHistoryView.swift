@@ -19,8 +19,8 @@ struct ScanHistoryView: View {
                 VStack(alignment: .leading, spacing: 14) {
                     HStack(alignment: .top) {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Scan History").font(CMFont.headlineLg).foregroundStyle(CMColor.ink)
-                            Text("\(scanRecords.count) saved scan\(scanRecords.count == 1 ? "" : "s")")
+                            Text(L("history.title")).font(CMFont.headlineLg).foregroundStyle(CMColor.ink)
+                            Text(L(scanRecords.count == 1 ? "history.savedScansOne" : "history.savedScansOther", scanRecords.count))
                                 .font(CMFont.labelMd).foregroundStyle(CMColor.inkSoft)
                         }
                         Spacer()
@@ -32,7 +32,7 @@ struct ScanHistoryView: View {
                                     .background(CMColor.primary.opacity(0.12), in: Circle())
                             }
                             .buttonStyle(.plain)
-                            .accessibilityLabel(newestFirst ? "Sorted newest first" : "Sorted oldest first")
+                            .accessibilityLabel(newestFirst ? L("history.sortedNewest") : L("history.sortedOldest"))
                         }
                     }
                     .padding(.top, 8).padding(.bottom, 4)
@@ -40,8 +40,8 @@ struct ScanHistoryView: View {
                     if scanRecords.isEmpty {
                         GlassCard {
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("No scans yet").font(CMFont.title).foregroundStyle(CMColor.ink)
-                                Text("Every scan you take will be saved here so you can revisit it anytime.")
+                                Text(L("history.emptyTitle")).font(CMFont.title).foregroundStyle(CMColor.ink)
+                                Text(L("history.emptyBody"))
                                     .font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
                             }
                         }
@@ -95,14 +95,14 @@ private struct ScanHistoryRow: View {
                 VStack(alignment: .leading, spacing: 5) {
                     HStack(spacing: 4) {
                         Image(systemName: "calendar").font(.system(size: 10)).foregroundStyle(CMColor.coralDeep)
-                        Text(record.date.formatted(date: .abbreviated, time: .omitted))
+                        Text(record.date.cmFormatted(date: .abbreviated, time: .omitted))
                             .font(CMFont.labelMd).foregroundStyle(CMColor.ink)
                             .lineLimit(1).minimumScaleFactor(0.8)
                     }
-                    Text(record.date.formatted(date: .omitted, time: .shortened))
+                    Text(record.date.cmFormatted(date: .omitted, time: .shortened))
                         .font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
                         .lineLimit(1)
-                    TagChip(text: record.skinType, tint: CMColor.violetDeep, icon: "drop.fill")
+                    TagChip(text: CMTerms.skinType(record.skinType), tint: CMColor.violetDeep, icon: "drop.fill")
                         .fixedSize()
                 }
                 .layoutPriority(1)
@@ -111,7 +111,7 @@ private struct ScanHistoryRow: View {
 
                 VStack(spacing: 0) {
                     Text("\(record.clearScore)").font(CMFont.inter(20, .heavy)).foregroundStyle(CMColor.coralDeep)
-                    Text("SCORE").font(CMFont.inter(8, .bold)).tracking(0.5).foregroundStyle(CMColor.inkSoft)
+                    Text(L("history.score")).font(CMFont.inter(8, .bold)).tracking(0.5).foregroundStyle(CMColor.inkSoft)
                 }
                 .fixedSize()
                 .padding(.horizontal, 10).padding(.vertical, 8)

@@ -30,16 +30,16 @@ struct ResultsDashboardView: View {
         guard let delta = scoreDelta, let previous = previousRecord, previous.clearScore > 0 else { return nil }
         let pct = abs(Double(delta)) / Double(previous.clearScore) * 100
         let pctText = String(format: "%.1f", pct)
-        if delta > 0 { return ("▲ Improving (+\(pctText)%)", CMColor.success) }
-        if delta < 0 { return ("▼ Down (\(pctText)%)", CMColor.error) }
-        return ("● Steady", CMColor.inkSoft)
+        if delta > 0 { return (L("results.improving", pctText), CMColor.success) }
+        if delta < 0 { return (L("results.down", pctText), CMColor.error) }
+        return (L("results.steady"), CMColor.inkSoft)
     }
 
     private var headline: String {
-        guard let delta = scoreDelta else { return "Nice first scan!" }
-        if delta > 0 { return "Good progress!" }
-        if delta < 0 { return "Stay consistent" }
-        return "Holding steady"
+        guard let delta = scoreDelta else { return L("results.headlineFirst") }
+        if delta > 0 { return L("results.headlineUp") }
+        if delta < 0 { return L("results.headlineDown") }
+        return L("results.headlineFlat")
     }
 
     var body: some View {
@@ -51,7 +51,7 @@ struct ResultsDashboardView: View {
                         .padding(.top, 8)
 
                     HStack {
-                        Text("Metric Breakdown").font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
+                        Text(L("results.metricBreakdown")).font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
                         Spacer()
                     }
 
@@ -65,15 +65,15 @@ struct ResultsDashboardView: View {
                         }
                     }
 
-                    TipCard(title: "Keep it up!",
-                            message: "Consistency is the key to healthy, glowing skin.")
+                    TipCard(title: L("results.tipTitle"),
+                            message: L("results.tipBody"))
 
-                    AuraButton(title: "See Detailed Analysis", systemImage: "sparkles") {
+                    AuraButton(title: L("results.seeDetailed"), systemImage: "sparkles") {
                         if let first = state.displayMetrics.first { onIssue(first) }
                     }
 
                     Button(action: onRescan) {
-                        Text("Re-scan").font(CMFont.labelMd).foregroundStyle(CMColor.violetDeep)
+                        Text(L("results.rescan")).font(CMFont.labelMd).foregroundStyle(CMColor.violetDeep)
                     }
                     .padding(.bottom, 90)
                 }
@@ -92,7 +92,7 @@ struct ResultsDashboardView: View {
                 Circle().fill(m.tint.opacity(0.15)).frame(width: 34, height: 34)
                 Image(systemName: Self.icon(for: m.name)).foregroundStyle(m.tint).font(.system(size: 15, weight: .semibold))
             }
-            MetricBar(label: m.name, value: m.value, tint: m.tint)
+            MetricBar(label: CMTerms.metric(m.name), value: m.value, tint: m.tint)
         }
     }
 

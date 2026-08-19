@@ -12,17 +12,15 @@ struct IssueDetailView: View {
 
     private var severityLabel: String {
         switch metric.value {
-        case ..<25: return "Low"
-        case 25..<55: return "Moderate"
-        default: return "High"
+        case ..<25: return L("common.low")
+        case 25..<55: return L("severity.moderate")
+        default: return L("common.high")
         }
     }
 
-    private let defaultRituals = [
-        "Cool your products in the fridge before applying to instantly constrict blood vessels.",
-        "Avoid hot water while cleansing; lukewarm is the golden rule for reactive skin.",
-        "Pat dry with a fresh micro-fiber towel instead of rubbing to minimize friction."
-    ]
+    private var defaultRituals: [String] {
+        [L("issue.ritual1"), L("issue.ritual2"), L("issue.ritual3")]
+    }
     /// Prefer the AI's per-issue tips; fall back to the generic rituals.
     private var rituals: [String] { metric.tips.isEmpty ? defaultRituals : metric.tips }
 
@@ -35,7 +33,7 @@ struct IssueDetailView: View {
                         RoundedRectangle(cornerRadius: 24, style: .continuous)
                             .fill(CMGradient.auraDiagonal).frame(height: 160)
                         VStack(alignment: .leading, spacing: 6) {
-                            TagChip(text: "Analysis Result", tint: .white, filled: false)
+                            TagChip(text: L("issue.analysisResult"), tint: .white, filled: false)
                                 .background(.white.opacity(0.2), in: Capsule())
                             Text(issueTitle).font(CMFont.headlineLg).foregroundStyle(.white)
                         }.padding(18)
@@ -45,7 +43,7 @@ struct IssueDetailView: View {
                     GlassCard {
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
-                                Text("Severity Level").font(CMFont.title).foregroundStyle(CMColor.ink)
+                                Text(L("issue.severityLevel")).font(CMFont.title).foregroundStyle(CMColor.ink)
                                 Spacer()
                                 Text(severityLabel).font(CMFont.labelMd).foregroundStyle(CMColor.violetDeep)
                             }
@@ -57,9 +55,9 @@ struct IssueDetailView: View {
                                 }.frame(height: 8)
                             }
                             HStack {
-                                Text("Low").font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
+                                Text(L("common.low")).font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
                                 Spacer()
-                                Text("High").font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
+                                Text(L("common.high")).font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
                             }
                         }
                     }
@@ -67,14 +65,14 @@ struct IssueDetailView: View {
                     // What this means
                     GlassCard {
                         VStack(alignment: .leading, spacing: 10) {
-                            Label("What this means", systemImage: "info.circle.fill")
+                            Label(L("issue.whatThisMeans"), systemImage: "info.circle.fill")
                                 .font(CMFont.title).foregroundStyle(CMColor.ink)
                             Text(metric.blurb).font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
                         }
                     }
 
                     // Recommended rescue
-                    Text("Recommended Rescue").font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
+                    Text(L("issue.recommendedRescue")).font(CMFont.headlineMd).foregroundStyle(CMColor.ink)
                     ForEach(metric.ingredients, id: \.self) { ing in
                         GlassCard {
                             HStack(spacing: 14) {
@@ -83,7 +81,7 @@ struct IssueDetailView: View {
                                     .overlay(Image(systemName: "drop.fill").foregroundStyle(CMColor.violet))
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(ing).font(CMFont.title).foregroundStyle(CMColor.ink)
-                                    Text("Targets \(metric.name.lowercased()) and supports the skin barrier.")
+                                    Text(L("issue.ingredientBlurb", CMTerms.metric(metric.name).lowercased()))
                                         .font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
                                 }
                                 Spacer()
@@ -94,7 +92,7 @@ struct IssueDetailView: View {
                     // Pro rituals
                     GlassCard {
                         VStack(alignment: .leading, spacing: 12) {
-                            Label("Pro Rituals", systemImage: "sparkles")
+                            Label(L("issue.proRituals"), systemImage: "sparkles")
                                 .font(CMFont.title).foregroundStyle(CMColor.violetDeep)
                             ForEach(Array(rituals.enumerated()), id: \.offset) { i, r in
                                 HStack(alignment: .top, spacing: 10) {
@@ -106,7 +104,7 @@ struct IssueDetailView: View {
                         }
                     }
 
-                    AuraButton(title: "Update My Routine", systemImage: "arrow.triangle.2.circlepath")
+                    AuraButton(title: L("issue.updateRoutine"), systemImage: "arrow.triangle.2.circlepath")
                         .padding(.bottom, 90)
                 }
                 .padding(.horizontal, 24)
@@ -120,10 +118,10 @@ struct IssueDetailView: View {
 
     private var issueTitle: String {
         switch metric.name {
-        case "Redness": "Persistent Redness"
-        case "Acne": "Active Breakouts"
-        case "Dark Spots": "Post-Acne Marks"
-        default: metric.name
+        case "Redness": L("issue.title.redness")
+        case "Acne": L("issue.title.acne")
+        case "Dark Spots": L("issue.title.darkSpots")
+        default: CMTerms.metric(metric.name)
         }
     }
 }
