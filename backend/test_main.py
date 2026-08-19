@@ -70,7 +70,8 @@ def test_normalize_routine_steps_ignores_non_dict_items():
     assert result["routineSteps"][0]["time"] == "PM"
 
 
-from main import _normalize_progress, PROGRESS_PROMPT
+from main import (_normalize_progress, PROGRESS_PROMPT, _language_instruction,
+                  _build_analysis_prompt, _normalize_category, ROUTINE_CATEGORIES)
 
 
 def test_normalize_progress_valid_passthrough():
@@ -118,6 +119,69 @@ def test_normalize_progress_caps_updated_routine_at_eight():
 
 
 def test_progress_prompt_has_trends_and_routine_placeholders():
-    rendered = PROGRESS_PROMPT.format(trends_json="{}", routine_json="[]")
+    rendered = PROGRESS_PROMPT.format(trends_json="{}", routine_json="[]", language_block="")
     assert "{}" in rendered
     assert "[]" in rendered
+
+
+def test_language_instruction_is_empty_for_english_and_unknown_codes():
+    for code in ("en", "EN", None, "", "xx"):
+        assert _language_instruction(code, free_text_fields="a", canonical_fields="b") == ""
+
+
+def test_language_instruction_names_the_language_and_protects_canonical_fields():
+    block = _language_instruction("ja", free_text_fields="summary", canonical_fields='"severity"')
+    assert "Japanese" in block
+    assert "summary" in block
+    assert '"severity"' in block
+
+
+def test_localized_prompt_protects_routine_category_from_translation():
+    """`category` drives the app's routine icon/tint heuristic, which matches on
+    English substrings — translating it would silently break those icons."""
+    for prompt in (_build_analysis_prompt(None, "ja"), _build_analysis_prompt(None, "es")):
+        assert 'always in English' in prompt
+        # It must be named as protected, not as translatable prose.
+        block = prompt[prompt.index("LANGUAGE (hard requirement)"):]
+        assert '"category"' in block
+        assert "title/detail/tags" in block
+        assert "category/title/detail/tags" not in block
+
+
+def test_analysis_prompt_is_unchanged_for_english_but_localized_otherwise():
+    english = _build_analysis_prompt(None, "en")
+    korean = _build_analysis_prompt(None, "ko")
+    assert "LANGUAGE (hard requirement)" not in english
+    assert "Korean" in korean
+    # The canonical identifiers must never be presented as translatable.
+    assert "Good/Mild/Moderate/Severe" in korean
+
+
+def test_normalize_category_passes_through_canonical_values():
+    for category in ROUTINE_CATEGORIES:
+        assert _normalize_category(category) == category
+
+
+def test_normalize_category_maps_model_inventions_onto_the_list():
+    # Observed in real Vertex responses, plus near-misses worth covering.
+    assert _normalize_category("Eye Cream") == "Eye Cream"
+    assert _normalize_category("eye serum") == "Eye Cream"     # 'eye' wins over 'serum'
+    assert _normalize_category("Gentle Face Wash") == "Cleanser"
+    assert _normalize_category("Hydrating Toner") == "Toner"
+    assert _normalize_category("Chemical Peel") == "Exfoliant"
+    assert _normalize_category("Night Cream") == "Moisturizer"
+    assert _normalize_category("SPF 50") == "Sunscreen"
+    assert _normalize_category("Sheet Mask") == "Mask"
+
+
+def test_normalize_category_falls_back_rather_than_leaking_unknown_text():
+    """The app can only translate values on the list, so nothing else may pass."""
+    for junk in ("", None, "???", "Étape inconnue", "美容液ステップ"):
+        assert _normalize_category(junk) in ROUTINE_CATEGORIES
+
+
+def test_normalize_routine_step_never_emits_an_untranslatable_category():
+    from main import _normalize_routine_step
+    step = _normalize_routine_step({"time": "PM", "category": "Retinol Booster",
+                                    "title": "T", "detail": "D", "tags": []})
+    assert step["category"] in ROUTINE_CATEGORIES

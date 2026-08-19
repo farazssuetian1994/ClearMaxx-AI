@@ -93,7 +93,50 @@ else:
 METRICS = ["Acne", "Pores", "Hydration", "Dark Spots",
            "Redness", "Wrinkles", "Oiliness", "Dark Circles"]
 
-def _build_analysis_prompt(profile: dict | None = None) -> str:
+# The app ships these 12 languages (see CMLanguages in CMLocale.swift). The
+# client sends its active code and every free-text field comes back written in
+# that language; anything the app keys off of stays canonical English.
+LANGUAGE_NAMES = {
+    "en": "English",
+    "zh": "Simplified Chinese (简体中文)",
+    "es": "Spanish (Español)",
+    "ar": "Arabic (العربية)",
+    "hi": "Hindi (हिन्दी)",
+    "ja": "Japanese (日本語)",
+    "ko": "Korean (한국어)",
+    "fr": "French (Français)",
+    "de": "German (Deutsch)",
+    "pt": "Portuguese (Português)",
+    "tr": "Turkish (Türkçe)",
+    "ru": "Russian (Русский)",
+}
+
+
+def _language_instruction(code, free_text_fields: str, canonical_fields: str) -> str:
+    """Instructs the model to write prose in the user's language while leaving
+    the enum-ish fields the app switches on in canonical English.
+
+    Returns "" for English (and for anything unrecognized), so the prompt is
+    byte-identical to what it was before this feature for English users.
+    """
+    name = LANGUAGE_NAMES.get(str(code or "").lower())
+    if not name or name == "English":
+        return ""
+    return f"""
+LANGUAGE (hard requirement):
+- Write EVERY free-text field ({free_text_fields}) in {name}. Not a single
+  user-visible sentence, phrase, or word may come back in English.
+- Ingredient names must also be given in {name} — use the name a shopper in that
+  language would recognize, and put the English/INCI name in parentheses after it
+  only when the local name would otherwise be ambiguous.
+- EXCEPTION — these are machine-read identifiers, not text shown to the user, and
+  MUST stay in exact canonical English: {canonical_fields}. Translating any of
+  them breaks the app.
+- Use natural, native phrasing, not a word-for-word translation of English.
+"""
+
+
+def _build_analysis_prompt(profile: dict | None = None, language: str | None = None) -> str:
     """Builds ANALYSIS_PROMPT, optionally injecting the user's onboarding-quiz
     answers so routineSteps/tone are personalized to their stated goal and
     concerns. Always subordinate to what's actually visible in the photo —
@@ -116,6 +159,14 @@ def _build_analysis_prompt(profile: dict | None = None) -> str:
                 "tailor ingredient choices/tone toward their stated goal):\n"
                 + "\n".join(lines) + "\n"
             )
+    language_block = _language_instruction(
+        language,
+        free_text_fields="summary, every metric's summary, every tip, and every "
+                         "routine step's title/detail/tags",
+        canonical_fields='the metric "name" values (exactly as listed above), '
+                         '"severity" (Good/Mild/Moderate/Severe), "skinType" '
+                         '(Oily/Dry/Combination/Normal/Sensitive), "time" (AM/PM), '
+                         'and every routine step\'s "category"')
     return f"""
 You are a dermatology-aware skin analysis assistant for a consumer skincare app.
 Analyze the FACE in the image and return ONLY a JSON object (no markdown) with EXACTLY this shape:
@@ -139,7 +190,7 @@ Analyze the FACE in the image and return ONLY a JSON object (no markdown) with E
   "routineSteps": [
     {{
       "time": <"AM" or "PM">,
-      "category": <e.g. "Cleanser","Treatment","Moisturizer","Sunscreen">,
+      "category": <EXACTLY one of "Cleanser","Toner","Exfoliant","Treatment","Serum","Eye Cream","Moisturizer","Sunscreen","Mask" — always in English>,
       "title": <short product/step name, max 40 chars>,
       "detail": <one sentence, max 140 chars, naming the SPECIFIC metric/severity from
                  THIS scan that this step addresses — e.g. "Targets your Moderate acne
@@ -165,6 +216,7 @@ Rules:
   retinoid/peptide-style treatment steps; goal "Clear Acne" → favor exfoliation/salicylic
   steps) whenever that's consistent with what the photo actually shows.
 - Output raw JSON only.
+{language_block}
 """.strip()
 
 
@@ -175,12 +227,47 @@ def _safe_int(v, default=0):
         return default
 
 
+# The app translates `category` for display by looking it up in a fixed table
+# (CMTerms.routineCategory), so an off-list value would render untranslated in a
+# localized UI. The model is asked for these in the prompt; this coerces the
+# occasional invention ("Eye Cream", "Toner", ...) back onto the list so the app
+# is guaranteed a key it can translate.
+ROUTINE_CATEGORIES = ["Cleanser", "Toner", "Exfoliant", "Treatment", "Serum",
+                      "Eye Cream", "Moisturizer", "Sunscreen", "Mask"]
+
+_CATEGORY_ALIASES = [
+    ("cleans", "Cleanser"), ("wash", "Cleanser"), ("foam", "Cleanser"),
+    ("toner", "Toner"), ("tonic", "Toner"), ("essence", "Toner"),
+    ("exfoli", "Exfoliant"), ("peel", "Exfoliant"), ("scrub", "Exfoliant"),
+    ("eye", "Eye Cream"),
+    ("serum", "Serum"), ("ampoule", "Serum"),
+    ("moistur", "Moisturizer"), ("cream", "Moisturizer"), ("lotion", "Moisturizer"),
+    ("hydrat", "Moisturizer"), ("balm", "Moisturizer"),
+    ("sun", "Sunscreen"), ("spf", "Sunscreen"), ("uv", "Sunscreen"),
+    ("mask", "Mask"), ("pack", "Mask"),
+    ("treat", "Treatment"), ("spot", "Treatment"), ("retino", "Treatment"),
+]
+
+
+def _normalize_category(value) -> str:
+    """Map any model-supplied category onto ROUTINE_CATEGORIES."""
+    raw = str(value or "").strip()
+    for category in ROUTINE_CATEGORIES:
+        if raw.lower() == category.lower():
+            return category
+    lowered = raw.lower()
+    for needle, category in _CATEGORY_ALIASES:
+        if needle in lowered:
+            return category
+    return "Treatment"
+
+
 def _normalize_routine_step(s: dict) -> dict:
     """Coerce one routine-step object into the exact shape the app expects."""
     time = s.get("time") if s.get("time") in {"AM", "PM"} else "AM"
     return {
         "time": time,
-        "category": str(s.get("category", ""))[:40],
+        "category": _normalize_category(s.get("category")),
         "title": str(s.get("title", ""))[:40],
         "detail": str(s.get("detail", ""))[:160],
         "tags": [str(x) for x in (s.get("tags") or [])][:3],
@@ -248,7 +335,7 @@ Return ONLY a JSON object (no markdown) with EXACTLY this shape:
   "updatedRoutine": [
     {{
       "time": <"AM" or "PM">,
-      "category": <e.g. "Cleanser","Treatment","Moisturizer","Sunscreen">,
+      "category": <EXACTLY one of "Cleanser","Toner","Exfoliant","Treatment","Serum","Eye Cream","Moisturizer","Sunscreen","Mask" — always in English>,
       "title": <short product/step name, max 40 chars>,
       "detail": <one sentence, max 140 chars, tied to a specific trend above>,
       "tags": [<0-3 short tags>]
@@ -268,6 +355,7 @@ Rules:
 - Never claim to detect medical conditions. Be encouraging but honest — do
   not claim improvement that the given trends do not support.
 - Output raw JSON only.
+{language_block}
 """.strip()
 
 
@@ -326,7 +414,7 @@ def _generate(parts: list, prompt: str) -> str:
     the same model-fallback behavior and the same bounded output budget.
     """
     config = types.GenerateContentConfig(response_mime_type="application/json",
-                                         temperature=0.4, max_output_tokens=4096)
+                                         temperature=0.4, max_output_tokens=8192)
     last_err = None
     for model in (PRIMARY_MODEL, FALLBACK_MODEL):
         try:
@@ -348,6 +436,7 @@ def analyze_skin():
 
     # Accept JSON {image_base64: ...} (iOS) or multipart 'image'.
     profile = None
+    language = None
     try:
         if request.is_json:
             data = request.get_json(silent=True) or {}
@@ -362,6 +451,7 @@ def analyze_skin():
                 "goal": data.get("goal"),
                 "concerns": data.get("concerns"),
             }
+            language = data.get("language")
         elif "image" in request.files:
             image = Image.open(io.BytesIO(request.files["image"].read()))
         else:
@@ -375,7 +465,7 @@ def analyze_skin():
 
     try:
         image_part = types.Part.from_bytes(data=img_bytes, mime_type="image/jpeg")
-        raw = _generate([image_part], _build_analysis_prompt(profile))
+        raw = _generate([image_part], _build_analysis_prompt(profile, language))
         try:
             parsed = json.loads(raw)
         except json.JSONDecodeError:
@@ -438,6 +528,13 @@ def analyze_progress():
             "scanCount": data.get("scan_count"),
         }),
         routine_json=json.dumps(current_routine),
+        language_block=_language_instruction(
+            data.get("language"),
+            free_text_fields="headline, narrative, and every updatedRoutine "
+                             "step's title/detail/tags",
+            canonical_fields='"verdict" (improving/steady/worsening), "time" '
+                             '(AM/PM), every step\'s "category", and the metric '
+                             'names echoed in working/stalled/watch'),
     )
     if not parts:
         prompt = ("NOTE: No photos were provided for this comparison — rely entirely on "
