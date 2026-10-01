@@ -68,7 +68,8 @@ synchronized group, so they are picked up automatically.
 | File | Responsibility |
 |---|---|
 | `MotionTimeline.swift` | Pure, UI-free keyframe math: loop progress from elapsed time, `ramp(t, from:to:)` with easing, `pop` overshoot, `window(t, in:out:)` for appear/hold/disappear, `lerp`. This is the only file with logic, and it's unit tested. |
-| `FaceIllustration.swift` | The shared face (`FaceIllustration`) and spots (`SkinSpots`) as SwiftUI `Path`s ported from the mockup SVG, plus a `DesignSpace` helper that maps 200 × 240 coordinates into the card. |
+| `HeroDrawing.swift` | `HeroPaint`: scales a `Canvas` context into the 200 × 240 design space, and draws the shared pills and fitted single-line text. |
+| `FaceIllustration.swift` | The shared face and its spots as SwiftUI `Path`s ported one-to-one from the mockup SVG. |
 | `ScanHero.swift`, `RoutineHero.swift`, `ProgressHero.swift` | Each one is a view of `t` (0..<1) only. No timers, no state, so any frame can be rendered for previews and Reduce Motion. |
 | `OnboardingHero.swift` | Container: the card chrome, plus a `TimelineView(.animation(paused: !isActive))` clock. The clock restarts at `t = 0` whenever the slide becomes the visible page, so every slide plays its story from the beginning. |
 
@@ -98,8 +99,8 @@ New keys, added to all 12 locales:
 **RTL:** the hero forces `.leftToRight` layout, like `ClearMaxxWordmark`, because
 it's an illustration whose geometry must not mirror. The text inside still renders
 right-to-left. Left-side labels anchor by their trailing edge and right-side labels
-by their leading edge. Labels use `lineLimit(1)` + `minimumScaleFactor(0.7)` so
-long German or Russian strings shrink instead of clipping.
+by their leading edge. Labels are measured before drawing and shrink (to 70 % at most) and slide
+sideways, so long German or Russian strings stay inside the card instead of clipping.
 
 ## Accessibility and performance
 
@@ -120,5 +121,5 @@ long German or Russian strings shrink instead of clipping.
   loop progress wraps at 6 s, `ramp` is 0 before / 1 after / eased between,
   `window` handles appear → hold → disappear, `pop` overshoots and settles, and the
   count-up maps 0 → 62 and 1 → 84.
-- **Visual (simulator):** screenshot each slide mid-loop on an iPhone SE and an
-  iPhone 16 Pro Max, and in German (long labels) and Arabic (RTL).
+- **Visual (simulator):** screenshot each slide mid-loop on an iPhone SE (or the
+  smallest available simulator) and an iPhone 17 Pro, and in German (long labels) and Arabic (RTL).
