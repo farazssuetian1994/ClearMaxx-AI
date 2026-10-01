@@ -146,6 +146,31 @@ final class OnboardingMotionTests: XCTestCase {
         XCTAssertEqual(end.chipOpacity, 0, accuracy: 1e-9)
     }
 
+    // MARK: - Slide 3 · Progress
+
+    func test_progress_startsFromDayOne() {
+        let frame = ProgressFrame(t: 0)
+        XCTAssertEqual(frame.score, ProgressFrame.startScore)
+        XCTAssertEqual(frame.spotsClipX, 170, accuracy: 1e-9, "every spot is still showing")
+        XCTAssertEqual(frame.lineDraw, 0, accuracy: 1e-9)
+    }
+
+    func test_progress_restingFrame_isTheFinishedBeforeAndAfter() {
+        let frame = ProgressFrame(t: ProgressFrame.restingT)
+        XCTAssertEqual(frame.score, ProgressFrame.endScore)
+        XCTAssertEqual(frame.handleX, 100, accuracy: 1e-9)
+        XCTAssertEqual(frame.spotsClipX, 100, accuracy: 1e-9)
+        XCTAssertEqual(frame.lineDraw, 1, accuracy: 1e-9)
+        XCTAssertEqual(frame.dayOpacity, 1, accuracy: 1e-9)
+        XCTAssertEqual(frame.dotOpacity, 1, accuracy: 1e-9)
+    }
+
+    func test_progress_spotsAndLineResetBeforeTheLoopSeam() {
+        let end = ProgressFrame(t: 0.99)
+        XCTAssertEqual(end.spotsClipX, 170, accuracy: 1e-9)
+        XCTAssertEqual(end.lineDraw, 0, accuracy: 1e-9)
+    }
+
     private static func catalog(_ code: String) throws -> [String: String] {
         let url = try XCTUnwrap(Bundle.main.url(forResource: code, withExtension: "json")
             ?? Bundle.main.url(forResource: code, withExtension: "json", subdirectory: "Locales"),
