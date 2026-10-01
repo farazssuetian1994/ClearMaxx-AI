@@ -119,6 +119,33 @@ final class OnboardingMotionTests: XCTestCase {
         }
     }
 
+    // MARK: - Slide 2 · Routine
+
+    func test_routine_stepsArriveInOrder() {
+        for i in 1..<RoutineFrame.rowCount {
+            XCTAssertGreaterThan(RoutineFrame.rowStart(i), RoutineFrame.rowStart(i - 1))
+        }
+    }
+
+    func test_routine_restingFrame_showsEveryStepInAndTicked() {
+        let frame = RoutineFrame(t: RoutineFrame.restingT)
+        for i in 0..<RoutineFrame.rowCount {
+            XCTAssertEqual(frame.rowOpacity(i), 1, accuracy: 1e-9)
+            XCTAssertEqual(frame.rowSlide(i), 0, accuracy: 1e-9)
+            XCTAssertEqual(frame.checkFill(i), 1, accuracy: 1e-9)
+            XCTAssertEqual(frame.tickDraw(i), 1, accuracy: 1e-9)
+        }
+        XCTAssertEqual(frame.chipOpacity, 1, accuracy: 1e-9)
+    }
+
+    func test_routine_everythingHasLeftByTheLoopSeam() {
+        let end = RoutineFrame(t: 0.9999)
+        for i in 0..<RoutineFrame.rowCount {
+            XCTAssertEqual(end.rowOpacity(i), 0, accuracy: 1e-9)
+        }
+        XCTAssertEqual(end.chipOpacity, 0, accuracy: 1e-9)
+    }
+
     private static func catalog(_ code: String) throws -> [String: String] {
         let url = try XCTUnwrap(Bundle.main.url(forResource: code, withExtension: "json")
             ?? Bundle.main.url(forResource: code, withExtension: "json", subdirectory: "Locales"),
