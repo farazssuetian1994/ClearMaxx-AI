@@ -67,4 +67,31 @@ final class OnboardingMotionTests: XCTestCase {
         XCTAssertEqual(MotionTimeline.subPhase(0.325 / 6, period: 1.3), 0.25, accuracy: 1e-9)
         XCTAssertEqual(MotionTimeline.subPhase(1.625 / 6, period: 1.3), 0.25, accuracy: 1e-9)
     }
+
+    // MARK: - Strings
+
+    func test_everyLanguageHasTheAnimationStrings() throws {
+        let keys = ["onboarding.anim.morningRitual", "onboarding.anim.step1", "onboarding.anim.step2",
+                    "onboarding.anim.step3", "onboarding.anim.step4", "onboarding.anim.builtFromScan",
+                    "onboarding.anim.day"]
+        for code in CMLanguages.codes {
+            let catalog = try Self.catalog(code)
+            for key in keys {
+                XCTAssertFalse(catalog[key, default: ""].isEmpty, "\(code) is missing \(key)")
+            }
+            XCTAssertTrue(catalog["onboarding.anim.day", default: ""].contains("{0}"),
+                          "\(code): the day label needs its {0} placeholder")
+        }
+    }
+
+    func test_englishScanTitle_saysSmartScanLikeEveryOtherLanguage() throws {
+        XCTAssertEqual(try Self.catalog("en")["onboarding.slide1.title"], "Smart Scan")
+    }
+
+    private static func catalog(_ code: String) throws -> [String: String] {
+        let url = try XCTUnwrap(Bundle.main.url(forResource: code, withExtension: "json")
+            ?? Bundle.main.url(forResource: code, withExtension: "json", subdirectory: "Locales"),
+            "no catalog for \(code)")
+        return try JSONDecoder().decode([String: String].self, from: Data(contentsOf: url))
+    }
 }
