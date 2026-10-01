@@ -6,24 +6,33 @@
 import SwiftUI
 
 private struct OnboardSlide: Identifiable {
-    let id = UUID()
-    let icon: String
+    let hero: OnboardingHeroKind
     let title: String
     let body: String
+    /// Stable across `body` passes, so each slide's hero keeps its clock.
+    var id: OnboardingHeroKind { hero }
 }
 
 struct OnboardingView: View {
     @ObserveInjection var inject
     @EnvironmentObject var state: AppState
-    @State private var page = 0
+    @State private var page: Int = {
+        #if DEBUG
+        // Open straight onto a slide for screenshots:
+        //   xcrun simctl launch booted com.clearmaxx.app -cmOnboardingPage 2
+        return min(max(UserDefaults.standard.integer(forKey: "cmOnboardingPage"), 0), 2)
+        #else
+        return 0
+        #endif
+    }()
 
     private var slides: [OnboardSlide] {
         [
-            .init(icon: "camera.viewfinder", title: L("onboarding.slide1.title"),
+            .init(hero: .scan, title: L("onboarding.slide1.title"),
                   body: L("onboarding.slide1.body")),
-            .init(icon: "list.bullet.clipboard", title: L("onboarding.slide2.title"),
+            .init(hero: .routine, title: L("onboarding.slide2.title"),
                   body: L("onboarding.slide2.body")),
-            .init(icon: "chart.line.uptrend.xyaxis", title: L("onboarding.slide3.title"),
+            .init(hero: .progress, title: L("onboarding.slide3.title"),
                   body: L("onboarding.slide3.body"))
         ]
     }
@@ -44,14 +53,7 @@ struct OnboardingView: View {
                     ForEach(Array(slides.enumerated()), id: \.element.id) { i, slide in
                         VStack(spacing: 26) {
                             Spacer()
-                            RoundedRectangle(cornerRadius: 28, style: .continuous)
-                                .fill(CMGradient.auraDiagonal)
-                                .frame(width: 230, height: 230)
-                                .overlay(
-                                    Image(systemName: slide.icon)
-                                        .font(.system(size: 84, weight: .light))
-                                        .foregroundStyle(.white))
-                                .shadow(color: CMColor.violet.opacity(0.25), radius: 30, y: 14)
+                            OnboardingHero(kind: slide.hero, isActive: page == i)
                             VStack(spacing: 12) {
                                 Text(slide.title).font(CMFont.headlineLg).foregroundStyle(CMColor.ink)
                                 Text(slide.body)
