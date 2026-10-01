@@ -45,3 +45,6 @@ backend/.env
 *.key
 *.pem
 service-account*.json
+
+# Brainstorming visual-companion scratch (mockups, server state)
+.superpowers/
