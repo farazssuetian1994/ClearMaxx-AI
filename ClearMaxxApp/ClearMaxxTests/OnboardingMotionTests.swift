@@ -88,6 +88,37 @@ final class OnboardingMotionTests: XCTestCase {
         XCTAssertEqual(try Self.catalog("en")["onboarding.slide1.title"], "Smart Scan")
     }
 
+    // MARK: - Slide 1 · Scan
+
+    func test_scan_eachRingPopsAsTheScanLineReachesIt() {
+        for marker in ScanFrame.markers {
+            XCTAssertEqual(ScanFrame(t: marker.start).scanY, Double(marker.center.y), accuracy: 12,
+                           "\(marker.labelKey) pops out of step with the scan line")
+        }
+    }
+
+    func test_scan_restingFrame_showsEveryProblemRingedAndLabelled() {
+        let frame = ScanFrame(t: ScanFrame.restingT)
+        XCTAssertEqual(frame.scanOpacity, 0, accuracy: 1e-9, "no scan line frozen mid-face")
+        XCTAssertEqual(frame.spotsOpacity, 1, accuracy: 1e-9)
+        for i in ScanFrame.markers.indices {
+            XCTAssertEqual(frame.markerOpacity(i), 1, accuracy: 1e-9)
+            XCTAssertEqual(frame.markerScale(i), 1, accuracy: 1e-9)
+            XCTAssertEqual(frame.labelOpacity(i), 1, accuracy: 1e-9)
+        }
+        XCTAssertEqual(frame.chipOpacity, 0, accuracy: 1e-9)
+    }
+
+    func test_scan_loopSeamIsInvisible() {
+        let end = ScanFrame(t: 0.9999), start = ScanFrame(t: 0)
+        XCTAssertEqual(end.spotsOpacity, start.spotsOpacity, accuracy: 0.01)
+        XCTAssertEqual(end.chipOpacity, 0, accuracy: 0.01)
+        for i in ScanFrame.markers.indices {
+            XCTAssertEqual(end.markerOpacity(i), 0, accuracy: 0.01)
+            XCTAssertEqual(start.markerOpacity(i), 0, accuracy: 1e-9)
+        }
+    }
+
     private static func catalog(_ code: String) throws -> [String: String] {
         let url = try XCTUnwrap(Bundle.main.url(forResource: code, withExtension: "json")
             ?? Bundle.main.url(forResource: code, withExtension: "json", subdirectory: "Locales"),
