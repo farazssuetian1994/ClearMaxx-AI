@@ -1,0 +1,70 @@
+import XCTest
+@testable import ClearMaxx
+
+/// The onboarding motion graphics are pure functions of one loop position `t`.
+/// These pin down the keyframe maths and the story each slide must tell, most
+/// importantly the single frame Reduce Motion users see instead of the loop.
+final class OnboardingMotionTests: XCTestCase {
+
+    // MARK: - MotionTimeline
+
+    func test_progress_wrapsEverySixSeconds() {
+        XCTAssertEqual(MotionTimeline.progress(elapsed: 0), 0)
+        XCTAssertEqual(MotionTimeline.progress(elapsed: 3), 0.5, accuracy: 1e-9)
+        XCTAssertEqual(MotionTimeline.progress(elapsed: 7.5), 0.25, accuracy: 1e-9)
+    }
+
+    func test_progress_treatsAClockReadJustBeforeARestartAsTheLoopStart() {
+        XCTAssertEqual(MotionTimeline.progress(elapsed: -0.2), 0)
+    }
+
+    func test_linear_clampsOutsideItsRange() {
+        XCTAssertEqual(MotionTimeline.linear(0.1, from: 0.2, to: 0.4), 0)
+        XCTAssertEqual(MotionTimeline.linear(0.3, from: 0.2, to: 0.4), 0.5, accuracy: 1e-9)
+        XCTAssertEqual(MotionTimeline.linear(0.9, from: 0.2, to: 0.4), 1)
+    }
+
+    func test_ramp_easesBetweenItsEnds() {
+        XCTAssertEqual(MotionTimeline.ramp(0.2, from: 0.2, to: 0.4), 0)
+        XCTAssertEqual(MotionTimeline.ramp(0.3, from: 0.2, to: 0.4), 0.5, accuracy: 1e-9)
+        XCTAssertEqual(MotionTimeline.ramp(0.4, from: 0.2, to: 0.4), 1)
+        // Eased, not linear: a quarter of the way in, it has moved less than a quarter.
+        XCTAssertLessThan(MotionTimeline.ramp(0.25, from: 0.2, to: 0.4), 0.25)
+    }
+
+    func test_ramp_withAnEmptyRange_isAStep() {
+        XCTAssertEqual(MotionTimeline.ramp(0.49, from: 0.5, to: 0.5), 0)
+        XCTAssertEqual(MotionTimeline.ramp(0.5, from: 0.5, to: 0.5), 1)
+    }
+
+    func test_window_appearsHoldsAndDisappears() {
+        let window = { MotionTimeline.window($0, appear: 0.1...0.2, disappear: 0.8...0.9) }
+        XCTAssertEqual(window(0.05), 0)
+        XCTAssertEqual(window(0.5), 1)
+        XCTAssertEqual(window(0.95), 0)
+    }
+
+    func test_pop_overshootsThenSettlesOnOne() {
+        XCTAssertEqual(MotionTimeline.pop(0.0, from: 0.2, to: 0.4), 0.2, accuracy: 1e-9)
+        XCTAssertEqual(MotionTimeline.pop(0.3, from: 0.2, to: 0.4), 1.3, accuracy: 1e-9)
+        XCTAssertEqual(MotionTimeline.pop(0.5, from: 0.2, to: 0.4), 1, accuracy: 1e-9)
+    }
+
+    func test_easeOutBack_startsAtZero_overshoots_andLandsOnOne() {
+        XCTAssertEqual(MotionTimeline.easeOutBack(0), 0, accuracy: 1e-9)
+        XCTAssertGreaterThan(MotionTimeline.easeOutBack(0.7), 1)
+        XCTAssertEqual(MotionTimeline.easeOutBack(1), 1, accuracy: 1e-9)
+    }
+
+    func test_countUp_countsAcrossItsRange() {
+        XCTAssertEqual(MotionTimeline.countUp(0.0, from: 62, to: 84, over: 0.44...0.76), 62)
+        XCTAssertEqual(MotionTimeline.countUp(0.6, from: 62, to: 84, over: 0.44...0.76), 73)
+        XCTAssertEqual(MotionTimeline.countUp(0.9, from: 62, to: 84, over: 0.44...0.76), 84)
+    }
+
+    func test_subPhase_repeatsEveryPeriodInsideTheLoop() {
+        // 0.325 s is a quarter of a 1.3 s pulse; one full period later it is a quarter again.
+        XCTAssertEqual(MotionTimeline.subPhase(0.325 / 6, period: 1.3), 0.25, accuracy: 1e-9)
+        XCTAssertEqual(MotionTimeline.subPhase(1.625 / 6, period: 1.3), 0.25, accuracy: 1e-9)
+    }
+}
