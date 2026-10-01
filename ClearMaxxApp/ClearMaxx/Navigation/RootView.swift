@@ -21,6 +21,9 @@ struct RootView: View {
             case .quiz:
                 SkinQuizView()
                     .transition(.move(edge: .trailing).combined(with: .opacity))
+            case .paywall:
+                GoPremiumView(hardGate: true)
+                    .transition(.move(edge: .trailing).combined(with: .opacity))
             case .main:
                 MainTabView()
                     .transition(.opacity)

@@ -11,7 +11,10 @@
 		463A23E439C0032A82932CD9 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 4115F57C3210E5E10F50258F /* RevenueCat */; };
 		4CBEAE57E42E66246B7A41CB /* ProgressReportCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019C465D5024AD746C5B1782 /* ProgressReportCacheTests.swift */; };
 		812D998162049F66C0C9A5BA /* SeverityRankTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA10DE6D801CEC5A88936F93 /* SeverityRankTests.swift */; };
+		9FEF76046A553ED6838299D1 /* OnboardingGateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3253DB7A7F2A4C5EE88EFA20 /* OnboardingGateTests.swift */; };
+		A1C0FFEE00000000000000A1 /* PurchaseOutcomeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE00000000000000A2 /* PurchaseOutcomeTests.swift */; };
 		EF7B4A41774BD00DBCDDAD7D /* ClearMaxxTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC9039F2009AF4EA6BB983DA /* ClearMaxxTests.swift */; };
+		F0A5E512F5EE0A9D588F07C7 /* PaywallPricingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 106B2DC5D6CD3D937B41659D /* PaywallPricingTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -26,6 +29,9 @@
 
 /* Begin PBXFileReference section */
 		019C465D5024AD746C5B1782 /* ProgressReportCacheTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProgressReportCacheTests.swift; sourceTree = "<group>"; };
+		106B2DC5D6CD3D937B41659D /* PaywallPricingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PaywallPricingTests.swift; sourceTree = "<group>"; };
+		3253DB7A7F2A4C5EE88EFA20 /* OnboardingGateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnboardingGateTests.swift; sourceTree = "<group>"; };
+		A1C0FFEE00000000000000A2 /* PurchaseOutcomeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PurchaseOutcomeTests.swift; sourceTree = "<group>"; };
 		A1A7EC54917B10DE6DB576E3 /* ProgressTrendCalculatorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProgressTrendCalculatorTests.swift; sourceTree = "<group>"; };
 		AA0000000000000000000006 /* ClearMaxx.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClearMaxx.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AC9039F2009AF4EA6BB983DA /* ClearMaxxTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ClearMaxxTests.swift; sourceTree = "<group>"; };
@@ -34,17 +40,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		AA0000000000000000000004 /* ClearMaxx */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			path = ClearMaxx;
-			sourceTree = "<group>";
-		};
+		AA0000000000000000000004 /* ClearMaxx */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = ClearMaxx; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,12 +99,14 @@
 		C6F69F3B790A88FF88DA3378 /* ClearMaxxTests */ = {
 			isa = PBXGroup;
 			children = (
+				3253DB7A7F2A4C5EE88EFA20 /* OnboardingGateTests.swift */,
+				A1C0FFEE00000000000000A2 /* PurchaseOutcomeTests.swift */,
+				106B2DC5D6CD3D937B41659D /* PaywallPricingTests.swift */,
 				AC9039F2009AF4EA6BB983DA /* ClearMaxxTests.swift */,
 				CA10DE6D801CEC5A88936F93 /* SeverityRankTests.swift */,
 				A1A7EC54917B10DE6DB576E3 /* ProgressTrendCalculatorTests.swift */,
 				019C465D5024AD746C5B1782 /* ProgressReportCacheTests.swift */,
 			);
-			name = ClearMaxxTests;
 			path = ClearMaxxTests;
 			sourceTree = "<group>";
 		};
@@ -227,6 +225,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9FEF76046A553ED6838299D1 /* OnboardingGateTests.swift in Sources */,
+				A1C0FFEE00000000000000A1 /* PurchaseOutcomeTests.swift in Sources */,
+				F0A5E512F5EE0A9D588F07C7 /* PaywallPricingTests.swift in Sources */,
 				EF7B4A41774BD00DBCDDAD7D /* ClearMaxxTests.swift in Sources */,
 				812D998162049F66C0C9A5BA /* SeverityRankTests.swift in Sources */,
 				153271D41D5AFFFD7760D185 /* ProgressTrendCalculatorTests.swift in Sources */,
@@ -326,11 +327,12 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = SCV2SW7LTX;
 				EMIT_FRONTEND_COMMAND_LINES = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSCameraUsageDescription = "ClearMaxx uses the camera to scan and analyze your skin.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Save your glow-up photos to your library.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -352,7 +354,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -362,10 +364,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = SCV2SW7LTX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSCameraUsageDescription = "ClearMaxx uses the camera to scan and analyze your skin.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Save your glow-up photos to your library.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -382,7 +385,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

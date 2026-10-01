@@ -65,7 +65,14 @@ struct SplashView: View {
             withAnimation(.linear(duration: 2.0)) { loadProgress = 1 }
             Task {
                 try? await Task.sleep(for: .seconds(2.2))
-                state.stage = state.hasCompletedOnboarding ? .main : .onboarding
+                // Returning users never repeat the funnel. They still meet the
+                // gate unless they're subscribed — and `refreshPremiumStatus()`
+                // releases them to `.main` the moment an entitlement resolves.
+                if !state.hasCompletedOnboarding {
+                    state.stage = .onboarding
+                } else {
+                    state.stage = state.isPremium ? .main : .paywall
+                }
             }
         }
     }

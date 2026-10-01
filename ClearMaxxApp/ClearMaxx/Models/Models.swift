@@ -40,11 +40,43 @@ struct DiaryEntry: Identifiable, Hashable {
 
 @MainActor
 final class AppState: ObservableObject {
-    enum Stage { case splash, onboarding, quiz, main }
+    /// splash -> onboarding -> quiz -> paywall -> main.
+    /// `paywall` is a hard gate: the quiz builds intent, then the paywall stands
+    /// between the user and the app. Only a purchase, a successful restore, or an
+    /// already-active entitlement moves past it.
+    enum Stage { case splash, onboarding, quiz, paywall, main }
     @Published var stage: Stage = .splash
-    @Published var hasCompletedOnboarding = false
+    /// Persisted, so the onboarding + quiz funnel runs exactly once. Without
+    /// this every launch replayed the whole funnel — tolerable before, but with
+    /// the paywall gate behind it a returning user would be re-quizzed and
+    /// re-gated on every single launch.
+    private static let onboardingKey = "cm_completed_onboarding"
+    @Published var hasCompletedOnboarding = UserDefaults.standard.bool(forKey: AppState.onboardingKey) {
+        didSet { UserDefaults.standard.set(hasCompletedOnboarding, forKey: Self.onboardingKey) }
+    }
+    #if DEBUG
+    /// Defaults to ON — the hard paywall is skipped unless a developer opts
+    /// back into seeing it. Defaulting on (rather than off-until-enabled) is
+    /// what makes this work the same on a physical device as on the
+    /// simulator: `simctl spawn ... defaults write` has no equivalent for
+    /// real hardware, so "on unless explicitly turned off" is the only form
+    /// of this toggle usable from both. To see the real gate again:
+    ///   xcrun simctl spawn <device> defaults write com.clearmaxx.app cm_debug_skip_paywall -bool false
+    static var debugSkipPaywall: Bool {
+        (UserDefaults.standard.object(forKey: "cm_debug_skip_paywall") as? Bool) ?? true
+    }
+    #endif
+
     @Published var clearScore = 84
-    @Published var isPremium = false
+    @Published var isPremium: Bool = {
+        #if DEBUG
+        // Read synchronously so a relaunch is never in a race with the async
+        // RevenueCat lookup in `refreshPremiumStatus()` — SplashView's stage
+        // decision reads `isPremium` immediately, before that call resolves.
+        if AppState.debugSkipPaywall { return true }
+        #endif
+        return false
+    }()
 
     // MARK: Live AI analysis (nil until a real scan completes)
     @Published var analysis: SkinAnalysis?
@@ -171,8 +203,17 @@ final class AppState: ObservableObject {
     }
 
     /// Syncs `isPremium` with RevenueCat on launch (e.g. restored subscription from a prior install).
+    /// A subscriber who reinstalls must never be trapped behind the hard paywall,
+    /// so an active entitlement releases the gate as soon as we learn about it.
     func refreshPremiumStatus() async {
         isPremium = await PurchaseService.shared.refreshEntitlement()
+        #if DEBUG
+        // Dev-only escape hatch, on by default — see `debugSkipPaywall` above.
+        // Compiled out of Release, so it can never reach TestFlight, App
+        // Review, or a real user.
+        if AppState.debugSkipPaywall { isPremium = true }
+        #endif
+        if isPremium && stage == .paywall { stage = .main }
     }
 
     // Demo analysis results — shown only when a real scan hasn't landed yet

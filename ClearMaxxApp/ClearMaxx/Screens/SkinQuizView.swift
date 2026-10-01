@@ -15,7 +15,32 @@ struct SkinQuizView: View {
     @State private var goal: String?
     @State private var concerns: Set<String> = []
 
+    /// Answering the last question doesn't drop the user straight into the app:
+    /// it plays a short "building your profile" beat, then shows what we read
+    /// back from their answers, and only then hands off to the paywall. The
+    /// pause is what makes the plan feel earned rather than generic.
+    private enum Phase { case questions, building, result }
+    @State private var phase: Phase = .questions
+    @State private var buildStep = 0
+
+    private var buildSteps: [String] {
+        [L("quiz.building.step1"), L("quiz.building.step2"), L("quiz.building.step3")]
+    }
+
     var body: some View {
+        Group {
+            switch phase {
+            case .questions: questionsView
+            case .building:  buildingView
+            case .result:    resultView
+            }
+        }
+        .animation(.easeInOut(duration: 0.35), value: phase)
+    }
+
+    // MARK: - Questions
+
+    private var questionsView: some View {
         DewyBackground {
             VStack(alignment: .leading, spacing: 0) {
                 CMTopBar(showBack: true, onBack: back)
@@ -112,14 +137,154 @@ struct SkinQuizView: View {
     }
     private func next() {
         if step < totalSteps { withAnimation { step += 1 } }
-        else {
-            SkinProfileStore.save(SkinProfile(skinType: skinType, goal: goal, concerns: Array(concerns)))
-            state.stage = .main   // first scan happens on the Scan tab
+        else { runBuilding() }
+    }
+
+    /// Persists the answers, then ticks the checklist before revealing the result.
+    private func runBuilding() {
+        SkinProfileStore.save(SkinProfile(skinType: skinType, goal: goal, concerns: Array(concerns)))
+        state.hasCompletedOnboarding = true
+        phase = .building
+        Task { @MainActor in
+            for i in 0..<buildSteps.count {
+                try? await Task.sleep(for: .milliseconds(650))
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) { buildStep = i + 1 }
+            }
+            try? await Task.sleep(for: .milliseconds(450))
+            phase = .result
         }
     }
     private func back() {
         if step > 1 { withAnimation { step -= 1 } }
         else { state.stage = .onboarding }
+    }
+}
+
+// MARK: - Building / Result phases
+
+extension SkinQuizView {
+
+    fileprivate var buildingView: some View {
+        DewyBackground {
+            VStack(spacing: 26) {
+                Spacer()
+                ZStack {
+                    Circle().fill(CMColor.primary.opacity(0.12)).frame(width: 108, height: 108)
+                    Circle().fill(CMGradient.auraDiagonal).frame(width: 84, height: 84)
+                        .overlay(Image(systemName: "sparkles")
+                            .font(.system(size: 34, weight: .semibold)).foregroundStyle(.white))
+                        .shadow(color: CMColor.primary.opacity(0.35), radius: 18, y: 8)
+                }
+
+                Text(L("quiz.building.title"))
+                    .font(CMFont.headlineLg).foregroundStyle(CMColor.ink)
+                    .multilineTextAlignment(.center)
+
+                VStack(alignment: .leading, spacing: 16) {
+                    ForEach(Array(buildSteps.enumerated()), id: \.offset) { i, title in
+                        let done = buildStep > i
+                        HStack(spacing: 12) {
+                            ZStack {
+                                Circle().fill(done ? CMColor.primary : CMColor.cardSoft)
+                                    .frame(width: 26, height: 26)
+                                if done {
+                                    Image(systemName: "checkmark")
+                                        .font(.system(size: 12, weight: .bold)).foregroundStyle(.white)
+                                } else {
+                                    ProgressView().scaleEffect(0.6)
+                                }
+                            }
+                            Text(title)
+                                .font(CMFont.bodyMd)
+                                .foregroundStyle(done ? CMColor.ink : CMColor.inkSoft)
+                            Spacer(minLength: 0)
+                        }
+                    }
+                }
+                .padding(22)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(.white.opacity(0.75), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+                .padding(.horizontal, 24)
+
+                Spacer(); Spacer()
+            }
+            .padding(.horizontal, 24)
+        }
+    }
+
+    fileprivate var resultView: some View {
+        DewyBackground {
+            ScrollView {
+                VStack(spacing: 18) {
+                    ZStack {
+                        Circle().fill(CMGradient.auraDiagonal).frame(width: 92, height: 92)
+                            .overlay(Image(systemName: "checkmark")
+                                .font(.system(size: 40, weight: .bold)).foregroundStyle(.white))
+                            .shadow(color: CMColor.primary.opacity(0.35), radius: 20, y: 10)
+                    }
+                    .padding(.top, 24)
+
+                    TagChip(text: L("quiz.result.badge"), tint: CMColor.violetDeep, filled: true)
+
+                    Text(L("quiz.result.title"))
+                        .font(CMFont.headlineLg).foregroundStyle(CMColor.ink)
+                        .multilineTextAlignment(.center)
+
+                    Text(L("quiz.result.summary"))
+                        .font(CMFont.bodyMd).foregroundStyle(CMColor.inkSoft)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 8)
+
+                    // Reads their own answers back to them, so the plan feels specific.
+                    GlassCard {
+                        VStack(alignment: .leading, spacing: 14) {
+                            resultRow(icon: "drop.fill",
+                                      label: L("quiz.result.rowSkinType"),
+                                      value: skinType.map(CMTerms.skinType) ?? "—")
+                            Divider().overlay(CMColor.outline.opacity(0.25))
+                            resultRow(icon: "target",
+                                      label: L("quiz.result.rowGoal"),
+                                      value: goal.map(CMTerms.goal) ?? "—")
+                            Divider().overlay(CMColor.outline.opacity(0.25))
+                            resultRow(icon: "list.bullet",
+                                      label: L("quiz.result.rowFocus"),
+                                      value: concerns.isEmpty
+                                          ? L("quiz.result.focusNone")
+                                          : concerns.sorted().map(CMTerms.concern).joined(separator: ", "))
+                        }
+                    }
+                    .padding(.horizontal, 24)
+
+                    AuraButton(title: L("quiz.result.cta"), systemImage: "arrow.right") {
+                        // Same debug-only escape hatch as refreshPremiumStatus(): this
+                        // is the actual moment the hard gate fires within a single
+                        // session, before any relaunch — so the bypass has to be
+                        // checked here too, not just at launch.
+                        state.stage = state.isPremium ? .main : .paywall
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.top, 4)
+                    .padding(.bottom, 34)
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+    }
+
+    private func resultRow(icon: String, label: String, value: String) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            ZStack {
+                Circle().fill(CMColor.violet.opacity(0.12)).frame(width: 34, height: 34)
+                Image(systemName: icon).font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(CMColor.violetDeep)
+            }
+            VStack(alignment: .leading, spacing: 2) {
+                Text(label).font(CMFont.labelSm).foregroundStyle(CMColor.inkSoft)
+                Text(value).font(CMFont.title).foregroundStyle(CMColor.ink)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 0)
+        }
     }
 }
 
