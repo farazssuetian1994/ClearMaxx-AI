@@ -9,15 +9,34 @@ import XCTest
 final class OnboardingGateTests: XCTestCase {
 
     private let key = "cm_completed_onboarding"
+    private let skipPaywallKey = "cm_debug_skip_paywall"
 
     override func setUp() {
         super.setUp()
         UserDefaults.standard.removeObject(forKey: key)
+        UserDefaults.standard.removeObject(forKey: skipPaywallKey)
     }
 
     override func tearDown() {
         UserDefaults.standard.removeObject(forKey: key)
+        UserDefaults.standard.removeObject(forKey: skipPaywallKey)
         super.tearDown()
+    }
+
+    /// A Debug build has to meet the paywall exactly as a real user does.
+    /// Skipping it by default hid the paywall from everyone running the app
+    /// from Xcode, which made it look as if it never showed.
+    func test_aFreshDebugInstall_isNotPremium_soThePaywallShows() {
+        XCTAssertFalse(AppState.debugSkipPaywall)
+        XCTAssertFalse(AppState().isPremium)
+    }
+
+    /// The developer opt-out is set as a scheme launch argument
+    /// (`-cm_debug_skip_paywall YES`), which arrives as the string "YES".
+    func test_theDeveloperOptOut_acceptsALaunchArgumentValue() {
+        UserDefaults.standard.set("YES", forKey: skipPaywallKey)
+        XCTAssertTrue(AppState.debugSkipPaywall)
+        XCTAssertTrue(AppState().isPremium)
     }
 
     func test_defaultsToNotCompleted_onAFreshInstall() {

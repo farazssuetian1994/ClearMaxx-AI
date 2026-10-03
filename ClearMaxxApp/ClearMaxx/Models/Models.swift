@@ -55,15 +55,16 @@ final class AppState: ObservableObject {
         didSet { UserDefaults.standard.set(hasCompletedOnboarding, forKey: Self.onboardingKey) }
     }
     #if DEBUG
-    /// Defaults to ON — the hard paywall is skipped unless a developer opts
-    /// back into seeing it. Defaulting on (rather than off-until-enabled) is
-    /// what makes this work the same on a physical device as on the
-    /// simulator: `simctl spawn ... defaults write` has no equivalent for
-    /// real hardware, so "on unless explicitly turned off" is the only form
-    /// of this toggle usable from both. To see the real gate again:
-    ///   xcrun simctl spawn <device> defaults write com.clearmaxx.app cm_debug_skip_paywall -bool false
+    /// Off by default, so a Debug build meets the paywall exactly as a real
+    /// user does. (On by default, it hid the paywall from every build run
+    /// from Xcode.) A developer who wants to skip it opts in with a launch
+    /// argument in the Xcode scheme, which works on the simulator and on a
+    /// device alike (Product → Scheme → Edit Scheme → Run → Arguments):
+    ///   -cm_debug_skip_paywall YES
     static var debugSkipPaywall: Bool {
-        (UserDefaults.standard.object(forKey: "cm_debug_skip_paywall") as? Bool) ?? true
+        // `bool(forKey:)`, not `as? Bool`: a launch argument arrives as the
+        // string "YES", which `as? Bool` silently ignores.
+        UserDefaults.standard.bool(forKey: "cm_debug_skip_paywall")
     }
     #endif
 
@@ -208,7 +209,7 @@ final class AppState: ObservableObject {
     func refreshPremiumStatus() async {
         isPremium = await PurchaseService.shared.refreshEntitlement()
         #if DEBUG
-        // Dev-only escape hatch, on by default — see `debugSkipPaywall` above.
+        // Dev-only escape hatch, off unless opted in — see `debugSkipPaywall` above.
         // Compiled out of Release, so it can never reach TestFlight, App
         // Review, or a real user.
         if AppState.debugSkipPaywall { isPremium = true }
