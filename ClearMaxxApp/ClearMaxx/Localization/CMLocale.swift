@@ -4,9 +4,9 @@
 //
 //  Mirrors the ChartSense i18n model, adapted to SwiftUI:
 //    * flat `key -> string` JSON catalogs, one per language, bundled as resources
-//    * device-language auto-detection on first launch (a user in France opens the
-//      app already in French), persisted so it stays put afterwards
-//    * an explicit in-app override from Profile → Language
+//    * follows the device language on every launch (a user in France opens the
+//      app already in French); nothing is saved for an auto-detected language
+//    * an explicit in-app override from Profile → Language, which is saved
 //    * English is always loaded as the fallback catalog, so a key missing from a
 //      translation renders in English rather than as a raw key.
 //
@@ -59,18 +59,30 @@ enum CMLanguages {
 final class CMLocale: ObservableObject, @unchecked Sendable {
     static let shared = CMLocale()
 
-    private static let storageKey = "cm_language"
+    /// Holds only a language the user explicitly picked in Profile → Language.
+    private static let overrideKey = "cm_language_override"
+    /// Older builds saved the auto-detected language here too, which pinned the
+    /// app to whatever the device was set to on first launch. A value in it
+    /// can't be told apart from a real choice, so it's discarded.
+    private static let legacyKey = "cm_language"
 
     @Published private(set) var language: String
+
+    private let defaults: UserDefaults
+    /// iOS relaunches the app when the device language changes, so this can't
+    /// go stale while the app is running.
+    private let deviceCode: String
 
     private var strings: [String: String] = [:]
     private var fallback: [String: String] = [:]
 
-    private init() {
-        let saved = UserDefaults.standard.string(forKey: Self.storageKey)
-        let code = (saved.flatMap { CMLanguages.codes.contains($0) ? $0 : nil }) ?? Self.deviceLanguage()
+    init(defaults: UserDefaults = .standard, preferredLanguages: [String] = Locale.preferredLanguages) {
+        self.defaults = defaults
+        defaults.removeObject(forKey: Self.legacyKey)
+        deviceCode = Self.deviceLanguage(from: preferredLanguages)
+        let saved = defaults.string(forKey: Self.overrideKey)
+        let code = (saved.flatMap { CMLanguages.codes.contains($0) ? $0 : nil }) ?? deviceCode
         language = code
-        UserDefaults.standard.set(code, forKey: Self.storageKey)
         fallback = Self.loadCatalog("en")
         strings = code == "en" ? fallback : Self.loadCatalog(code)
     }
@@ -78,8 +90,8 @@ final class CMLocale: ObservableObject, @unchecked Sendable {
     /// The language this device is set to, collapsed onto a supported code.
     /// `zh-Hans-CN` → `zh`, `pt-BR` → `pt`, `es-419` → `es`, anything we don't
     /// ship → English.
-    static func deviceLanguage() -> String {
-        for identifier in Locale.preferredLanguages {
+    static func deviceLanguage(from preferredLanguages: [String] = Locale.preferredLanguages) -> String {
+        for identifier in preferredLanguages {
             let base = identifier.split(separator: "-").first.map(String.init)?.lowercased()
             if let base, CMLanguages.codes.contains(base) { return base }
         }
@@ -104,7 +116,13 @@ final class CMLocale: ObservableObject, @unchecked Sendable {
     func setLanguage(_ code: String) {
         guard CMLanguages.codes.contains(code), code != language else { return }
         strings = code == "en" ? fallback : Self.loadCatalog(code)
-        UserDefaults.standard.set(code, forKey: Self.storageKey)
+        // Picking the device's own language means "follow the device" again,
+        // so a later change to the phone's language still carries through.
+        if code == deviceCode {
+            defaults.removeObject(forKey: Self.overrideKey)
+        } else {
+            defaults.set(code, forKey: Self.overrideKey)
+        }
         language = code
     }
 
